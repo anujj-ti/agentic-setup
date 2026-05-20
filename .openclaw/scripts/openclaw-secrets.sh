@@ -27,3 +27,6 @@ export OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN="$(security find-generic-password -s 
 # To set: security add-generic-password -s openclaw.anuj-chat-id -a trilogy -w <YOUR_CHAT_ID>
 # Get your chat ID: send a DM to your bot and run: openclaw logs --follow | grep chat_id
 export OPENCLAW_ANUJ_CHAT_ID="$(security find-generic-password -s 'openclaw.anuj-chat-id' -a trilogy -w 2>/dev/null || true)"
+
+# Notion integration token — Phase 9 (D-92)
+export OPENCLAW_NOTION_TOKEN=$(security find-generic-password -s openclaw.notion-token -w 2>/dev/null || echo "")

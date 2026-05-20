@@ -1,0 +1,5 @@
+{
+  "_instructions": "Copy IDs from Notion page URLs. The ID is the string of characters after the last slash in the URL, without hyphens. This file is committed to git — it contains no secrets.",
+  "NOTION_DECISIONS_DB_ID": "TODO_SET_THIS",
+  "NOTION_EXPERIMENTS_PAGE_ID": "TODO_SET_THIS"
+}

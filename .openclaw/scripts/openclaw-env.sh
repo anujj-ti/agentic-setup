@@ -26,3 +26,6 @@ export OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN="$(security find-generic-password -s 
 
 # Telegram chat ID for CI Monitor alerts — Phase 8 (D-84)
 export OPENCLAW_ANUJ_CHAT_ID="${OPENCLAW_ANUJ_CHAT_ID:-}"
+
+# Notion integration token — Phase 9 (D-92)
+export OPENCLAW_NOTION_TOKEN=$(security find-generic-password -s openclaw.notion-token -w 2>/dev/null || echo "")
