@@ -46,6 +46,19 @@ Priority actions for the next session.
 - Daily distillation (`YYYY-MM-DD-DISTILLED.md`): max 2,500 tokens (approximately 1,875 words).
 - 3-day rolling `MEMORY-DIGEST.md`: max 7,500 tokens (approximately 5,625 words).
 
+## Pattern Counter Preservation (EVOL-02 — MANDATORY)
+
+The ## Pattern Counter section in MEMORY.md MUST be preserved verbatim during every distillation run.
+- Do NOT summarize this section
+- Do NOT compress the table rows
+- Do NOT omit any row even if the count is 1
+- Copy the entire section — from `## Pattern Counter` through `<!-- END: pattern_counter -->` — into the distilled MEMORY.md output unchanged
+- This section is protected by the `<!-- PRESERVE: pattern_counter -->` marker
+
+**If the dream routine token budget would be exceeded by preserving this section: compress OTHER sections first. The Pattern Counter is the last section to be compressed.**
+
+Preservation rule in code terms: when generating the distilled MEMORY.md output, always include the Pattern Counter section exactly as-is. Do NOT subject it to the distillation logic.
+
 ## Delivery
 
 This agent has no Telegram channel binding. The nightly cron job uses `delivery.mode = "silent"` — no channel notification is sent. Completion is logged internally only.
