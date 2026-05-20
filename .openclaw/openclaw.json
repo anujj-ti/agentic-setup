@@ -16,13 +16,20 @@
         "name": "User Orchestrator",
         "workspace": "/Users/trilogy/.openclaw/workspace-user-orchestrator",
         "agentDir": "/Users/trilogy/.openclaw/agents/user-orchestrator",
-        "model": {"primary": "anthropic/claude-sonnet-4-6"},
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        },
         "subagents": {
-          "allowAgents": ["task-orchestrator"],
+          "allowAgents": [
+            "task-orchestrator"
+          ],
           "delegationMode": "prefer"
         },
         "tools": {
-          "alsoAllow": ["sessions_spawn", "sessions_yield"]
+          "alsoAllow": [
+            "sessions_spawn",
+            "sessions_yield"
+          ]
         }
       },
       {
@@ -30,7 +37,9 @@
         "name": "Task Orchestrator",
         "workspace": "/Users/trilogy/.openclaw/workspace-task-orchestrator",
         "agentDir": "/Users/trilogy/.openclaw/agents/task-orchestrator",
-        "model": {"primary": "anthropic/claude-sonnet-4-6"},
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        },
         "subagents": {
           "delegationMode": "prefer"
         }
@@ -65,7 +74,7 @@
   ],
   "meta": {
     "lastTouchedVersion": "2026.5.18",
-    "lastTouchedAt": "2026-05-21T01:50:00.000Z"
+    "lastTouchedAt": "2026-05-20T20:55:20.000Z"
   },
   "skills": {
     "entries": {
@@ -196,5 +205,31 @@
     "lastRunVersion": "2026.5.18",
     "lastRunCommand": "doctor",
     "lastRunMode": "local"
+  },
+  "memory": {
+    "qmd": {
+      "paths": [
+        {
+          "path": "/Users/trilogy/.openclaw/agents/user-orchestrator/memory",
+          "name": "user-orchestrator-memory",
+          "pattern": "**/*.md"
+        },
+        {
+          "path": "/Users/trilogy/.openclaw/agents/user-orchestrator",
+          "name": "user-orchestrator-docs",
+          "pattern": "*.md"
+        },
+        {
+          "path": "/Users/trilogy/.openclaw/agents/task-orchestrator/memory",
+          "name": "task-orchestrator-memory",
+          "pattern": "**/*.md"
+        },
+        {
+          "path": "/Users/trilogy/.openclaw/agents/task-orchestrator",
+          "name": "task-orchestrator-docs",
+          "pattern": "*.md"
+        }
+      ]
+    }
   }
 }

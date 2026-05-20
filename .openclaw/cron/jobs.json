@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "c3a1c16f-0603-4bc7-a992-50acedf34c00",
+      "agentId": "user-orchestrator",
+      "name": "User Orchestrator Dream Routine",
+      "enabled": true,
+      "createdAtMs": 1779310506343,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 23 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run your nightly dream routine. Read DREAM-ROUTINE.md and follow the process exactly. Read today's daily log from memory/, distill it, update the rolling digest, and archive old distillations.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "last"
+      }
+    },
+    {
+      "id": "94f6f5b1-a16a-43e5-be18-437a850ced11",
+      "agentId": "task-orchestrator",
+      "name": "Task Orchestrator Dream Routine",
+      "enabled": true,
+      "createdAtMs": 1779310506343,
+      "schedule": {
+        "kind": "cron",
+        "expr": "5 23 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run your nightly dream routine. Read DREAM-ROUTINE.md and follow the process exactly. Read today's daily log from memory/, distill it, update the rolling digest, and archive old distillations.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "silent"
+      }
+    }
+  ]
+}
