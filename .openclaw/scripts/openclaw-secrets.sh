@@ -17,3 +17,8 @@ export OPENCLAW_TELEGRAM_MAIN_BOT_TOKEN=$(security find-generic-password -s 'ope
 
 # Beads shared task graph database — Phase 4 (D-50, D-54)
 export BEADS_DIR="$HOME/.openclaw/beads"
+
+# Gmail OAuth2 credentials for Email Triage agent — Phase 6 (D-63)
+export OPENCLAW_GMAIL_CLIENT_ID="$(security find-generic-password -s 'openclaw.gmail-client-id' -w 2>/dev/null || true)"
+export OPENCLAW_GMAIL_CLIENT_SECRET="$(security find-generic-password -s 'openclaw.gmail-client-secret' -w 2>/dev/null || true)"
+export OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN="$(security find-generic-password -s 'openclaw.gmail-triage-refresh-token' -w 2>/dev/null || true)"

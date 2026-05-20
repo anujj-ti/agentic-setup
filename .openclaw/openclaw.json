@@ -43,6 +43,20 @@
         "subagents": {
           "delegationMode": "prefer"
         }
+      },
+      {
+        "id": "email-triage",
+        "name": "Email Triage Agent",
+        "workspace": "/Users/trilogy/.openclaw/workspace-email-triage",
+        "agentDir": "/Users/trilogy/.openclaw/agents/email-triage",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        },
+        "tools": {
+          "alsoAllow": [
+            "exec"
+          ]
+        }
       }
     ]
   },

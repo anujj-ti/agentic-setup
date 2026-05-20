@@ -12,6 +12,10 @@ SECRETS=(
   # "openclaw.example-token|OPENCLAW_EXAMPLE_TOKEN|Example secret (replace with real entries)"
   "openclaw.test-secret|OPENCLAW_TEST_SECRET|Phase 1 INFRA-03 verification secret — safe to delete"
   "openclaw.telegram-main-bot-token|OPENCLAW_TELEGRAM_MAIN_BOT_TOKEN|Telegram bot token for @echo_sys_bot (main agent)"
+  # Gmail OAuth2 credentials — Phase 6 (D-63)
+  "openclaw.gmail-client-id|OPENCLAW_GMAIL_CLIENT_ID|Gmail OAuth2 Desktop App Client ID for echo.sys.bot@gmail.com"
+  "openclaw.gmail-client-secret|OPENCLAW_GMAIL_CLIENT_SECRET|Gmail OAuth2 Desktop App Client Secret for echo.sys.bot@gmail.com"
+  "openclaw.gmail-triage-refresh-token|OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN|Gmail API refresh token for email-triage agent (generate via oauth2-setup.js)"
 )
 
 for entry in "${SECRETS[@]}"; do
