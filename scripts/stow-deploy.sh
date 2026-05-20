@@ -11,6 +11,13 @@ REPO_DIR="${REPO_DIR:-$HOME/Documents/agentic-setup}"
 
 print "Deploying .openclaw/ via stow..." >&2
 
+# WR-03: Ensure target directory exists before stow
+if [[ ! -d "$HOME/.openclaw" ]]; then
+  print "ERROR: ~/.openclaw/ does not exist — install OpenClaw first (openclaw daemon install)" >&2
+  print '{"ok":false,"error":"openclaw_not_installed"}'
+  exit 1
+fi
+
 # D-09: Resolve known stow conflict — gateway recreates jobs.json on every startup,
 # converting the stow symlink into a plain file. Remove before every stow invocation.
 rm -f "$HOME/.openclaw/cron/jobs.json"

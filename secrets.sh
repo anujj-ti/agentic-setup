@@ -23,6 +23,7 @@ for entry in "${SECRETS[@]}"; do
   security add-generic-password \
     -s "${service}" \
     -a "$USER" \
+    -U \
     -w  # prompts securely — value is never echoed or stored in this file
 done
 

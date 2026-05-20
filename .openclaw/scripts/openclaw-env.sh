@@ -10,4 +10,4 @@
 # export PATH="/usr/local/opt/node@24/bin:$PATH"      # Intel — appended by install-prereqs.sh if needed
 
 # Secrets appended below by /openclaw-add-secret:
-export OPENCLAW_TEST_SECRET="$(security find-generic-password -s 'openclaw.test-secret' -w)"
+export OPENCLAW_TEST_SECRET="$(security find-generic-password -s 'openclaw.test-secret' -w 2>/dev/null || true)"

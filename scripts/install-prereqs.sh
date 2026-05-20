@@ -44,7 +44,7 @@ print "node@24 active: ${node_version}" >&2
 # Only appends if file exists AND doesn't already contain the node@24 pin
 SECRETS_SH="$HOME/Documents/agentic-setup/.openclaw/scripts/openclaw-secrets.sh"
 if [[ -f "$SECRETS_SH" ]]; then
-  if ! grep -q "node@24" "$SECRETS_SH"; then
+  if ! grep -q "^export PATH.*node@24" "$SECRETS_SH"; then
     print "export PATH=\"${NODE24_BIN}:\$PATH\"" >> "$SECRETS_SH"
     print "Pinned node@24 PATH in openclaw-secrets.sh (launchd)" >&2
   else
@@ -58,7 +58,7 @@ fi
 # Per D-13: BOTH files must have the node@24 pin so launchd AND interactive shells both see Node 24
 ENV_SH="$HOME/Documents/agentic-setup/.openclaw/scripts/openclaw-env.sh"
 if [[ -f "$ENV_SH" ]]; then
-  if ! grep -q "node@24" "$ENV_SH"; then
+  if ! grep -q "^export PATH.*node@24" "$ENV_SH"; then
     print "export PATH=\"${NODE24_BIN}:\$PATH\"" >> "$ENV_SH"
     print "Pinned node@24 PATH in openclaw-env.sh (shell sessions)" >&2
   else

@@ -47,7 +47,7 @@ check "launchagent plist present" \
 
 # INFRA-02: All 9 cc-openclaw skills present
 check "9 cc-openclaw skills in .claude/skills/" \
-  bash -c 'ls "$HOME/Documents/agentic-setup/.claude/skills/" | wc -l | grep -q "9"'
+  bash -c '[ "$(ls "$HOME/Documents/agentic-setup/.claude/skills/" | grep -c "^openclaw-")" -eq 9 ]'
 
 # INFRA-02: Skills are stow-managed (SKILL.md inside skill dir is a symlink)
 # NOTE: With stow --no-folding, individual skill DIRECTORIES are real directories
