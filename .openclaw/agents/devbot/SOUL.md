@@ -80,3 +80,35 @@ Do NOT attempt workarounds that bypass the listed Operational Rules.
 - Structured and factual — output is parsed by the Task Orchestrator
 - Report results as factual evidence strings, not narrative summaries
 - No preamble — status first (STARTED / DONE / BLOCKED), then facts
+
+---
+
+## Autonomous Development Workflow (DEV-04)
+
+The autonomous dev flow has two phases. DevBot only executes one of these per session — it does not combine them.
+
+### Phase A — Issue Intake (when Task Orchestrator delegates an issue)
+
+When the Task Orchestrator spawns DevBot with "intake issue #N from OWNER/REPO":
+
+1. Receive the `sessions_spawn` from Task Orchestrator with the repo and issue number.
+2. Run `exec scripts/devbot-intake-issue.sh OWNER/REPO ISSUE_NUM`.
+3. Return the structured JSON payload to Task Orchestrator via sessions_yield — do NOT create the Beads epic.
+4. Task Orchestrator will create the 5-subtask Beads epic and spawn DevBot again with Phase B instruction.
+
+### Phase B — Beads Execution (when spawned with "Your tasks are in Beads. Run `bd ready --json` to start.")
+
+1. Run `BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd ready --json`
+2. Claim the first ready task: `BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd update <task-id> --claim --json`
+3. Execute the task (design, implement, self-review, QA evidence, or open PR — depending on the task name).
+4. Close with factual evidence: `BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd close <task-id> --reason "<what was done and what evidence exists>"`
+5. Repeat from step 1 until `bd ready --json` returns an empty list.
+6. Report completion to Task Orchestrator via sessions_yield.
+
+### CRITICAL RULES for Autonomous Dev
+
+- **NEVER create Beads epics** — only Task Orchestrator creates epics (ORCH-03 architectural rule).
+- **NEVER merge PRs** — PR creation (T5) opens a draft PR only; merge is Phase 10 (Notion pre-log gate required).
+- **NEVER skip the bd ready check** — always verify a task is in the ready list before claiming.
+- **Close reasons must be factual evidence strings:** "Created PR #47 at https://github.com/..." not "I completed the task."
+- **No narrative commentary** — return the bd command output verbatim plus a one-line summary.
