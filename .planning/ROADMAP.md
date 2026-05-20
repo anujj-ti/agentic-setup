@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Infrastructure** - OpenClaw installed, cc-openclaw skills deployed, secrets pipeline operational, stow deploy working, health check green
 - [x] **Phase 2: Core Channels** - Telegram channel provisioned, token in Keychain, round-trip message verified (WhatsApp deferred — D-20) (completed 2026-05-20)
-- [ ] **Phase 3: User Orchestrator** - User Orchestrator live on Telegram with coherent responses and delegation to Task Orchestrator, isolated context windows
+- [x] **Phase 3: User Orchestrator** - User Orchestrator live on Telegram with coherent responses and delegation to Task Orchestrator, isolated context windows (completed 2026-05-20)
 - [ ] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified
 - [ ] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories
 - [ ] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule
@@ -107,14 +107,14 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 03-01-PLAN.md — Scaffold User Orchestrator: runtime dirs, 6 directive files (SOUL.md + 5), agents.list entry with subagents.allowAgents + delegationMode + tools.alsoAllow, update Telegram binding to user-orchestrator, stow+restart (ORCH-01, ORCH-02, ORCH-05)
-- [ ] 03-02-PLAN.md — Write scripts/verify-phase-03.sh (9-check automated smoke test); run it to confirm 03-01 state (ORCH-01, ORCH-05)
+- [x] 03-01-PLAN.md — Scaffold User Orchestrator: runtime dirs, 6 directive files (SOUL.md + 5), agents.list entry with subagents.allowAgents + delegationMode + tools.alsoAllow, update Telegram binding to user-orchestrator, stow+restart (ORCH-01, ORCH-02, ORCH-05)
+- [x] 03-02-PLAN.md — Write scripts/verify-phase-03.sh (9-check automated smoke test); run it to confirm 03-01 state (ORCH-01, ORCH-05)
 
 **Wave 2** *(blocked on Wave 1 — requires user-orchestrator entry in agents.list)*
-- [ ] 03-03-PLAN.md — Scaffold Task Orchestrator: runtime dirs, 6 directive files, agents.list entry (no Telegram binding, Beads-free Phase 3 stub), stow+restart (ORCH-02, ORCH-05)
+- [x] 03-03-PLAN.md — Scaffold Task Orchestrator: runtime dirs, 6 directive files, agents.list entry (no Telegram binding, Beads-free Phase 3 stub), stow+restart (ORCH-02, ORCH-05)
 
 **Wave 3** *(blocked on Wave 2 — phase gate)*
-- [ ] 03-04-PLAN.md — Run full verification suite; confirm isolated session stores and workspaces; write phase SUMMARY with delegation test runbook for user on return (ORCH-01, ORCH-02, ORCH-05)
+- [x] 03-04-PLAN.md — Run full verification suite; confirm isolated session stores and workspaces; write phase SUMMARY with delegation test runbook for user on return (ORCH-01, ORCH-02, ORCH-05)
 
 **Cross-cutting constraints:**
 - All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
@@ -306,7 +306,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 4/5 | In Progress|  |
 | 2. Core Channels | 2/2 | Complete   | 2026-05-20 |
-| 3. User Orchestrator | 0/4 | Not started | - |
+| 3. User Orchestrator | 4/4 | Complete   | 2026-05-20 |
 | 4. Beads + Task Orchestrator | 0/4 | Not started | - |
 | 5. Dream Routines | 0/4 | Not started | - |
 | 6. Email + Morning Standup | 0/5 | Not started | - |
