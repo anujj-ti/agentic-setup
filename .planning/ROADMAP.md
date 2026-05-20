@@ -202,15 +202,32 @@ Plans:
   2. User receives a morning standup brief via Telegram each morning containing: PRs merged overnight, CI failures, open review queue, and queued decisions from Task Orchestrator
   3. Morning standup cron job appears in `/openclaw-status` with the correct local timezone and fires on schedule
   4. Email Triage agent OAuth2 re-auth runbook is documented in the agent's TOOLS.md
-**Plans**: TBD
+**Plans**: 5 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 06-01: Configure Gmail OAuth2 Device Flow for echo.sys.bot@gmail.com and store refresh token in Keychain
-- [ ] 06-02: Scaffold Email Triage agent via /openclaw-new-agent with Gmail read/categorize/draft capabilities
-- [ ] 06-03: Document OAuth2 re-auth runbook in Email Triage agent TOOLS.md
-- [ ] 06-04: Build morning standup brief script that aggregates GitHub activity and queued decisions
-- [ ] 06-05: Create morning standup cron via /openclaw-add-cron targeting Telegram channel with local timezone
+
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 06-01-PLAN.md — Scaffold email-triage agent (6 directive files + memory dirs), install googleapis@172.0.0 in agent scripts/, create gmail-triage.js stub (OAuth2 from Keychain env vars), register agent in openclaw.json with exec in tools.alsoAllow, add Gmail Keychain stubs to three-file secrets pipeline (CHAN-03)
+- [ ] 06-02-PLAN.md — Create oauth2-setup.js (Installed App flow, localhost:8080, stores refresh token in Keychain), checkpoint:human-verify for browser OAuth2 step on user return (CHAN-03)
+
+**Wave 2** *(blocked on Wave 1 — requires agent directive files)*
+- [ ] 06-03-PLAN.md — Write complete OAuth2 re-auth runbook into email-triage TOOLS.md (6 sub-sections: GCP setup, Keychain storage, auth script, verify+restart, agent test, token expiry notes) — satisfies ROADMAP SC#4 (CHAN-03)
+- [ ] 06-04-PLAN.md — Create scripts/standup-brief.sh (zsh strict mode, --repo OWNER/REPO flag, BSD date, gh CLI queries, json_ok output); add exec to user-orchestrator tools.alsoAllow in openclaw.json; update User Orchestrator TOOLS.md with exec policy + standup invocation (CHAN-04)
+
+**Wave 3** *(blocked on Wave 2 — phase gate)*
+- [ ] 06-05-PLAN.md — Add Morning Standup Brief cron entry to jobs.json (08:00 Asia/Kolkata, user-orchestrator, 180s timeout, announce/last delivery), stow+restart, write + run scripts/verify-phase-06.sh (8 smoke checks), document PENDING OAuth2 items (CHAN-03, CHAN-04)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate — never `#!/bin/bash`)
+- Secrets: Keychain only — Gmail credentials never written to files, never echoed to stdout (D-63)
+- googleapis: install in agent scripts/ directory only — NOT globally (CLAUDE.md mandate, D-60)
+- OAuth2 flow: Installed App (localhost:8080 redirect) — NOT Device Flow (D-61)
+- jobs.json schema: `{"kind": "cron", "expr": "0 8 * * *", "tz": "Asia/Kolkata"}` nested form (D-40 pattern)
+- openclaw.json paths: `/Users/trilogy/...` literal — never `~` or `$HOME` (D-47 pattern)
+- Stow deploy: `scripts/stow-deploy.sh` — canonical entry point (D-48 pattern)
+- Gateway restart: `launchctl kickstart -k gui/$(id -u)/ai.openclaw.gateway` (D-50 pattern)
+- exec tool added to user-orchestrator for standup ONLY — exec policy in TOOLS.md is CRON session restriction (D-65)
 
 ### Phase 7: DevBot Core
 **Goal**: The DevBot agent can create GitHub issues from natural language, summarize and flag stale PRs, and maintain per-repository context — the foundation for autonomous development work
