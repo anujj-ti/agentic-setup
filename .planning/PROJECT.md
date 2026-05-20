@@ -24,6 +24,7 @@ An AI co-pilot that works autonomously while you're away, never forgets a task, 
 - [ ] Gmail bot email integration (echo.sys.bot@gmail.com) for email triage and outbound
 - [ ] GitHub board integration: create issues, track tasks, manage project board
 - [ ] Autonomous development workflow: triage PRs, create/solve issues, merge PRs with user approval queue
+- [ ] Beads (bd) task graph installed in Task Orchestrator workspace — dependency-aware task decomposition prevents agents from skipping steps (Phase 2+, after core fleet is running)
 - [ ] Morning standup brief: overnight activity summary (PRs merged, CI failures, open reviews)
 - [ ] CI/CD monitoring agent: watch runs, surface failures, page via Telegram
 - [ ] Project context switching: load relevant context when switching between repos
@@ -54,6 +55,8 @@ An AI co-pilot that works autonomously while you're away, never forgets a task, 
 - **Notion**: All decision logs, experiment results, and autonomous action records go here for async user review.
 - **Memory constraint**: Dual orchestrator pattern specifically chosen to prevent context bloat — User Orchestrator stays lean and conversational; Task Orchestrator handles the stateful, multi-agent work separately.
 - **Self-evolution**: The framework itself should grow — new agents are scaffolded when a new domain of work is identified, new skills are added when a pattern repeats more than twice.
+- **Beads (bd)**: Dependency-aware task graph CLI built on Dolt (versioned SQL). Task Orchestrator creates a Beads epic per GitHub issue, decomposes into atomic subtasks with dependencies before spawning subagents. Subagents claim/close via `bd ready → bd update --claim → bd close --reason`. Solves the "agents skip steps" failure pattern documented in the Trilogy AI CoE reference article. One Beads DB shared across all agents in the execution tier. Templates: feature (5 subtasks: design→implement→self-review→QA evidence→PR), bug fix (4 subtasks: reproduce→fix→verify→PR), setup (12 subtasks: recon→env→services→migrations→server→browser→login→nav→tests→runbook→manifest→report).
+- **Reference article 2**: "Why Your AI Agents Skip Steps — and How Task Graphs Prevent It" by Rahul Subramaniam (Trilogy AI CoE, March 2026) — justifies Beads adoption and provides decomposition patterns.
 
 ## Constraints
 
@@ -73,6 +76,7 @@ An AI co-pilot that works autonomously while you're away, never forgets a task, 
 | GitHub board as task system | Already the user's workflow; agents create and manage issues directly in the existing system | — Pending |
 | echo.sys.bot@gmail.com as email bot | Dedicated account keeps agent email traffic isolated from personal inbox | — Pending |
 | Self-evolution via skill scaffolding | New capabilities are added as markdown skills (not hardcoded) — the framework teaches itself new operations | — Pending |
+| Beads (bd) for task decomposition | Agents skip steps when given multi-step tasks in a single prompt (attention decay + satisficing). Beads enforces ordering structurally — a subagent literally cannot start step N+1 until step N is closed with proof | — Pending |
 
 ## Evolution
 
