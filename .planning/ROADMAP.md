@@ -13,7 +13,7 @@ Build a self-evolving AI agent fleet on macOS/OpenClaw that operates autonomousl
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Infrastructure** - OpenClaw installed, cc-openclaw skills deployed, secrets pipeline operational, stow deploy working, health check green
-- [ ] **Phase 2: Core Channels** - Telegram channel provisioned, token in Keychain, round-trip message verified (WhatsApp deferred — D-20)
+- [x] **Phase 2: Core Channels** - Telegram channel provisioned, token in Keychain, round-trip message verified (WhatsApp deferred — D-20) (completed 2026-05-20)
 - [ ] **Phase 3: User Orchestrator** - User Orchestrator live on Telegram with coherent responses and delegation to Task Orchestrator, isolated context windows
 - [ ] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified
 - [ ] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories
@@ -77,10 +77,10 @@ Plans:
 Plans:
 
 **Wave 1** *(autonomous — no dependencies)*
-- [ ] 02-01-PLAN.md — Wire Telegram channel: transfer token to Keychain, update three secrets pipeline files, add channels.telegram.accounts.main to openclaw.json with env var ref, stow+restart, shred pre-stow backups (CHAN-01)
+- [x] 02-01-PLAN.md — Wire Telegram channel: transfer token to Keychain, update three secrets pipeline files, add channels.telegram.accounts.main to openclaw.json with env var ref, stow+restart, shred pre-stow backups (CHAN-01)
 
 **Wave 2** *(blocked on Wave 1 — requires live channel)*
-- [ ] 02-02-PLAN.md — Verify Telegram round-trip: automated smoke tests, pairing flow, outbound message confirmation; update ROADMAP with deferred WhatsApp note (CHAN-01)
+- [x] 02-02-PLAN.md — Verify Telegram round-trip: automated smoke tests, pairing flow, outbound message confirmation; update ROADMAP with deferred WhatsApp note (CHAN-01)
 
 **Deferred:**
 - [ ] 02-03-PLAN.md — DEFERRED: WhatsApp plugin provisioning (`@openclaw/whatsapp`) on dedicated number (CHAN-02 — D-20, 2026-05-21)
@@ -291,7 +291,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 4/5 | In Progress|  |
-| 2. Core Channels | 0/2 | In Progress | - |
+| 2. Core Channels | 2/2 | Complete   | 2026-05-20 |
 | 3. User Orchestrator | 0/4 | Not started | - |
 | 4. Beads + Task Orchestrator | 0/4 | Not started | - |
 | 5. Dream Routines | 0/4 | Not started | - |
