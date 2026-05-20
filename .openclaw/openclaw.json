@@ -24,6 +24,16 @@
         "tools": {
           "alsoAllow": ["sessions_spawn", "sessions_yield"]
         }
+      },
+      {
+        "id": "task-orchestrator",
+        "name": "Task Orchestrator",
+        "workspace": "/Users/trilogy/.openclaw/workspace-task-orchestrator",
+        "agentDir": "/Users/trilogy/.openclaw/agents/task-orchestrator",
+        "model": {"primary": "anthropic/claude-sonnet-4-6"},
+        "subagents": {
+          "delegationMode": "prefer"
+        }
       }
     ]
   },
@@ -55,7 +65,7 @@
   ],
   "meta": {
     "lastTouchedVersion": "2026.5.18",
-    "lastTouchedAt": "2026-05-21T00:00:00.000Z"
+    "lastTouchedAt": "2026-05-21T01:50:00.000Z"
   },
   "skills": {
     "entries": {
