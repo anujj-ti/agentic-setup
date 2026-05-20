@@ -13,7 +13,7 @@ Build a self-evolving AI agent fleet on macOS/OpenClaw that operates autonomousl
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Infrastructure** - OpenClaw installed, cc-openclaw skills deployed, secrets pipeline operational, stow deploy working, health check green
-- [ ] **Phase 2: Core Channels** - Telegram bot and WhatsApp plugin provisioned, credentials in Keychain, round-trip message verified
+- [ ] **Phase 2: Core Channels** - Telegram channel provisioned, token in Keychain, round-trip message verified (WhatsApp deferred — D-20)
 - [ ] **Phase 3: User Orchestrator** - User Orchestrator live on Telegram with coherent responses and delegation to Task Orchestrator, isolated context windows
 - [ ] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified
 - [ ] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories
@@ -62,22 +62,34 @@ Plans:
 - `openclaw onboard --install-daemon` is interactive — user must run in terminal (Plans 01-01, 01-05)
 
 ### Phase 2: Core Channels
-**Goal**: Telegram and WhatsApp channels are provisioned, credentials are in Keychain, and a message round-trip is verified — the user has a working notification surface before any agent is built
+**Goal**: Telegram channel provisioned, token in Keychain, round-trip message verified — WhatsApp deferred to a future phase per D-20 (2026-05-21)
 **Mode:** mvp
 **Depends on**: Phase 1
-**Requirements**: CHAN-01, CHAN-02
+**Requirements**: CHAN-01 (CHAN-02 deferred)
 **Success Criteria** (what must be TRUE):
   1. User sends a message to the Telegram bot and receives an acknowledgment (round-trip verified)
-  2. Telegram bot token is stored in Keychain via `/openclaw-add-channel` and never appears in any file or git history
-  3. WhatsApp plugin (`@openclaw/whatsapp`) is provisioned on a dedicated number and can deliver an alert message to the user
-  4. Both channels appear as active in `/openclaw-status` channel output
-**Plans**: TBD
+  2. Telegram bot token is stored in Keychain via the cc-openclaw convention (`openclaw.telegram-main-bot-token`) and never appears in any file or git history
+  3. ~~WhatsApp plugin (`@openclaw/whatsapp`) provisioned on a dedicated number~~ **DEFERRED — Phase 2 covers Telegram only; WhatsApp planned for a future phase per D-20 (2026-05-21)**
+  4. Telegram channel appears as active in `/openclaw-status` channel output
+**Plans**: 2 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 02-01: Provision Telegram bot via BotFather and store token in Keychain via /openclaw-add-channel
-- [ ] 02-02: Verify Telegram round-trip message delivery and channel status in /openclaw-status
-- [ ] 02-03: Install @openclaw/whatsapp plugin on a dedicated number and verify alert delivery
+
+**Wave 1** *(autonomous — no dependencies)*
+- [ ] 02-01-PLAN.md — Wire Telegram channel: transfer token to Keychain, update three secrets pipeline files, add channels.telegram.accounts.main to openclaw.json with env var ref, stow+restart, shred pre-stow backups (CHAN-01)
+
+**Wave 2** *(blocked on Wave 1 — requires live channel)*
+- [ ] 02-02-PLAN.md — Verify Telegram round-trip: automated smoke tests, pairing flow, outbound message confirmation; update ROADMAP with deferred WhatsApp note (CHAN-01)
+
+**Deferred:**
+- [ ] 02-03-PLAN.md — DEFERRED: WhatsApp plugin provisioning (`@openclaw/whatsapp`) on dedicated number (CHAN-02 — D-20, 2026-05-21)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- Secrets: Keychain only — token never written to files, never in git history
+- Explicit binary paths: `/opt/homebrew/bin/openclaw` (nvm PATH shadowing issue from Phase 1)
+- Token transfer via pipe only — no intermediate files, no echo to terminal
 
 ### Phase 3: User Orchestrator
 **Goal**: The User Orchestrator agent is live on Telegram — users can send messages and receive coherent contextual responses, and the orchestrator can delegate tasks to the Task Orchestrator without the user managing delegation manually
@@ -279,7 +291,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 4/5 | In Progress|  |
-| 2. Core Channels | 0/3 | Not started | - |
+| 2. Core Channels | 0/2 | In Progress | - |
 | 3. User Orchestrator | 0/4 | Not started | - |
 | 4. Beads + Task Orchestrator | 0/4 | Not started | - |
 | 5. Dream Routines | 0/4 | Not started | - |
