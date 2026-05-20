@@ -16,9 +16,11 @@ print "Deploying .openclaw/ via stow..." >&2
 rm -f "$HOME/.openclaw/cron/jobs.json"
 # ADD ADDITIONAL CONFLICT CLEANUPS HERE if discovered during Phase 1 execution
 
-# D-01: Always invoke stow with explicit --dir, --target, and --no-folding.
-# --no-folding: required to create individual file symlinks, not directory-level symlinks.
-stow --dir="$REPO_DIR" --target="$HOME" --no-folding .openclaw
+# D-01 (corrected): --target must be $HOME/.openclaw, not $HOME.
+# With --target=$HOME and package .openclaw, stow deploys CONTENTS of .openclaw/ to $HOME/
+# (creating ~/openclaw.json, ~/scripts/...) instead of ~/.openclaw/openclaw.json.
+# The correct target is $HOME/.openclaw so package contents land at ~/.openclaw/*.
+stow --dir="$REPO_DIR" --target="$HOME/.openclaw" --no-folding .openclaw
 
 # D-10: Deploy is complete. Do NOT auto-restart the gateway.
 print "Stow deploy complete. Run /openclaw-restart to apply changes." >&2
