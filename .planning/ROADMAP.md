@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Core Channels** - Telegram channel provisioned, token in Keychain, round-trip message verified (WhatsApp deferred — D-20) (completed 2026-05-20)
 - [x] **Phase 3: User Orchestrator** - User Orchestrator live on Telegram with coherent responses and delegation to Task Orchestrator, isolated context windows (completed 2026-05-20)
 - [x] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified (completed 2026-05-20)
-- [ ] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories
+- [x] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories (completed 2026-05-20)
 - [ ] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule
 - [ ] **Phase 7: DevBot Core** - DevBot can create GitHub issues, summarize PRs, flag stale reviews, and maintain per-repo context
 - [ ] **Phase 8: CI Monitor + Autonomous Dev Scaffold** - CI Monitor alerts within 5 minutes of failure; DevBot can autonomously implement issues via Beads task graph
@@ -172,14 +172,14 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 05-01-PLAN.md — Create DREAM-ROUTINE.md (23:00 IST trigger, 2,500/7,500 token budgets), MEMORY.md stub, and updated AGENTS.md memory load sequence for User Orchestrator (ORCH-06)
-- [ ] 05-02-PLAN.md — Create DREAM-ROUTINE.md (23:05 IST trigger, silent delivery), MEMORY.md stub, and updated AGENTS.md memory load sequence for Task Orchestrator (ORCH-06)
+- [x] 05-01-PLAN.md — Create DREAM-ROUTINE.md (23:00 IST trigger, 2,500/7,500 token budgets), MEMORY.md stub, and updated AGENTS.md memory load sequence for User Orchestrator (ORCH-06)
+- [x] 05-02-PLAN.md — Create DREAM-ROUTINE.md (23:05 IST trigger, silent delivery), MEMORY.md stub, and updated AGENTS.md memory load sequence for Task Orchestrator (ORCH-06)
 
 **Wave 2** *(blocked on Wave 1 — requires DREAM-ROUTINE.md and MEMORY.md in repo)*
-- [ ] 05-03-PLAN.md — Create .openclaw/cron/ directory and jobs.json with both dream cron entries; add QMD paths to openclaw.json; run stow-deploy.sh + restart gateway (ORCH-06)
+- [x] 05-03-PLAN.md — Create .openclaw/cron/ directory and jobs.json with both dream cron entries; add QMD paths to openclaw.json; run stow-deploy.sh + restart gateway (ORCH-06)
 
 **Wave 3** *(blocked on Wave 2 — phase gate)*
-- [ ] 05-04-PLAN.md — Write and run scripts/verify-phase-05.sh: 6 ORCH-06 pre-run smoke checks; note that token cap checks (success criteria 3 and 4) require manual post-run verification after first 23:00 IST run (ORCH-06)
+- [x] 05-04-PLAN.md — Write and run scripts/verify-phase-05.sh: 6 ORCH-06 pre-run smoke checks; note that token cap checks (success criteria 3 and 4) require manual post-run verification after first 23:00 IST run (ORCH-06)
 
 **Cross-cutting constraints:**
 - All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
@@ -340,7 +340,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Core Channels | 2/2 | Complete   | 2026-05-20 |
 | 3. User Orchestrator | 4/4 | Complete   | 2026-05-20 |
 | 4. Beads + Task Orchestrator | 4/4 | Complete   | 2026-05-20 |
-| 5. Dream Routines | 0/4 | Not started | - |
+| 5. Dream Routines | 4/4 | Complete   | 2026-05-20 |
 | 6. Email + Morning Standup | 0/5 | Not started | - |
 | 7. DevBot Core | 0/4 | Not started | - |
 | 8. CI Monitor + Autonomous Dev Scaffold | 0/5 | Not started | - |
