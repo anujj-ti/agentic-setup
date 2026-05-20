@@ -47,6 +47,30 @@
       "delivery": {
         "mode": "silent"
       }
+    },
+    {
+      "id": "4d870e78-12ad-40e3-9711-8e2c37e0600c",
+      "agentId": "user-orchestrator",
+      "name": "Morning Standup Brief",
+      "enabled": true,
+      "createdAtMs": 1779312010741,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 8 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the morning standup brief. For each of the following repos: anujj-ti/agentic-setup, call scripts/standup-brief.sh --repo OWNER/REPO (using exec tool). Aggregate all results and send a formatted summary to Anuj via Telegram. Format: start with 'Good morning! Here is your overnight summary:' then list: PRs merged overnight (from merged_prs), CI failures (from ci_failures), PRs needing review (from stale_prs). If no activity in a category, say 'None'. Keep the total message under 4000 characters. If standup-brief.sh returns ok:false for any repo, include the error in the message.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "timeoutSeconds": 180
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "last"
+      }
     }
   ]
 }
