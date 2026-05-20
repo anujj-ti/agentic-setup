@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified (completed 2026-05-20)
 - [x] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories (completed 2026-05-20)
 - [x] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule (completed 2026-05-20)
-- [ ] **Phase 7: DevBot Core** - DevBot can create GitHub issues, summarize PRs, flag stale reviews, and maintain per-repo context
+- [x] **Phase 7: DevBot Core** - DevBot can create GitHub issues, summarize PRs, flag stale reviews, and maintain per-repo context (completed 2026-05-20)
 - [ ] **Phase 8: CI Monitor + Autonomous Dev Scaffold** - CI Monitor alerts within 5 minutes of failure; DevBot can autonomously implement issues via Beads task graph
 - [ ] **Phase 9: Notion Decision Log** - Every autonomous decision logged to Notion before execution; user can review chronologically and mark decisions for revert; experiment logging operational
 - [ ] **Phase 10: Autonomous Merge** - DevBot can merge CI-passing PRs with Notion pre-log; user can see and revert any autonomous merge
@@ -244,14 +244,14 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 07-01-PLAN.md — Scaffold DevBot agent + upgrade gh to 2.92.0, add project OAuth scope, register devbot in openclaw.json, wire task-orchestrator allowAgents (DEV-01, DEV-06)
-- [ ] 07-02-PLAN.md — Create devbot-issue-create.sh with duplicate check, project board assignment via --project flag, JSON stdout output (DEV-01)
+- [x] 07-01-PLAN.md — Scaffold DevBot agent + upgrade gh to 2.92.0, add project OAuth scope, register devbot in openclaw.json, wire task-orchestrator allowAgents (DEV-01, DEV-06)
+- [x] 07-02-PLAN.md — Create devbot-issue-create.sh with duplicate check, project board assignment via --project flag, JSON stdout output (DEV-01)
 
 **Wave 2** *(blocked on Wave 1 — depends on 07-02 json-response lib)*
-- [ ] 07-03-PLAN.md — Create devbot-pr-queue.sh: single gh pr list call with statusCheckRollup CI detection and 24h staleness filter (DEV-02)
+- [x] 07-03-PLAN.md — Create devbot-pr-queue.sh: single gh pr list call with statusCheckRollup CI detection and 24h staleness filter (DEV-02)
 
 **Wave 3** *(blocked on Wave 1+3 — phase gate)*
-- [ ] 07-04-PLAN.md — Create CONTEXT-TEMPLATE.md for per-repo context store, write devbot-verify.sh (7 smoke checks + end-to-end test issue create/close) (DEV-01, DEV-02, DEV-06)
+- [x] 07-04-PLAN.md — Create CONTEXT-TEMPLATE.md for per-repo context store, write devbot-verify.sh (7 smoke checks + end-to-end test issue create/close) (DEV-01, DEV-02, DEV-06)
 
 **Cross-cutting constraints:**
 - All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
@@ -387,7 +387,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Beads + Task Orchestrator | 4/4 | Complete   | 2026-05-20 |
 | 5. Dream Routines | 4/4 | Complete   | 2026-05-20 |
 | 6. Email + Morning Standup | 5/5 | Complete   | 2026-05-20 |
-| 7. DevBot Core | 0/4 | Not started | - |
+| 7. DevBot Core | 4/4 | Complete   | 2026-05-20 |
 | 8. CI Monitor + Autonomous Dev Scaffold | 0/5 | Not started | - |
 | 9. Notion Decision Log | 0/6 | Not started | - |
 | 10. Autonomous Merge | 0/4 | Not started | - |
