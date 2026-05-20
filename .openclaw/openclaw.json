@@ -2,6 +2,9 @@
 // Populated by /openclaw-new-agent in Phase 3+; channels added by /openclaw-add-channel in Phase 2
 // DO NOT edit manually after Phase 1. All changes go through cc-openclaw skills.
 {
+  gateway: {
+    mode: "local"
+  },
   agents: {
     defaults: {
       workspace: "~/.openclaw/workspace"
