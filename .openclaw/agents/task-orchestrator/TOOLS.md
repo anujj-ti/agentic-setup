@@ -98,3 +98,45 @@ BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd close <task-i
 - `decision-reviewer`: every autonomous action (pre-Notion-log gate)
 - `skill-reviewer`: SKILL.md format/safety review (post skill-creation)
 - `skill-creation`: author new SKILL.md files with registry search evidence
+
+## Agent Proposal Workflow (EVOL-01)
+
+### Step-by-step EVOL-01 workflow:
+
+1. **Domain coverage check**: run `scripts/check-agent-domain.sh "<proposed-domain-keyword>"`
+   - If `ok==false`: agent already exists — do not proceed
+   - If `ok==true`: proceed to proposal
+
+2. **Evidence threshold**: MUST have 2+ Beads epics where no existing agent covered the domain as evidence. One occurrence is not sufficient.
+
+3. **Author proposal document** using this template:
+   ```
+   ## New Agent Proposal
+   **Proposed agent ID:** <lowercase-hyphens>
+   **Domain:** <1-2 sentence description>
+   **Evidence of need:**
+   - Beads epic <bd-id>: "<task description>" — no matching agent; Task Orchestrator handled directly
+   - Beads epic <bd-id>: "<task description>" — no matching agent; DevBot was used but lacks domain context
+   **Pattern count:** <N> epics in <timespan> with no domain-matched agent
+   **Proposed SOUL.md focus:** <concise focus>
+   **Model:** anthropic/claude-sonnet-4-6
+   **Sub-agent of:** task-orchestrator
+   **Channel:** none (execution-tier; sessions_spawn only)
+   **Reversibility:** Agent can be removed: delete ~/.openclaw/agents/<id>/ + remove from openclaw.json + run /openclaw-stow
+   **Rationale:** <specific, evidence-based reason>
+   ```
+
+4. **Decision Reviewer gate**: send proposal text to Decision Reviewer via sessions_spawn
+   - If verdict == "reject": do NOT proceed; log must_fix items for later revision
+   - If verdict == "pass": proceed to `/openclaw-new-agent`
+
+5. **Invoke `/openclaw-new-agent`** with proposed agent configuration
+
+6. **MANDATORY final step**: Update Task Orchestrator SOUL.md "## Agent Routing" section (create if absent) with:
+   - New agent ID: `<id>`
+   - Domain keywords: `<comma-separated>`
+   - When to delegate: `<condition>`
+   Without this step, the new agent will never receive delegations.
+
+### Required env vars for check-agent-domain.sh:
+None — reads live openclaw.json from `$HOME/.openclaw/openclaw.json` directly
