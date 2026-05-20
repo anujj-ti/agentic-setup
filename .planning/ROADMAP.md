@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Infrastructure** - OpenClaw installed, cc-openclaw skills deployed, secrets pipeline operational, stow deploy working, health check green
 - [x] **Phase 2: Core Channels** - Telegram channel provisioned, token in Keychain, round-trip message verified (WhatsApp deferred — D-20) (completed 2026-05-20)
 - [x] **Phase 3: User Orchestrator** - User Orchestrator live on Telegram with coherent responses and delegation to Task Orchestrator, isolated context windows (completed 2026-05-20)
-- [ ] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified
+- [x] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified (completed 2026-05-20)
 - [ ] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories
 - [ ] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule
 - [ ] **Phase 7: DevBot Core** - DevBot can create GitHub issues, summarize PRs, flag stale reviews, and maintain per-repo context
@@ -139,16 +139,16 @@ Plans:
 Plans:
 
 **Wave 1** *(autonomous — no dependencies)*
-- [ ] 04-01-PLAN.md — Install dolt + bd 1.0.4 under node@24; create verify-phase-04.sh (INFRA-05)
+- [x] 04-01-PLAN.md — Install dolt + bd 1.0.4 under node@24; create verify-phase-04.sh (INFRA-05)
 
 **Wave 2** *(blocked on Wave 1 — bd must exist before bd init)*
-- [ ] 04-02-PLAN.md — Initialize shared Beads DB at BEADS_DIR; inject BEADS_DIR into gateway env; stow+restart+verify (INFRA-05)
+- [x] 04-02-PLAN.md — Initialize shared Beads DB at BEADS_DIR; inject BEADS_DIR into gateway env; stow+restart+verify (INFRA-05)
 
 **Wave 3** *(blocked on Wave 2 — BEADS_DIR must be live before updating agent SOUL)*
-- [ ] 04-03-PLAN.md — Replace Task Orchestrator SOUL.md with Beads execution contract; update TOOLS.md with bd command reference (ORCH-03, ORCH-04)
+- [x] 04-03-PLAN.md — Replace Task Orchestrator SOUL.md with Beads execution contract; update TOOLS.md with bd command reference (ORCH-03, ORCH-04)
 
 **Wave 4** *(blocked on Wave 3 — phase gate)*
-- [ ] 04-04-PLAN.md — Run end-to-end claim/close cycle; verify all 6 smoke checks green (ORCH-03, ORCH-04)
+- [x] 04-04-PLAN.md — Run end-to-end claim/close cycle; verify all 6 smoke checks green (ORCH-03, ORCH-04)
 
 **Cross-cutting constraints:**
 - All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
@@ -339,7 +339,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Infrastructure | 4/5 | In Progress|  |
 | 2. Core Channels | 2/2 | Complete   | 2026-05-20 |
 | 3. User Orchestrator | 4/4 | Complete   | 2026-05-20 |
-| 4. Beads + Task Orchestrator | 0/4 | Not started | - |
+| 4. Beads + Task Orchestrator | 4/4 | Complete   | 2026-05-20 |
 | 5. Dream Routines | 0/4 | Not started | - |
 | 6. Email + Morning Standup | 0/5 | Not started | - |
 | 7. DevBot Core | 0/4 | Not started | - |
