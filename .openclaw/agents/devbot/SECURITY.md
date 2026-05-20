@@ -51,6 +51,21 @@ All script arguments (OWNER/REPO, title, body) are passed via zsh array expansio
 (e.g., `GH_ARGS+=(--title "$TITLE")`), NOT interpolated into shell strings.
 This prevents word-splitting and glob expansion on untrusted input from the Task Orchestrator.
 
+## Autonomous Merge Gate (DEV-05)
+
+**MUST NOT invoke gh pr merge without a confirmed Notion page ID in scope.**
+
+The Notion pre-log script (notion-log-decision.js) MUST exit 0 and return a non-empty page ID before merge proceeds.
+
+Rules:
+- If Notion write fails for any reason: exit 1, report BLOCKED, do NOT merge.
+- NEVER use `--admin` flag on any merge.
+- NEVER use `--auto` flag for autonomous merges.
+- The Notion page ID is embedded in the Notion page update (not in the commit message).
+- The ONLY permitted merge path is: `scripts/devbot-merge-pr.sh <PR_NUMBER>`. Never call `gh pr merge` directly.
+
+If `OPENCLAW_NOTION_DECISIONS_DB_ID` is absent from the environment: abort immediately, report BLOCKED "Phase 9 prerequisite not satisfied — Notion DB ID missing", do NOT attempt the merge.
+
 ## Threat Register Mitigations
 
 | Threat | Mitigation |
