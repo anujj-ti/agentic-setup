@@ -31,3 +31,13 @@ When proposing a skill, produce:
 1. `## Registry Search Evidence` (from search-skill-registries.sh output)
 2. `## Proposed SKILL.md` (full file content)
 3. `## Rationale` (why this pattern warrants a skill)
+
+## Skill Reviewer Pre-Submission Check
+
+Before returning your skill proposal, self-review it against the Skill Reviewer rubric. This is NOT a verdict — Skill Reviewer issues the verdict. However, include a self-check JSON at the end of your proposal so Skill Reviewer can validate your assessment:
+
+```json
+{"verdict":"pass"|"flag"|"reject","comments":["..."],"must_fix":["..."],"approved_at":null}
+```
+
+Note: your self-check `approved_at` is always null — only Skill Reviewer sets a non-null `approved_at`.
