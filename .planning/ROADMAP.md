@@ -50,7 +50,7 @@ Plans:
 - [x] 01-04-PLAN.md — Create scripts/stow-deploy.sh + scripts/infra-verify.sh; establish stow management over ~/.openclaw/ (INFRA-04)
 
 **Wave 3** *(blocked on Wave 2 — requires stow symlink for OPENCLAW_REPO detection)*
-- [ ] 01-03-PLAN.md — Add a test secret via /openclaw-add-secret to verify the three-file pipeline end-to-end (INFRA-03)
+- [x] 01-03-PLAN.md — Add a test secret via /openclaw-add-secret to verify the three-file pipeline end-to-end (INFRA-03)
 
 **Wave 4** *(blocked on Wave 3 completion — phase gate)*
 - [ ] 01-05-PLAN.md — Verify /openclaw-status green + create a test cron job with local tz to prove INFRA-06 end-to-end (INFRA-06)
@@ -278,7 +278,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 3/5 | In Progress|  |
+| 1. Infrastructure | 4/5 | In Progress|  |
 | 2. Core Channels | 0/3 | Not started | - |
 | 3. User Orchestrator | 0/4 | Not started | - |
 | 4. Beads + Task Orchestrator | 0/4 | Not started | - |
