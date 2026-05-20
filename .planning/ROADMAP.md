@@ -222,13 +222,27 @@ Plans:
   2. DevBot surfaces the PR review queue on demand: open PRs with failing CI or unaddressed review requests older than 24 hours are identified and summarized
   3. DevBot correctly loads and uses per-repository context (stack, conventions, open work) when delegated a task in a specific repo — context switches cleanly when a different repo is specified
   4. All DevBot GitHub operations use `gh` CLI 2.92.0 and produce structured JSON output to stdout with logs to stderr
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 07-01: Scaffold DevBot agent via /openclaw-new-agent with GitHub CLI access and project board write permissions
-- [ ] 07-02: Implement issue creation from natural language descriptions with label and milestone assignment
-- [ ] 07-03: Implement PR review queue summarizer with CI status and staleness detection
-- [ ] 07-04: Implement per-repository context store (stack, conventions, open work) with context switching capability
+
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 07-01-PLAN.md — Scaffold DevBot agent + upgrade gh to 2.92.0, add project OAuth scope, register devbot in openclaw.json, wire task-orchestrator allowAgents (DEV-01, DEV-06)
+- [ ] 07-02-PLAN.md — Create devbot-issue-create.sh with duplicate check, project board assignment via --project flag, JSON stdout output (DEV-01)
+
+**Wave 2** *(blocked on Wave 1 — depends on 07-02 json-response lib)*
+- [ ] 07-03-PLAN.md — Create devbot-pr-queue.sh: single gh pr list call with statusCheckRollup CI detection and 24h staleness filter (DEV-02)
+
+**Wave 3** *(blocked on Wave 1+3 — phase gate)*
+- [ ] 07-04-PLAN.md — Create CONTEXT-TEMPLATE.md for per-repo context store, write devbot-verify.sh (7 smoke checks + end-to-end test issue create/close) (DEV-01, DEV-02, DEV-06)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- gh binary: `/opt/homebrew/bin/gh` explicit path in all scripts (nvm PATH shadowing prevention)
+- openclaw.json paths: `/Users/trilogy/...` literal, never `~` (established pattern)
+- Stow deploy: `scripts/stow-deploy.sh` — canonical entry point for all openclaw.json changes
+- DevBot: no Telegram binding — sessions_spawn from Task Orchestrator only (D-75)
+- Per-repo context: `~/.openclaw/workspace-devbot/repos/<owner>-<repo>/CONTEXT.md` (D-73)
 
 ### Phase 8: CI Monitor + Autonomous Dev Scaffold
 **Goal**: The CI Monitor agent watches tracked repositories and pages the user via Telegram within 5 minutes of a failure; DevBot can autonomously implement GitHub issues by decomposing them into a Beads task graph and executing the design → implement → self-review → quality-review → open PR cycle
