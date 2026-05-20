@@ -134,13 +134,28 @@ Plans:
   2. Task Orchestrator creates a complete Beads epic with all subtasks and dependencies before spawning any sub-agent — sub-agents receive only `bd ready --json`, never free-text instructions
   3. A sub-agent completes the full claim/close cycle: `bd update --claim` → executes work → `bd close --reason "<factual evidence string>"` — Task Orchestrator monitors progress via Beads graph queries, not by polling the agent
   4. `bd init --stealth` is confirmed to use the single shared Beads DB at the designated `BEADS_DIR` path
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: Install Beads (bd 1.0.4) via npm and initialize shared task graph DB with bd init --stealth
-- [ ] 04-02: Export BEADS_DIR in gateway start script and verify accessibility from sub-agent context via bd ready --json
-- [ ] 04-03: Configure Task Orchestrator SOUL.md with mandatory epic-creation-before-spawn rule
-- [ ] 04-04: Run end-to-end claim/close cycle test: Task Orchestrator creates epic, sub-agent claims and closes with evidence, orchestrator reads graph
+
+**Wave 1** *(autonomous — no dependencies)*
+- [ ] 04-01-PLAN.md — Install dolt + bd 1.0.4 under node@24; create verify-phase-04.sh (INFRA-05)
+
+**Wave 2** *(blocked on Wave 1 — bd must exist before bd init)*
+- [ ] 04-02-PLAN.md — Initialize shared Beads DB at BEADS_DIR; inject BEADS_DIR into gateway env; stow+restart+verify (INFRA-05)
+
+**Wave 3** *(blocked on Wave 2 — BEADS_DIR must be live before updating agent SOUL)*
+- [ ] 04-03-PLAN.md — Replace Task Orchestrator SOUL.md with Beads execution contract; update TOOLS.md with bd command reference (ORCH-03, ORCH-04)
+
+**Wave 4** *(blocked on Wave 3 — phase gate)*
+- [ ] 04-04-PLAN.md — Run end-to-end claim/close cycle; verify all 6 smoke checks green (ORCH-03, ORCH-04)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- bd binary path: `/opt/homebrew/opt/node@24/bin/bd` (explicit, never rely on PATH — D-51)
+- BEADS_DIR: `$HOME/.openclaw/beads` (top-level shared path — D-50)
+- dolt must be installed BEFORE bd install and BEFORE bd init (D-52)
+- After secrets file update: stow-deploy.sh + gateway restart + verify BEADS_DIR in gateway.env (D-55)
 
 ### Phase 5: Dream Routines
 **Goal**: Nightly memory distillation is running for both orchestrators — daily summaries stay within the 2,500-token cap, 3-day digests stay within 7,500 tokens, and archive directories exist and receive files on each run
