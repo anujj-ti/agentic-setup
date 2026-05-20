@@ -121,3 +121,60 @@ Template: `/Users/trilogy/.openclaw/workspace-devbot/repos/CONTEXT-TEMPLATE.md`
 # Check default branch
 /opt/homebrew/bin/gh api repos/OWNER/REPO | jq .default_branch
 ```
+
+---
+
+## Autonomous Dev Tools (DEV-04)
+
+### Issue Intake
+
+```zsh
+# Live issue intake — returns structured JSON for Task Orchestrator
+exec scripts/devbot-intake-issue.sh OWNER/REPO ISSUE_NUM
+
+# Smoke test (no network) — use for verification and testing
+exec scripts/devbot-intake-issue.sh OWNER/REPO ISSUE_NUM --dry-run
+```
+
+### Beads Task Graph Commands
+
+```zsh
+# List unblocked (ready) tasks
+BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd ready --json
+
+# Claim a task (MUST claim before executing)
+BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd update <task-id> --claim --json
+
+# Close with factual evidence
+BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd close <task-id> --reason "<evidence>" --json
+
+# View the full dependency graph for an epic
+BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd dep tree <epic-id>
+```
+
+### Draft PR (T5 — open-pr subtask only)
+
+```zsh
+# Open a draft PR — Phase 8 only (no merge allowed — merge is Phase 10)
+/opt/homebrew/bin/gh pr create \
+  -R OWNER/REPO \
+  --base main \
+  --head <branch-name> \
+  --title "feat: <issue title> (closes #N)" \
+  --body "Implements #N. Changes: <summary>." \
+  --draft
+```
+
+### 5-Subtask Feature Implementation Template (for reference)
+
+The Task Orchestrator creates Beads epics with this exact structure. DevBot does NOT create these — it only executes the tasks.
+
+| Subtask | Name | Depends On |
+|---------|------|------------|
+| T1 | Design proposal for #N: {title} | (none — ready at epic creation) |
+| T2 | Implementation for #N: {title} | T1 |
+| T3 | Self-review for #N: {title} | T2 |
+| T4 | Quality-review evidence for #N: {title} | T3 |
+| T5 | Open PR for #N: {title} | T4 |
+
+The dep chain (T1 → T2 → T3 → T4 → T5) means only T1 is `ready` initially. After closing T1, T2 becomes ready. And so on.
