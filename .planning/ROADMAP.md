@@ -43,8 +43,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 01-01-PLAN.md — Install prerequisites (Homebrew node@24, stow, jq) + create Wave 0 source-of-truth files + install/upgrade OpenClaw 2026.5.18 with LaunchAgent (INFRA-01)
-- [ ] 01-02-PLAN.md — Add cc-openclaw as a git submodule and stow its 9 skills into .claude/skills/ via --no-folding (INFRA-02)
+- [x] 01-01-PLAN.md — Install prerequisites (Homebrew node@24, stow, jq) + create Wave 0 source-of-truth files + install/upgrade OpenClaw 2026.5.18 with LaunchAgent (INFRA-01)
+- [x] 01-02-PLAN.md — Add cc-openclaw as a git submodule and stow its 9 skills into .claude/skills/ via --no-folding (INFRA-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 01-04-PLAN.md — Create scripts/stow-deploy.sh + scripts/infra-verify.sh; establish stow management over ~/.openclaw/ (INFRA-04)
@@ -278,7 +278,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 0/5 | Not started | - |
+| 1. Infrastructure | 2/5 | In Progress|  |
 | 2. Core Channels | 0/3 | Not started | - |
 | 3. User Orchestrator | 0/4 | Not started | - |
 | 4. Beads + Task Orchestrator | 0/4 | Not started | - |
