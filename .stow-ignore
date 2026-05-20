@@ -1,0 +1,11 @@
+# .stow-ignore — prevents stow from stowing non-.openclaw/ content
+# Source: CONTEXT.md D-03
+# Only .openclaw/ should be deployed to ~/; all other top-level items are excluded.
+.planning
+.git
+docs
+scripts
+CLAUDE.md
+README.md
+cc-openclaw
+secrets.sh
