@@ -10,6 +10,7 @@ set -euo pipefail
 # Entries are appended below by /openclaw-add-secret
 SECRETS=(
   # "openclaw.example-token|OPENCLAW_EXAMPLE_TOKEN|Example secret (replace with real entries)"
+  "openclaw.test-secret|OPENCLAW_TEST_SECRET|Phase 1 INFRA-03 verification secret — safe to delete"
 )
 
 for entry in "${SECRETS[@]}"; do
