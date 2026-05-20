@@ -38,14 +38,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User runs a stow deploy from `~/agentic-setup` and `jobs.json` symlink conflict is automatically resolved without manual intervention
   4. All 9 cc-openclaw skills are available as Claude Code slash commands and each invocation produces the expected output
   5. A test cron job created via `/openclaw-add-cron` appears in `/openclaw-status` output with the correct local timezone field (not UTC)
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 01-01: Install OpenClaw 2026.5.18 via curl installer with Node.js 24 prerequisite check
-- [ ] 01-02: Clone cc-openclaw skills repo and deploy via git+stow --no-folding into .claude/skills/
-- [ ] 01-03: Implement and verify the three-file secrets pipeline using /openclaw-add-secret
-- [ ] 01-04: Configure git+stow deployment from ~/agentic-setup with jobs.json symlink resolution automation
-- [ ] 01-05: Verify full system health via /openclaw-status and validate a test cron job with timezone field
+- [ ] 01-01-PLAN.md — Install prerequisites (Homebrew node@24, stow, jq) + create Wave 0 source-of-truth files + install/upgrade OpenClaw 2026.5.18 with LaunchAgent (INFRA-01)
+- [ ] 01-02-PLAN.md — Add cc-openclaw as a git submodule and stow its 9 skills into .claude/skills/ via --no-folding (INFRA-02)
+- [ ] 01-03-PLAN.md — Add a test secret via /openclaw-add-secret to verify the three-file pipeline end-to-end (INFRA-03)
+- [ ] 01-04-PLAN.md — Create scripts/stow-deploy.sh + scripts/infra-verify.sh; establish stow management over ~/.openclaw/ (INFRA-04)
+- [ ] 01-05-PLAN.md — Verify /openclaw-status green + create a test cron job with local tz to prove INFRA-06 end-to-end (INFRA-06)
 
 ### Phase 2: Core Channels
 **Goal**: Telegram and WhatsApp channels are provisioned, credentials are in Keychain, and a message round-trip is verified — the user has a working notification surface before any agent is built
