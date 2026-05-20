@@ -10,3 +10,4 @@
 
 # Secrets are appended below by /openclaw-add-secret:
 export OPENCLAW_TEST_SECRET="$(security find-generic-password -s 'openclaw.test-secret' -w 2>/dev/null || true)"
+export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
