@@ -45,17 +45,22 @@
 
 ### Quality Pipeline (QUAL)
 
-- [ ] **QUAL-01**: Quality Reviewer agent reviews all agent outputs before they surface to the user — applies to: code diffs, documentation drafts, experiment write-ups, decision summaries, and new skill proposals
-- [ ] **QUAL-02**: Quality Reviewer agent provides structured feedback (pass / flag with comment / reject with reason) — if flagged or rejected, the originating agent must address feedback before the output advances
-- [ ] **QUAL-03**: Skill Creation agent can author new cc-openclaw-compatible skills from observed patterns — skills are structured as SKILL.md files, follow the established format, and are committed to the skills directory
-- [ ] **QUAL-04**: Skill Creation agent searches public skill registries (ClawHub, agentskills.io, starred GitHub repos) for existing skills before authoring a new one — reuses and adapts when a good match exists
-- [ ] **QUAL-05**: Any new skill authored by Skill Creation agent is reviewed by Quality Reviewer before being stowed into `.claude/skills/`
+Each review domain has its own dedicated agent — no single generalist reviewer handles everything.
+
+- [ ] **QUAL-01**: Code Reviewer agent reviews all code diffs, PR implementations, and test coverage produced by DevBot or any execution-tier agent — provides structured feedback (pass / flag with comment / reject with reason); flagged or rejected code must be addressed before advancing
+- [ ] **QUAL-02**: Document Reviewer agent reviews all documentation drafts, experiment write-ups, and Notion page content before they are finalized or logged — same structured feedback protocol (pass / flag / reject)
+- [ ] **QUAL-03**: Decision Reviewer agent reviews autonomous decision summaries before they are logged to Notion — validates that the rationale is sound, the reversibility status is accurate, and the evidence is specific; rejects vague or unsubstantiated decision entries
+- [ ] **QUAL-04**: Skill Reviewer agent reviews all new SKILL.md files authored by the Skill Creation agent — validates format, correctness, safety, and alignment with cc-openclaw conventions before the skill is stowed
+- [ ] **QUAL-05**: All reviewer agents return structured feedback in a consistent schema (pass / flag with comment / reject with reason) — if flagged or rejected, the originating agent must address feedback and resubmit; output does not advance until the relevant reviewer passes it
+- [ ] **QUAL-06**: Skill Creation agent can author new cc-openclaw-compatible skills from observed patterns — skills are structured as SKILL.md files, follow the established format, and are committed to the skills directory
+- [ ] **QUAL-07**: Skill Creation agent searches public skill registries (ClawHub, agentskills.io, starred GitHub repos) for existing skills before authoring a new one — reuses and adapts when a good match exists; search evidence is included in the skill proposal
+- [ ] **QUAL-08**: Any new skill authored by Skill Creation agent is reviewed by Skill Reviewer agent (QUAL-04) before being stowed into `.claude/skills/`
 
 ### Self-Evolution (EVOL)
 
-- [ ] **EVOL-01**: Task Orchestrator can scaffold new OpenClaw agents via `/openclaw-new-agent` when a domain of work repeats that no existing agent covers — new agent proposal is reviewed by Quality Reviewer before execution
-- [ ] **EVOL-02**: When a procedural pattern repeats ≥2 times, the Skill Creation agent is triggered to propose a new skill — skill is reviewed, approved, authored, and stowed without user intervention
-- [ ] **EVOL-03**: Experiment framework: Task Orchestrator can propose an experiment (hypothesis, method, success criteria), spawn agents to run it, collect results, and log the full cycle to Notion with Quality Reviewer validation of the write-up
+- [ ] **EVOL-01**: Task Orchestrator can scaffold new OpenClaw agents via `/openclaw-new-agent` when a domain of work repeats that no existing agent covers — new agent proposal is reviewed by Decision Reviewer agent (QUAL-03) before execution
+- [ ] **EVOL-02**: When a procedural pattern repeats ≥2 times, the Skill Creation agent is triggered to propose a new skill — skill is reviewed by Skill Reviewer agent (QUAL-04), approved, authored, and stowed without user intervention
+- [ ] **EVOL-03**: Experiment framework: Task Orchestrator can propose an experiment (hypothesis, method, success criteria), spawn agents to run it, collect results, and log the full cycle to Notion with Document Reviewer agent (QUAL-02) validating the write-up before the page is finalized
 
 ---
 
@@ -80,17 +85,48 @@
 
 ## Traceability
 
-| REQ-ID | Phase |
-|--------|-------|
-| INFRA-01..06 | Phase 1 |
-| ORCH-01..02, CHAN-01..02 | Phase 2 |
-| ORCH-03..06 | Phase 3 |
-| CHAN-03..04, DEV-01..03 | Phase 4 |
-| DEV-04..06, MEM-01..04 | Phase 5 |
-| QUAL-01..05, EVOL-01..03 | Phase 6+ |
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| INFRA-01 | Phase 1 — Infrastructure | Pending |
+| INFRA-02 | Phase 1 — Infrastructure | Pending |
+| INFRA-03 | Phase 1 — Infrastructure | Pending |
+| INFRA-04 | Phase 1 — Infrastructure | Pending |
+| INFRA-06 | Phase 1 — Infrastructure | Pending |
+| CHAN-01 | Phase 2 — Core Channels | Pending |
+| CHAN-02 | Phase 2 — Core Channels | Pending |
+| ORCH-01 | Phase 3 — User Orchestrator | Pending |
+| ORCH-02 | Phase 3 — User Orchestrator | Pending |
+| ORCH-05 | Phase 3 — User Orchestrator | Pending |
+| INFRA-05 | Phase 4 — Beads + Task Orchestrator | Pending |
+| ORCH-03 | Phase 4 — Beads + Task Orchestrator | Pending |
+| ORCH-04 | Phase 4 — Beads + Task Orchestrator | Pending |
+| ORCH-06 | Phase 5 — Dream Routines | Pending |
+| CHAN-03 | Phase 6 — Email + Morning Standup | Pending |
+| CHAN-04 | Phase 6 — Email + Morning Standup | Pending |
+| DEV-01 | Phase 7 — DevBot Core | Pending |
+| DEV-02 | Phase 7 — DevBot Core | Pending |
+| DEV-06 | Phase 7 — DevBot Core | Pending |
+| DEV-03 | Phase 8 — CI Monitor + Autonomous Dev Scaffold | Pending |
+| DEV-04 | Phase 8 — CI Monitor + Autonomous Dev Scaffold | Pending |
+| MEM-01 | Phase 9 — Notion Decision Log | Pending |
+| MEM-02 | Phase 9 — Notion Decision Log | Pending |
+| MEM-03 | Phase 9 — Notion Decision Log | Pending |
+| MEM-04 | Phase 9 — Notion Decision Log | Pending |
+| DEV-05 | Phase 10 — Autonomous Merge | Pending |
+| QUAL-01 | Phase 11 — Quality Pipeline | Pending |
+| QUAL-02 | Phase 11 — Quality Pipeline | Pending |
+| QUAL-03 | Phase 11 — Quality Pipeline | Pending |
+| QUAL-04 | Phase 11 — Quality Pipeline | Pending |
+| QUAL-05 | Phase 11 — Quality Pipeline | Pending |
+| QUAL-06 | Phase 11 — Quality Pipeline | Pending |
+| QUAL-07 | Phase 11 — Quality Pipeline | Pending |
+| QUAL-08 | Phase 11 — Quality Pipeline | Pending |
+| EVOL-01 | Phase 12 — Self-Evolution | Pending |
+| EVOL-02 | Phase 12 — Self-Evolution | Pending |
+| EVOL-03 | Phase 12 — Self-Evolution | Pending |
 
-*(Traceability updated by roadmapper)*
+*(Traceability updated by roadmapper — 2026-05-20)*
 
 ---
 
-*Last updated: 2026-05-20 after initial requirements definition*
+*Last updated: 2026-05-20 after roadmap creation*
