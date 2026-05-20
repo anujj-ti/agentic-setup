@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: User Orchestrator** - User Orchestrator live on Telegram with coherent responses and delegation to Task Orchestrator, isolated context windows (completed 2026-05-20)
 - [x] **Phase 4: Beads + Task Orchestrator** - Beads installed with shared BEADS_DIR, Task Orchestrator creates task graphs before spawning sub-agents, claim/close cycle verified (completed 2026-05-20)
 - [x] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories (completed 2026-05-20)
-- [ ] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule
+- [x] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule (completed 2026-05-20)
 - [ ] **Phase 7: DevBot Core** - DevBot can create GitHub issues, summarize PRs, flag stale reviews, and maintain per-repo context
 - [ ] **Phase 8: CI Monitor + Autonomous Dev Scaffold** - CI Monitor alerts within 5 minutes of failure; DevBot can autonomously implement issues via Beads task graph
 - [ ] **Phase 9: Notion Decision Log** - Every autonomous decision logged to Notion before execution; user can review chronologically and mark decisions for revert; experiment logging operational
@@ -208,15 +208,15 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 06-01-PLAN.md — Scaffold email-triage agent (6 directive files + memory dirs), install googleapis@172.0.0 in agent scripts/, create gmail-triage.js stub (OAuth2 from Keychain env vars), register agent in openclaw.json with exec in tools.alsoAllow, add Gmail Keychain stubs to three-file secrets pipeline (CHAN-03)
-- [ ] 06-02-PLAN.md — Create oauth2-setup.js (Installed App flow, localhost:8080, stores refresh token in Keychain), checkpoint:human-verify for browser OAuth2 step on user return (CHAN-03)
+- [x] 06-01-PLAN.md — Scaffold email-triage agent (6 directive files + memory dirs), install googleapis@172.0.0 in agent scripts/, create gmail-triage.js stub (OAuth2 from Keychain env vars), register agent in openclaw.json with exec in tools.alsoAllow, add Gmail Keychain stubs to three-file secrets pipeline (CHAN-03)
+- [x] 06-02-PLAN.md — Create oauth2-setup.js (Installed App flow, localhost:8080, stores refresh token in Keychain), checkpoint:human-verify for browser OAuth2 step on user return (CHAN-03)
 
 **Wave 2** *(blocked on Wave 1 — requires agent directive files)*
-- [ ] 06-03-PLAN.md — Write complete OAuth2 re-auth runbook into email-triage TOOLS.md (6 sub-sections: GCP setup, Keychain storage, auth script, verify+restart, agent test, token expiry notes) — satisfies ROADMAP SC#4 (CHAN-03)
-- [ ] 06-04-PLAN.md — Create scripts/standup-brief.sh (zsh strict mode, --repo OWNER/REPO flag, BSD date, gh CLI queries, json_ok output); add exec to user-orchestrator tools.alsoAllow in openclaw.json; update User Orchestrator TOOLS.md with exec policy + standup invocation (CHAN-04)
+- [x] 06-03-PLAN.md — Write complete OAuth2 re-auth runbook into email-triage TOOLS.md (6 sub-sections: GCP setup, Keychain storage, auth script, verify+restart, agent test, token expiry notes) — satisfies ROADMAP SC#4 (CHAN-03)
+- [x] 06-04-PLAN.md — Create scripts/standup-brief.sh (zsh strict mode, --repo OWNER/REPO flag, BSD date, gh CLI queries, json_ok output); add exec to user-orchestrator tools.alsoAllow in openclaw.json; update User Orchestrator TOOLS.md with exec policy + standup invocation (CHAN-04)
 
 **Wave 3** *(blocked on Wave 2 — phase gate)*
-- [ ] 06-05-PLAN.md — Add Morning Standup Brief cron entry to jobs.json (08:00 Asia/Kolkata, user-orchestrator, 180s timeout, announce/last delivery), stow+restart, write + run scripts/verify-phase-06.sh (8 smoke checks), document PENDING OAuth2 items (CHAN-03, CHAN-04)
+- [x] 06-05-PLAN.md — Add Morning Standup Brief cron entry to jobs.json (08:00 Asia/Kolkata, user-orchestrator, 180s timeout, announce/last delivery), stow+restart, write + run scripts/verify-phase-06.sh (8 smoke checks), document PENDING OAuth2 items (CHAN-03, CHAN-04)
 
 **Cross-cutting constraints:**
 - All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate — never `#!/bin/bash`)
@@ -372,7 +372,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 3. User Orchestrator | 4/4 | Complete   | 2026-05-20 |
 | 4. Beads + Task Orchestrator | 4/4 | Complete   | 2026-05-20 |
 | 5. Dream Routines | 4/4 | Complete   | 2026-05-20 |
-| 6. Email + Morning Standup | 0/5 | Not started | - |
+| 6. Email + Morning Standup | 5/5 | Complete   | 2026-05-20 |
 | 7. DevBot Core | 0/4 | Not started | - |
 | 8. CI Monitor + Autonomous Dev Scaffold | 0/5 | Not started | - |
 | 9. Notion Decision Log | 0/6 | Not started | - |
