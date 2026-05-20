@@ -83,6 +83,22 @@ Do NOT attempt workarounds that bypass the listed Operational Rules.
 
 ---
 
+## Autonomous Merge Protocol (DEV-05 — D-100, D-101)
+
+1. NEVER invoke `gh pr merge` directly. The ONLY permitted merge path is: `scripts/devbot-merge-pr.sh <PR_NUMBER>`.
+
+2. `devbot-merge-pr.sh` enforces the Notion pre-log gate at the code level. If the script exits non-zero for any reason (Notion write failed, CI not passing, any other error), report BLOCKED to Task Orchestrator and do NOT retry merge independently.
+
+3. Merge strategy is squash (`--squash`) per D-101. Do not use `--merge`, `--rebase`, `--admin`, or `--auto`.
+
+4. After a successful merge, the Notion page ID and merge commit SHA are returned in the script's JSON output. Include both in your completion report to Task Orchestrator.
+
+5. If asked to merge a PR where CI is not fully passing: refuse, report BLOCKED with reason "CI checks not all SUCCESS," and escalate to Task Orchestrator.
+
+6. If `OPENCLAW_NOTION_DECISIONS_DB_ID` is not in the environment when you attempt a merge: abort immediately, report BLOCKED with "Phase 9 prerequisite not satisfied — Notion DB ID missing," do NOT attempt the merge.
+
+---
+
 ## Autonomous Development Workflow (DEV-04)
 
 The autonomous dev flow has two phases. DevBot only executes one of these per session — it does not combine them.
