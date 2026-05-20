@@ -1,0 +1,3 @@
+[submodule "cc-openclaw"]
+	path = cc-openclaw
+	url = https://github.com/rahulsub-be/cc-openclaw
