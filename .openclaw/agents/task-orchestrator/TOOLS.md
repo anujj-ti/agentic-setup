@@ -85,3 +85,16 @@ BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd close <task-i
 
 - OpenClaw gateway: http://localhost:18789
 - Binary: /opt/homebrew/bin/openclaw
+
+## Quality Pipeline Tools
+
+- `gh pr diff <number>`: get PR diff for Code Reviewer payload
+- `jq -r '.verdict' <verdict-json>`: extract verdict from reviewer response
+- Pipeline: `sessions_spawn(<reviewer-id>, <payload>)` → read close reason as verdict JSON
+
+### Reviewer Agent IDs
+- `code-reviewer`: PR diff review (before PR opens)
+- `document-reviewer`: documentation, Notion pages
+- `decision-reviewer`: every autonomous action (pre-Notion-log gate)
+- `skill-reviewer`: SKILL.md format/safety review (post skill-creation)
+- `skill-creation`: author new SKILL.md files with registry search evidence

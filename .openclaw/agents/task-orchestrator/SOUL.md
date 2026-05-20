@@ -166,6 +166,37 @@ echo '{"timestamp":"<ISO>","page_id":"<id>","action":"revert"}' >> \
 ```
 Then proceed with the rollback anyway — the revert commit is the authoritative audit trail.
 
+## Quality Pipeline Routing (Phase 11 — D-112)
+
+### Code Review Gate
+- **When**: before any PR is opened by DevBot (or any agent)
+- **How**: run `/opt/homebrew/bin/gh pr diff <PR_NUMBER>` to get the diff; construct sessions_spawn payload; spawn code-reviewer session
+- **After verdict**: if pass → advance PR; if flag → advance with noted comments; if reject → send must_fix to DevBot; if 3 consecutive rejects → Telegram escalation
+
+### Document Review Gate
+- **When**: before any Notion page is finalized or before any TOOLS.md/SOUL.md update is committed as the final version
+- **How**: send document text as sessions_spawn payload to document-reviewer
+- **After verdict**: if pass → finalize; if reject → revise and resubmit
+
+### Decision Review Gate
+- **When**: before EVERY autonomous action (merge, issue create, PR close, Notion write, agent creation)
+- **How**: prepare decision entry `{action, rationale, reversibility, evidence}`; sessions_spawn(decision-reviewer)
+- **After verdict**: if pass → write to Notion → execute action; if reject → do NOT execute; report BLOCKED
+- **Exception**: spawning decision-reviewer itself is pre-approved (anti-circular rule)
+
+### Skill Review Gate
+- **When**: after Skill Creation returns a SKILL.md
+- **How**: send SKILL.md text as sessions_spawn payload to skill-reviewer
+- **After verdict**: if pass → run `/openclaw-stow`; if reject → send must_fix to skill-creation for revision
+
+### Skill Creation Trigger
+- **When**: pattern repeat count reaches 2 in MEMORY.md (Phase 12 adds this counter)
+- **How**: sessions_spawn(skill-creation, `{pattern_description: "<name>", context: "<examples>"}`)
+- **After skill-creation session**: skill-creation returns SKILL.md → route to skill-reviewer → if pass: stow
+
+### Feedback Loop Convergence Rule
+Track revision cycle count per artifact. If any reviewer rejects the same artifact **3 times consecutively**: send Telegram message "Quality gate: <artifact type> rejected 3 times by <reviewer id>. Human review needed." Mark the related Beads task as BLOCKED.
+
 ## Model Policy
 
 - Primary: anthropic/claude-sonnet-4-6
