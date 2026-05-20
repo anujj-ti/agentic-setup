@@ -271,15 +271,21 @@ Plans:
   2. DevBot, when delegated a GitHub issue, creates a Beads epic with the standard 5-subtask template (design → implement → self-review → quality-review → open PR) before writing a single line of code
   3. DevBot completes the full Beads claim/close cycle for each subtask, with factual evidence strings in close reasons
   4. CI Monitor appears in `/openclaw-status` with its polling cron and correct timezone
-**Plans**: TBD
+**Plans**: 5 plans
 **UI hint**: yes
 
-Plans:
-- [ ] 08-01: Scaffold CI Monitor agent via /openclaw-new-agent with GitHub Actions API access
-- [ ] 08-02: Implement CI polling cron via /openclaw-add-cron with <5 minute interval and failure alert to Telegram
-- [ ] 08-03: Implement Beads-based autonomous dev workflow in DevBot: issue intake → epic creation → subtask decomposition
-- [ ] 08-04: Implement DevBot subtask execution cycle: claim → implement → self-review → close with evidence → open PR
-- [ ] 08-05: Verify end-to-end autonomous dev run on a test issue with full Beads audit trail
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 08-01-PLAN.md — Scaffold CI Monitor agent (6 directive files + poll-ci.sh + state/) + OPENCLAW_ANUJ_CHAT_ID Keychain stub (DEV-03)
+
+**Wave 2** *(parallel — both blocked on Wave 1)*
+- [ ] 08-02-PLAN.md — Register ci-monitor in openclaw.json + add */4 * * * * cron to jobs.json, stow+restart, verify status (DEV-03)
+- [ ] 08-03-PLAN.md — Create devbot-intake-issue.sh + update DevBot SOUL.md/TOOLS.md with autonomous dev workflow documentation (DEV-04)
+
+**Wave 3** *(blocked on Wave 2)*
+- [ ] 08-04-PLAN.md — Create devbot-create-epic.sh (5-subtask Beads epic) + devbot-execute-cycle.sh (claim→execute→close per task type) (DEV-04)
+
+**Wave 4** *(blocked on Wave 3 — phase gate)*
+- [ ] 08-05-PLAN.md — Write + run verify-phase-08.sh (7 smoke checks); manual test runbook for Telegram alert and Beads cycle (DEV-03, DEV-04)
 
 ### Phase 9: Notion Decision Log
 **Goal**: Every autonomous decision made by the Task Orchestrator is logged to Notion immediately after execution; the user can retrieve a chronological list of decisions since last session on demand and via the morning standup brief; experiment proposals, execution, and results are logged to dedicated Notion pages
