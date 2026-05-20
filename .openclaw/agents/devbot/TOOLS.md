@@ -1,0 +1,123 @@
+# TOOLS.md — DevBot gh CLI Reference
+
+## gh CLI Setup
+
+Binary: `/opt/homebrew/bin/gh`
+Required scope: `project` (for board assignment)
+Auth check: `/opt/homebrew/bin/gh auth status 2>&1 | grep "token scopes"`
+Add project scope: `/opt/homebrew/bin/gh auth refresh -s project` (requires browser)
+
+## Issue Creation (DEV-01)
+
+```zsh
+/opt/homebrew/bin/gh issue create \
+  --repo OWNER/REPO \
+  --title "..." \
+  --body "..." \
+  --label "feature" \
+  --milestone "v1.0" \
+  --project "Board Title" \
+  --assignee "@me"
+# Returns: https://github.com/OWNER/REPO/issues/NN
+```
+
+**Note:** `--project` requires the `project` OAuth scope. Without it, the issue is created but NOT added to the board.
+
+### Retroactive board assignment (when --project was skipped)
+
+```zsh
+/opt/homebrew/bin/gh project item-add PROJECT_NUMBER \
+  --owner "@me" \
+  --url ISSUE_URL
+```
+
+### Duplicate check before issue creation (MANDATORY)
+
+```zsh
+/opt/homebrew/bin/gh issue list \
+  --repo OWNER/REPO \
+  --search "keywords from title" \
+  --state open \
+  --json number,title,url \
+  --limit 5
+```
+
+If results.length > 0: return BLOCKED with the first result URL.
+
+## PR Review Queue (DEV-02)
+
+Single call for all PR data — do NOT loop per-PR:
+
+```zsh
+/opt/homebrew/bin/gh pr list \
+  --repo OWNER/REPO \
+  --state open \
+  --json number,title,createdAt,updatedAt,author,reviewDecision,reviewRequests,latestReviews,statusCheckRollup,url \
+  --limit 50
+```
+
+### Stale PR filter (jq — string comparison, ISO 8601)
+
+```zsh
+CUTOFF=$(date -u -v"-24H" '+%Y-%m-%dT%H:%M:%SZ')  # macOS BSD date
+jq --arg cutoff "$CUTOFF" '[
+  .[] | select(
+    ((.reviewRequests | length) > 0 or .reviewDecision == "CHANGES_REQUESTED") and
+    .updatedAt < $cutoff
+  ) | {number, title, updatedAt, reviewDecision, url}
+]'
+```
+
+### CI failure filter (jq — with null-guard)
+
+```zsh
+jq '[
+  .[] | select(
+    .statusCheckRollup != null and
+    (.statusCheckRollup | map(select(.state == "FAILURE")) | length) > 0
+  ) | {number, title, url, failing_checks: [.statusCheckRollup[] | select(.state == "FAILURE") | .context]}
+]'
+```
+
+**CRITICAL:** Always null-guard `statusCheckRollup` — repos with no GitHub Actions return null.
+
+### Per-PR CI drill-down (for reporting — not for queue scanning)
+
+```zsh
+/opt/homebrew/bin/gh pr checks PR_NUMBER \
+  --repo OWNER/REPO \
+  --json name,state,startedAt,completedAt,link
+```
+
+## Script Locations
+
+All scripts: `/Users/trilogy/.openclaw/agents/devbot/scripts/`
+Shared library: `scripts/lib/json-response.sh` (cc-openclaw json-response convention)
+Issue creation: `scripts/devbot-issue-create.sh`
+PR queue: `scripts/devbot-pr-queue.sh`
+Verification: `scripts/devbot-verify.sh`
+
+## Per-Repo Context File
+
+Location: `/Users/trilogy/.openclaw/workspace-devbot/repos/<owner>-<repo>/CONTEXT.md`
+Template: `/Users/trilogy/.openclaw/workspace-devbot/repos/CONTEXT-TEMPLATE.md`
+
+### Naming convention
+- `anujj-ti/agentic-setup` → `anujj-ti-agentic-setup/CONTEXT.md`
+- Replace `/` with `-` and lowercase everything
+
+## Label and Milestone Queries
+
+```zsh
+# List available labels
+/opt/homebrew/bin/gh label list --repo OWNER/REPO --json name,color
+
+# List milestones
+/opt/homebrew/bin/gh api repos/OWNER/REPO/milestones | jq '.[].title'
+
+# List project boards (for project board assignment)
+/opt/homebrew/bin/gh project list --owner "@me" --format json | jq '.[].title'
+
+# Check default branch
+/opt/homebrew/bin/gh api repos/OWNER/REPO | jq .default_branch
+```

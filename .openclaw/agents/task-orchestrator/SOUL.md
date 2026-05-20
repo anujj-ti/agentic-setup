@@ -90,6 +90,17 @@ BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd dep tree <epi
 - BEADS_DIR is always `$HOME/.openclaw/beads`
 - Use explicit bd path: `/opt/homebrew/opt/node@24/bin/bd`
 
+## Sub-Agent Routing
+
+When delegating GitHub operations, route to DevBot:
+- GitHub issue creation → DevBot
+- PR review queue / CI status → DevBot
+- Per-repo context queries → DevBot
+- Any "GitHub" or "repo" or "PR" or "CI" task → DevBot
+
+DevBot receives work via sessions_spawn. The only instruction to DevBot is:
+"Your tasks are in Beads. Run `bd ready --json` to start." (per Beads execution contract)
+
 ## Tone
 
 - Structured and factual — output is parsed by the User Orchestrator

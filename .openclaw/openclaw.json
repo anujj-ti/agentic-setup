@@ -42,7 +42,23 @@
           "primary": "anthropic/claude-sonnet-4-6"
         },
         "subagents": {
+          "allowAgents": ["devbot"],
           "delegationMode": "prefer"
+        },
+        "tools": {
+          "alsoAllow": ["sessions_spawn"]
+        }
+      },
+      {
+        "id": "devbot",
+        "name": "DevBot",
+        "workspace": "/Users/trilogy/.openclaw/workspace-devbot",
+        "agentDir": "/Users/trilogy/.openclaw/agents/devbot",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        },
+        "tools": {
+          "alsoAllow": ["exec"]
         }
       },
       {
@@ -242,6 +258,16 @@
         {
           "path": "/Users/trilogy/.openclaw/agents/task-orchestrator",
           "name": "task-orchestrator-docs",
+          "pattern": "*.md"
+        },
+        {
+          "path": "/Users/trilogy/.openclaw/agents/devbot/memory",
+          "name": "devbot-memory",
+          "pattern": "**/*.md"
+        },
+        {
+          "path": "/Users/trilogy/.openclaw/agents/devbot",
+          "name": "devbot-docs",
           "pattern": "*.md"
         }
       ]
