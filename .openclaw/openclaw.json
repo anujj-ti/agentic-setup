@@ -74,6 +74,19 @@
             "exec"
           ]
         }
+      },
+      {
+        "id": "ci-monitor",
+        "name": "CI Monitor",
+        "description": "Polls tracked GitHub repositories for CI failures and sends Telegram alerts within 5 minutes of a failure",
+        "workspace": "/Users/trilogy/.openclaw/workspace-ci-monitor",
+        "agentDir": "/Users/trilogy/.openclaw/agents/ci-monitor",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        },
+        "tools": {
+          "alsoAllow": ["exec"]
+        }
       }
     ]
   },

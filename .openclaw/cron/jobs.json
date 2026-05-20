@@ -71,6 +71,29 @@
         "mode": "announce",
         "channel": "last"
       }
+    },
+    {
+      "id": "17f4643a-c03f-4363-ae35-076792323ca0",
+      "agentId": "ci-monitor",
+      "name": "CI Monitor Poll",
+      "enabled": true,
+      "createdAtMs": 1779313416533,
+      "schedule": {
+        "kind": "cron",
+        "expr": "*/4 * * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run your CI polling routine. Execute scripts/poll-ci.sh and report the result. If new failures are found, the script will send Telegram alerts automatically.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "timeoutSeconds": 90
+      },
+      "delivery": {
+        "mode": "silent"
+      }
     }
   ]
 }
