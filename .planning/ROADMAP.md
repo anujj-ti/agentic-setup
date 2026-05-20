@@ -20,10 +20,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule (completed 2026-05-20)
 - [x] **Phase 7: DevBot Core** - DevBot can create GitHub issues, summarize PRs, flag stale reviews, and maintain per-repo context (completed 2026-05-20)
 - [x] **Phase 8: CI Monitor + Autonomous Dev Scaffold** - CI Monitor alerts within 5 minutes of failure; DevBot can autonomously implement issues via Beads task graph (completed 2026-05-20)
-- [ ] **Phase 9: Notion Decision Log** - Every autonomous decision logged to Notion before execution; user can review chronologically and mark decisions for revert; experiment logging operational
-- [ ] **Phase 10: Autonomous Merge** - DevBot can merge CI-passing PRs with Notion pre-log; user can see and revert any autonomous merge
-- [ ] **Phase 11: Quality Pipeline** - Five dedicated review agents deployed (Code Reviewer, Document Reviewer, Decision Reviewer, Skill Reviewer, Skill Creation); each output domain has its own specialist reviewer
-- [ ] **Phase 12: Self-Evolution** - Task Orchestrator scaffolds new agents via `/openclaw-new-agent`; skill creation triggers on repeating patterns; experiment framework complete
+- [x] **Phase 9: Notion Decision Log** - Every autonomous decision logged to Notion before execution; user can review chronologically and mark decisions for revert; experiment logging operational (completed 2026-05-20)
+- [x] **Phase 10: Autonomous Merge** - DevBot can merge CI-passing PRs with Notion pre-log; user can see and revert any autonomous merge (completed 2026-05-20)
+- [x] **Phase 11: Quality Pipeline** - Five dedicated review agents deployed (Code Reviewer, Document Reviewer, Decision Reviewer, Skill Reviewer, Skill Creation); each output domain has its own specialist reviewer (completed 2026-05-20)
+- [x] **Phase 12: Self-Evolution** - Task Orchestrator scaffolds new agents via `/openclaw-new-agent`; skill creation triggers on repeating patterns; experiment framework complete (completed 2026-05-20)
 
 ## Phase Details
 
@@ -303,18 +303,18 @@ Plans:
 Plans:
 
 **Wave 1** *(autonomous — no dependencies)*
-- [ ] 09-01-PLAN.md — Install @notionhq/client@5.22.0 in task-orchestrator scripts/, create config.json template, stub OPENCLAW_NOTION_TOKEN in secrets pipeline, human checkpoint for Notion integration setup (MEM-01, MEM-02, MEM-03, MEM-04)
+- [x] 09-01-PLAN.md — Install @notionhq/client@5.22.0 in task-orchestrator scripts/, create config.json template, stub OPENCLAW_NOTION_TOKEN in secrets pipeline, human checkpoint for Notion integration setup (MEM-01, MEM-02, MEM-03, MEM-04)
 
 **Wave 2** *(parallel — blocked on Wave 1 human checkpoint)*
-- [ ] 09-02-PLAN.md — Create log-decision.js (pre-execution logger, 8-field schema, TODO_NOTION guard) + update-decision.js (revert_status updater) with shell wrappers (MEM-01, MEM-03)
-- [ ] 09-03-PLAN.md — Create query-decisions.js (since last-session.json timestamp, created_time filter), update User Orchestrator SOUL.md with Decision Retrieval Protocol (MEM-02)
-- [ ] 09-04-PLAN.md — Create revert-decision.js (4-step revert workflow: pending_revert → rollback → log revert → reverted), update Task Orchestrator SOUL.md with Revert Workflow Protocol (MEM-03)
+- [x] 09-02-PLAN.md — Create log-decision.js (pre-execution logger, 8-field schema, TODO_NOTION guard) + update-decision.js (revert_status updater) with shell wrappers (MEM-01, MEM-03)
+- [x] 09-03-PLAN.md — Create query-decisions.js (since last-session.json timestamp, created_time filter), update User Orchestrator SOUL.md with Decision Retrieval Protocol (MEM-02)
+- [x] 09-04-PLAN.md — Create revert-decision.js (4-step revert workflow: pending_revert → rollback → log revert → reverted), update Task Orchestrator SOUL.md with Revert Workflow Protocol (MEM-03)
 
 **Wave 3** *(blocked on Wave 2 — requires log-decision.js and update-decision.js)*
-- [ ] 09-05-PLAN.md — Create create-experiment.js + append-experiment-results.js (heading+paragraph block template), add Notion Pre-Log Protocol (MANDATORY) to Task Orchestrator SOUL.md (MEM-01, MEM-04)
+- [x] 09-05-PLAN.md — Create create-experiment.js + append-experiment-results.js (heading+paragraph block template), add Notion Pre-Log Protocol (MANDATORY) to Task Orchestrator SOUL.md (MEM-01, MEM-04)
 
 **Wave 4** *(blocked on Wave 3 — phase gate)*
-- [ ] 09-06-PLAN.md — Wire autonomous decision count into standup-brief.sh, create verify-phase-09.sh (12 smoke checks + full integration mode) (MEM-01, MEM-02, MEM-03, MEM-04)
+- [x] 09-06-PLAN.md — Wire autonomous decision count into standup-brief.sh, create verify-phase-09.sh (12 smoke checks + full integration mode) (MEM-01, MEM-02, MEM-03, MEM-04)
 
 ### Phase 10: Autonomous Merge
 **Goal**: DevBot can merge PRs that have passed CI and quality review — each merge is pre-logged to Notion before execution, and the user can see and revert any autonomous merge from the decision log
@@ -330,14 +330,14 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 10-01-PLAN.md — Create devbot-merge-pr.sh (CI check + Notion pre-log gate + gh pr merge --squash) + notion-log-decision.js + notion-update-page.js + SECURITY.md gate rule (DEV-05)
-- [ ] 10-02-PLAN.md — Add Autonomous Merge Protocol to DevBot SOUL.md (NEVER invoke gh pr merge directly) + update TOOLS.md with merge/revert command reference and required env vars (DEV-05)
+- [x] 10-01-PLAN.md — Create devbot-merge-pr.sh (CI check + Notion pre-log gate + gh pr merge --squash) + notion-log-decision.js + notion-update-page.js + SECURITY.md gate rule (DEV-05)
+- [x] 10-02-PLAN.md — Add Autonomous Merge Protocol to DevBot SOUL.md (NEVER invoke gh pr merge directly) + update TOOLS.md with merge/revert command reference and required env vars (DEV-05)
 
 **Wave 2** *(blocked on Wave 1 — uses notion-log-decision.js from 10-01)*
-- [ ] 10-03-PLAN.md — Create devbot-revert-merge.sh (git revert <sha> --no-edit + git push + gh pr reopen + Notion revert log entry) (DEV-05)
+- [x] 10-03-PLAN.md — Create devbot-revert-merge.sh (git revert <sha> --no-edit + git push + gh pr reopen + Notion revert log entry) (DEV-05)
 
 **Wave 3** *(blocked on Waves 1 and 2 — phase gate)*
-- [ ] 10-04-PLAN.md — Create and run scripts/verify-phase-10.sh (8 checks: files exist, syntax valid, SECURITY.md gate rule, SOUL.md merge protocol, negative gate test without env vars, revert arg validation, @notionhq/client installed, no -m 1 in revert script) (DEV-05)
+- [x] 10-04-PLAN.md — Create and run scripts/verify-phase-10.sh (8 checks: files exist, syntax valid, SECURITY.md gate rule, SOUL.md merge protocol, negative gate test without env vars, revert arg validation, @notionhq/client installed, no -m 1 in revert script) (DEV-05)
 
 **Cross-cutting constraints:**
 - All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
@@ -363,17 +363,17 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — all 5 agent scaffolds are independent)*
-- [ ] 11-01-PLAN.md — Scaffold code-reviewer via /openclaw-new-agent; SOUL.md: 7-item rubric (shebang, strict mode, stdout discipline, Keychain secrets, explicit binary paths, test coverage, JSON shape) + D-111 verdict schema + diff-only rule (QUAL-01, QUAL-05)
-- [ ] 11-02-PLAN.md — Scaffold document-reviewer via /openclaw-new-agent; SOUL.md: specificity rubric + Notion experiment/decision page structure checks + anti-vagueness rule (QUAL-02, QUAL-05)
-- [ ] 11-03-PLAN.md — Scaffold decision-reviewer via /openclaw-new-agent; SOUL.md: rationale soundness + reversibility specificity + evidence observability + anti-circular rule (QUAL-03, QUAL-05)
-- [ ] 11-04-PLAN.md — Scaffold skill-reviewer via /openclaw-new-agent; SOUL.md: required vs optional frontmatter, security checklist (postinstall/hardcoded secrets/network calls), stow gate ownership rule (D-114) (QUAL-04, QUAL-05, QUAL-08)
-- [ ] 11-05-PLAN.md — Scaffold skill-creation via /openclaw-new-agent; SOUL.md: registry-search-first mandate + anti-stow rule (D-114); create search-skill-registries.sh with || echo fallbacks (D-113) (QUAL-06, QUAL-07, QUAL-08)
+- [x] 11-01-PLAN.md — Scaffold code-reviewer via /openclaw-new-agent; SOUL.md: 7-item rubric (shebang, strict mode, stdout discipline, Keychain secrets, explicit binary paths, test coverage, JSON shape) + D-111 verdict schema + diff-only rule (QUAL-01, QUAL-05)
+- [x] 11-02-PLAN.md — Scaffold document-reviewer via /openclaw-new-agent; SOUL.md: specificity rubric + Notion experiment/decision page structure checks + anti-vagueness rule (QUAL-02, QUAL-05)
+- [x] 11-03-PLAN.md — Scaffold decision-reviewer via /openclaw-new-agent; SOUL.md: rationale soundness + reversibility specificity + evidence observability + anti-circular rule (QUAL-03, QUAL-05)
+- [x] 11-04-PLAN.md — Scaffold skill-reviewer via /openclaw-new-agent; SOUL.md: required vs optional frontmatter, security checklist (postinstall/hardcoded secrets/network calls), stow gate ownership rule (D-114) (QUAL-04, QUAL-05, QUAL-08)
+- [x] 11-05-PLAN.md — Scaffold skill-creation via /openclaw-new-agent; SOUL.md: registry-search-first mandate + anti-stow rule (D-114); create search-skill-registries.sh with || echo fallbacks (D-113) (QUAL-06, QUAL-07, QUAL-08)
 
 **Wave 2** *(blocked on Wave 1 — all 5 agents must exist before wiring)*
-- [ ] 11-06-PLAN.md — Add all 5 agents to task-orchestrator allowAgents (D-112); update Task Orchestrator SOUL.md with pipeline routing rules + 3-reject convergence rule; stow+restart (QUAL-01 through QUAL-08)
+- [x] 11-06-PLAN.md — Add all 5 agents to task-orchestrator allowAgents (D-112); update Task Orchestrator SOUL.md with pipeline routing rules + 3-reject convergence rule; stow+restart (QUAL-01 through QUAL-08)
 
 **Wave 3** *(blocked on Wave 2 — phase gate)*
-- [ ] 11-07-PLAN.md — Create and run scripts/verify-phase-11.sh: 5-agent structural checks, D-111 verdict schema in all SOUL.md files, allowAgents contains all 5, specific rule checks (NEVER stow, stow gate, anti-circular, anti-vagueness, diff-only), registry search script runs and exits 0 (QUAL-01 through QUAL-08)
+- [x] 11-07-PLAN.md — Create and run scripts/verify-phase-11.sh: 5-agent structural checks, D-111 verdict schema in all SOUL.md files, allowAgents contains all 5, specific rule checks (NEVER stow, stow gate, anti-circular, anti-vagueness, diff-only), registry search script runs and exits 0 (QUAL-01 through QUAL-08)
 
 **Cross-cutting constraints:**
 - All agents scaffolded via /openclaw-new-agent (CLAUDE.md mandate — never manual file creation)
@@ -398,15 +398,15 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — all three are independent SOUL.md/file additions)*
-- [ ] 12-01-PLAN.md — Add Self-Evolution Rules section to Task Orchestrator SOUL.md: EVOL-01 (/openclaw-new-agent only + Decision Reviewer gate + routing update), EVOL-02 (threshold=2 + pattern naming convention), EVOL-03 (4-stage experiment lifecycle in mandatory order) (EVOL-01, EVOL-02, EVOL-03)
-- [ ] 12-02-PLAN.md — Create check-agent-domain.sh (reads live openclaw.json agents.list, returns ok:true/false); update Task Orchestrator TOOLS.md with 6-step EVOL-01 workflow + new agent proposal template (EVOL-01)
-- [ ] 12-03-PLAN.md — Add Pattern Counter section to Task Orchestrator MEMORY.md (PRESERVE marker per D-121, empty table with correct columns); update DREAM-ROUTINE.md with explicit verbatim preservation instruction for Pattern Counter section (EVOL-02)
+- [x] 12-01-PLAN.md — Add Self-Evolution Rules section to Task Orchestrator SOUL.md: EVOL-01 (/openclaw-new-agent only + Decision Reviewer gate + routing update), EVOL-02 (threshold=2 + pattern naming convention), EVOL-03 (4-stage experiment lifecycle in mandatory order) (EVOL-01, EVOL-02, EVOL-03)
+- [x] 12-02-PLAN.md — Create check-agent-domain.sh (reads live openclaw.json agents.list, returns ok:true/false); update Task Orchestrator TOOLS.md with 6-step EVOL-01 workflow + new agent proposal template (EVOL-01)
+- [x] 12-03-PLAN.md — Add Pattern Counter section to Task Orchestrator MEMORY.md (PRESERVE marker per D-121, empty table with correct columns); update DREAM-ROUTINE.md with explicit verbatim preservation instruction for Pattern Counter section (EVOL-02)
 
 **Wave 2** *(blocked on Wave 1 — SOUL.md rules must exist before experiment scripts are wired)*
-- [ ] 12-04-PLAN.md — Create propose-experiment.js (validates 5 required fields including measurability check) + create-experiment-page.js (Notion Draft page before Beads epic, returns bare page ID); install @notionhq/client in task-orchestrator scripts/; update TOOLS.md with 4-stage experiment lifecycle (EVOL-03)
+- [x] 12-04-PLAN.md — Create propose-experiment.js (validates 5 required fields including measurability check) + create-experiment-page.js (Notion Draft page before Beads epic, returns bare page ID); install @notionhq/client in task-orchestrator scripts/; update TOOLS.md with 4-stage experiment lifecycle (EVOL-03)
 
 **Wave 3** *(blocked on Waves 1 and 2 — phase gate + milestone completion)*
-- [ ] 12-05-PLAN.md — Create and run scripts/verify-phase-12.sh: EVOL-01 structural checks + enforcement gate (manually created agent dir not in openclaw.json per D-122, /tmp only per Pitfall 5); EVOL-02 MEMORY.md PRESERVE marker + DREAM-ROUTINE.md verbatim instruction; EVOL-03 experiment scripts + TOOLS.md lifecycle; Phase 11 agents still present; milestone summary on pass (EVOL-01, EVOL-02, EVOL-03)
+- [x] 12-05-PLAN.md — Create and run scripts/verify-phase-12.sh: EVOL-01 structural checks + enforcement gate (manually created agent dir not in openclaw.json per D-122, /tmp only per Pitfall 5); EVOL-02 MEMORY.md PRESERVE marker + DREAM-ROUTINE.md verbatim instruction; EVOL-03 experiment scripts + TOOLS.md lifecycle; Phase 11 agents still present; milestone summary on pass (EVOL-01, EVOL-02, EVOL-03) (completed 2026-05-20)
 
 **Cross-cutting constraints:**
 - D-120: Phase 12 is entirely SOUL.md rule additions + supporting scripts — no new agent directories, no new openclaw.json agent entries
@@ -430,7 +430,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Email + Morning Standup | 5/5 | Complete   | 2026-05-20 |
 | 7. DevBot Core | 4/4 | Complete   | 2026-05-20 |
 | 8. CI Monitor + Autonomous Dev Scaffold | 5/5 | Complete   | 2026-05-20 |
-| 9. Notion Decision Log | 0/6 | Not started | - |
-| 10. Autonomous Merge | 0/4 | Not started | - |
-| 11. Quality Pipeline | 0/7 | Not started | - |
-| 12. Self-Evolution | 0/5 | Not started | - |
+| 9. Notion Decision Log | 6/6 | Complete   | 2026-05-20 |
+| 10. Autonomous Merge | 4/4 | Complete   | 2026-05-20 |
+| 11. Quality Pipeline | 7/7 | Complete   | 2026-05-20 |
+| 12. Self-Evolution | 5/5 | Complete   | 2026-05-20 |
