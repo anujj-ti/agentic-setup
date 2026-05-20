@@ -1,0 +1,1 @@
+../../../cc-openclaw/.claude/skills/openclaw-dream-setup/SKILL.md

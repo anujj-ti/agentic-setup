@@ -1,0 +1,1 @@
+../../../cc-openclaw/.claude/skills/openclaw-new-agent/SKILL.md
