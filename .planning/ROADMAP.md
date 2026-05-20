@@ -101,14 +101,28 @@ Plans:
   2. User delegates a task via Telegram and the User Orchestrator hands it off to the Task Orchestrator — user does not manually manage the delegation
   3. User Orchestrator and Task Orchestrator run as separate persistent OpenClaw agents with fully isolated context windows (verified by inspecting their separate session state)
   4. User Orchestrator SOUL.md is configured via `/openclaw-new-agent` — no manual file edits were made to achieve the configuration
-**Plans**: TBD
+**Plans**: 4 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 03-01: Scaffold User Orchestrator agent via /openclaw-new-agent with SOUL.md defining conversation and delegation behavior
-- [ ] 03-02: Wire User Orchestrator to Telegram channel and verify coherent response round-trip
-- [ ] 03-03: Scaffold Task Orchestrator agent with isolated context window and verify delegation handoff from User Orchestrator
-- [ ] 03-04: Confirm both agents appear as separate persistent agents in /openclaw-status with no shared session state
+
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 03-01-PLAN.md — Scaffold User Orchestrator: runtime dirs, 6 directive files (SOUL.md + 5), agents.list entry with subagents.allowAgents + delegationMode + tools.alsoAllow, update Telegram binding to user-orchestrator, stow+restart (ORCH-01, ORCH-02, ORCH-05)
+- [ ] 03-02-PLAN.md — Write scripts/verify-phase-03.sh (9-check automated smoke test); run it to confirm 03-01 state (ORCH-01, ORCH-05)
+
+**Wave 2** *(blocked on Wave 1 — requires user-orchestrator entry in agents.list)*
+- [ ] 03-03-PLAN.md — Scaffold Task Orchestrator: runtime dirs, 6 directive files, agents.list entry (no Telegram binding, Beads-free Phase 3 stub), stow+restart (ORCH-02, ORCH-05)
+
+**Wave 3** *(blocked on Wave 2 — phase gate)*
+- [ ] 03-04-PLAN.md — Run full verification suite; confirm isolated session stores and workspaces; write phase SUMMARY with delegation test runbook for user on return (ORCH-01, ORCH-02, ORCH-05)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- Explicit binary: `/opt/homebrew/bin/openclaw` (nvm PATH shadowing issue)
+- Stow deploy: `scripts/stow-deploy.sh` — only valid entry point; removes `jobs.json` before stow
+- Daemon restart: `launchctl kickstart -k gui/$(id -u)/ai.openclaw.gateway` (separate from stow per D-10)
+- openclaw.json agent paths: use `/Users/trilogy/...` literal, never `~`
+- No new Keychain entries in Phase 3 — no new secrets
 
 ### Phase 4: Beads + Task Orchestrator
 **Goal**: Beads (bd) is installed with a single shared `BEADS_DIR` exported to all agents in the execution tier; the Task Orchestrator creates a complete task graph (epic + subtasks + dependencies) before spawning any sub-agent, and the claim/close cycle is verified end-to-end
