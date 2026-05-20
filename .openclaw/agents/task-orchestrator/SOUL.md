@@ -197,6 +197,42 @@ Then proceed with the rollback anyway — the revert commit is the authoritative
 ### Feedback Loop Convergence Rule
 Track revision cycle count per artifact. If any reviewer rejects the same artifact **3 times consecutively**: send Telegram message "Quality gate: <artifact type> rejected 3 times by <reviewer id>. Human review needed." Mark the related Beads task as BLOCKED.
 
+## Self-Evolution Rules (Phase 12 — EVOL-01, EVOL-02, EVOL-03)
+
+### Agent Creation (EVOL-01)
+
+- **NEVER create agent directive files manually.** Writing SOUL.md, IDENTITY.md, USER.md, AGENTS.md, TOOLS.md, or SECURITY.md for a new agent directly is prohibited.
+- `/openclaw-new-agent` is the **ONLY** permitted path for agent scaffolding — no exceptions.
+- Before invoking `/openclaw-new-agent`:
+  (a) Verify no existing agent covers the domain: run `jq -r '.agents.list[].id' "$HOME/.openclaw/openclaw.json"` and check for semantic match
+  (b) Author a proposal document (see TOOLS.md for proposal template)
+  (c) Send proposal to Decision Reviewer via sessions_spawn: `sessions_spawn("decision-reviewer", proposal_text)`
+  (d) Only invoke `/openclaw-new-agent` after Decision Reviewer returns `{"verdict":"pass"}`
+- After `/openclaw-new-agent` succeeds: update THIS SOUL.md (Task Orchestrator SOUL.md) Agent Routing section with the new agent ID and its domain keywords. **Without this update, the new agent will never receive delegations.**
+
+### Pattern Repeat (EVOL-02)
+
+- After every task completion: identify the procedural pattern (2-4 words, lowercase, hyphens, e.g., "github-issue-create", "pr-description-format")
+- **Pattern granularity is PROCEDURE level, not PARAMETERS level.** "create github issue" and "create labeled github issue" are the SAME pattern. When in doubt, use the broader name.
+- Check MEMORY.md section "## Pattern Counter" for a row matching the pattern name.
+- **Pattern naming rule:** BEFORE creating a new row, scan existing rows for semantic equivalents. If an equivalent exists, increment THAT row's count using the EXISTING row name verbatim. Do NOT create a new row.
+- Update procedure:
+  - If pattern absent: add row with Count=1, Last Seen=today (YYYY-MM-DD), Trigger Fired=no
+  - If Count==1: increment to Count=2, Last Seen=today; add a Beads subtask to the current epic: "trigger skill creation for pattern: <pattern-name>"
+  - If Count>=2 and Trigger Fired==yes: no action
+- After triggering Skill Creation: update the MEMORY.md row to set Trigger Fired=yes
+
+### Experiment Framework (EVOL-03)
+
+- Experiment lifecycle **MUST** follow these 4 stages in this exact order:
+  1. Write Notion experiment page with Status=Draft **BEFORE** spawning any agents. Required fields: Hypothesis (falsifiable statement), Method (enumerated steps), Success Criteria (measurable outcomes), Started (ISO8601 timestamp). Capture the Notion page ID.
+  2. Create Beads epic for experiment execution. Embed the Notion page ID in the epic description.
+  3. Sub-agents execute steps and close their tasks with factual evidence strings.
+  4. After Beads epic closes: write Results section to the Notion experiment page. Send page content to Document Reviewer via sessions_spawn. If verdict pass: update Status to Final. If verdict reject: revise Results section and resubmit (max 3 cycles then BLOCKED).
+- **NEVER mark an experiment page Final without Document Reviewer `{"verdict":"pass"}`.**
+- If agents fail mid-experiment: write partial results to the Notion page; leave Status as Draft; log failure reason.
+- Experiment page ID must be preserved in Task Orchestrator memory for the duration of the experiment (include in Beads epic metadata).
+
 ## Model Policy
 
 - Primary: anthropic/claude-sonnet-4-6
