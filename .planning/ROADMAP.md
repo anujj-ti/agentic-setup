@@ -152,13 +152,30 @@ Plans:
   2. After the first nightly run, `memory/archives/` directory exists and contains a dated archive file for each orchestrator
   3. Daily MEMORY.md for each orchestrator is within the 2,500-token cap (verifiable by token count on the file)
   4. 3-day rolling digest is present and within the 7,500-token cap
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 05-01: Set up dream routine cron for User Orchestrator via /openclaw-dream-setup with token budget constraints
-- [ ] 05-02: Set up dream routine cron for Task Orchestrator via /openclaw-dream-setup with token budget constraints
-- [ ] 05-03: Create memory/archives/ directories for both orchestrators and verify archive file creation after first run
-- [ ] 05-04: Validate token caps on MEMORY.md and 3-day digest files post-run
+
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 05-01-PLAN.md — Create DREAM-ROUTINE.md (23:00 IST trigger, 2,500/7,500 token budgets), MEMORY.md stub, and updated AGENTS.md memory load sequence for User Orchestrator (ORCH-06)
+- [ ] 05-02-PLAN.md — Create DREAM-ROUTINE.md (23:05 IST trigger, silent delivery), MEMORY.md stub, and updated AGENTS.md memory load sequence for Task Orchestrator (ORCH-06)
+
+**Wave 2** *(blocked on Wave 1 — requires DREAM-ROUTINE.md and MEMORY.md in repo)*
+- [ ] 05-03-PLAN.md — Create .openclaw/cron/ directory and jobs.json with both dream cron entries; add QMD paths to openclaw.json; run stow-deploy.sh + restart gateway (ORCH-06)
+
+**Wave 3** *(blocked on Wave 2 — phase gate)*
+- [ ] 05-04-PLAN.md — Write and run scripts/verify-phase-05.sh: 6 ORCH-06 pre-run smoke checks; note that token cap checks (success criteria 3 and 4) require manual post-run verification after first 23:00 IST run (ORCH-06)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- Explicit binary: `/opt/homebrew/bin/openclaw` (nvm PATH shadowing issue)
+- Stow deploy: `scripts/stow-deploy.sh` — canonical entry point (D-48)
+- Gateway restart: `launchctl kickstart -k gui/$(id -u)/ai.openclaw.gateway` (D-50)
+- openclaw.json QMD paths: use `/Users/trilogy/...` literal, never `~` or `$HOME` (D-47)
+- jobs.json schema: `{"kind": "cron", "expr": "...", "tz": "..."}` nested form — not flat (D-40)
+- Task Orchestrator delivery: `{"mode": "silent"}` — no channel field (D-42)
+- Model in cron payloads: `anthropic/claude-sonnet-4-6` (D-41)
+- memory/archives/ dirs already exist in live agent paths — no mkdir needed (D-44)
 
 ### Phase 6: Email + Morning Standup
 **Goal**: The Email Triage agent reads and categorizes email from `echo.sys.bot@gmail.com`, and a morning standup brief is delivered via Telegram each morning summarizing overnight GitHub activity and queued decisions
