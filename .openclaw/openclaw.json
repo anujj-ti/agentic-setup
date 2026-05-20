@@ -28,7 +28,8 @@
         "tools": {
           "alsoAllow": [
             "sessions_spawn",
-            "sessions_yield"
+            "sessions_yield",
+            "exec"
           ]
         }
       },

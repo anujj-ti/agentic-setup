@@ -1,0 +1,68 @@
+#!/usr/bin/env zsh
+# standup-brief.sh — Aggregate overnight GitHub activity for morning standup brief
+# Usage: standup-brief.sh --repo OWNER/REPO
+# Output: JSON to stdout, logs to stderr
+# Source: CLAUDE.md shell scripting conventions (macOS only, BSD date)
+set -euo pipefail
+
+source "$(dirname "$0")/lib/json-response.sh"
+
+# --- Argument parsing ---
+REPO=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo)
+      REPO="$2"
+      shift 2
+      ;;
+    *)
+      json_fail "unknown-arg" "Unknown argument: $1. Usage: standup-brief.sh --repo OWNER/REPO"
+      ;;
+  esac
+done
+
+if [[ -z "$REPO" ]]; then
+  json_fail "missing-arg" "Usage: standup-brief.sh --repo OWNER/REPO"
+fi
+
+# --- Explicit binary paths (per CLAUDE.md — protect against nvm/PATH shadowing) ---
+GH=/opt/homebrew/bin/gh
+JQ=/opt/homebrew/bin/jq
+
+# --- Verify dependencies ---
+[[ -x "$GH" ]] || json_fail "gh-not-found" "gh not found at $GH — run: brew install gh"
+[[ -x "$JQ" ]] || json_fail "jq-not-found" "jq not found at $JQ — run: brew install jq"
+
+print "Fetching GitHub data for repo: $REPO" >&2
+
+# --- 1. PRs merged overnight (last 24h, macOS BSD date format) ---
+# BSD date: date -u -v-24H '+%Y-%m-%dT%H:%M:%SZ'
+MERGED_PRS='[]'
+MERGED_PRS=$($GH pr list \
+  --state merged \
+  --search "merged:>$(date -u -v-24H '+%Y-%m-%dT%H:%M:%SZ')" \
+  --json number,title,mergedAt,mergedBy \
+  --limit 20 \
+  --repo "$REPO" 2>/dev/null) || MERGED_PRS='[]'
+
+# --- 2. CI failures ---
+CI_FAILURES='[]'
+CI_FAILURES=$($GH run list \
+  --status failure \
+  --json name,conclusion,headBranch,url,createdAt \
+  --limit 10 \
+  --repo "$REPO" 2>/dev/null) || CI_FAILURES='[]'
+
+# --- 3. Stale PRs (open with review requests or CHANGES_REQUESTED) ---
+STALE_PRS='[]'
+STALE_PRS=$($GH pr list \
+  --state open \
+  --json number,title,updatedAt,reviewDecision,reviewRequests \
+  --limit 30 \
+  --repo "$REPO" 2>/dev/null | \
+  $JQ '[.[] | select((.reviewRequests | length) > 0 or .reviewDecision == "CHANGES_REQUESTED") | {number, title, updatedAt, reviewDecision}]' 2>/dev/null) || STALE_PRS='[]'
+
+print "Data aggregation complete." >&2
+
+# --- Output structured JSON to stdout ---
+json_ok "{\"repo\":\"$REPO\",\"as_of\":\"$(date -u '+%Y-%m-%dT%H:%M:%SZ')\",\"merged_prs\":$MERGED_PRS,\"ci_failures\":$CI_FAILURES,\"stale_prs\":$STALE_PRS}"
