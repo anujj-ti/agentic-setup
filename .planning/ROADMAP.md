@@ -47,7 +47,7 @@ Plans:
 - [x] 01-02-PLAN.md — Add cc-openclaw as a git submodule and stow its 9 skills into .claude/skills/ via --no-folding (INFRA-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 01-04-PLAN.md — Create scripts/stow-deploy.sh + scripts/infra-verify.sh; establish stow management over ~/.openclaw/ (INFRA-04)
+- [x] 01-04-PLAN.md — Create scripts/stow-deploy.sh + scripts/infra-verify.sh; establish stow management over ~/.openclaw/ (INFRA-04)
 
 **Wave 3** *(blocked on Wave 2 — requires stow symlink for OPENCLAW_REPO detection)*
 - [ ] 01-03-PLAN.md — Add a test secret via /openclaw-add-secret to verify the three-file pipeline end-to-end (INFRA-03)
@@ -278,7 +278,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 2/5 | In Progress|  |
+| 1. Infrastructure | 3/5 | In Progress|  |
 | 2. Core Channels | 0/3 | Not started | - |
 | 3. User Orchestrator | 0/4 | Not started | - |
 | 4. Beads + Task Orchestrator | 0/4 | Not started | - |
