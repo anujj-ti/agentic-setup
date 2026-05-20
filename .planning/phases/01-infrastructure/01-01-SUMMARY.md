@@ -69,14 +69,14 @@ completed: 2026-05-20
 
 # Phase 1 Plan 01: Infrastructure Prerequisites Summary
 
-**node@24 v24.15.0, stow, and jq installed via Homebrew; Wave 0 source-of-truth stub files created at canonical repo paths; blocked at Task 4 (OpenClaw curl installer requires user terminal)**
+**OpenClaw 2026.5.18 installed, LaunchAgent loaded, node@24 v24.15.0 active — all 4 tasks complete, INFRA-01 satisfied**
 
 ## Performance
 
-- **Duration:** 6 min
+- **Duration:** ~90 min (including user-run interactive installer)
 - **Started:** 2026-05-20T17:31:24Z
-- **Completed:** 2026-05-20T17:36:36Z (partial — stopped at Task 4 checkpoint)
-- **Tasks:** 3 of 4 completed (Task 4 is a blocking human-action checkpoint)
+- **Completed:** 2026-05-20T18:30:00Z
+- **Tasks:** 4 of 4 completed
 - **Files modified:** 7 created
 
 ## Accomplishments
@@ -93,8 +93,7 @@ Each task was committed atomically:
 1. **Task 1: Create scripts/lib/json-response.sh** - `d3d0d54` (feat)
 2. **Task 2: Create scripts/install-prereqs.sh and run it** - `c8fc397` (feat)
 3. **Task 3: Create Wave 0 source-of-truth files** - `2a2bce3` (feat)
-
-Task 4 is a `checkpoint:human-action` — user must run the OpenClaw curl installer and `openclaw onboard --install-daemon` interactively. No commit for Task 4.
+4. **Task 4: User ran OpenClaw curl installer + openclaw daemon install** — human-action checkpoint, completed by user
 
 ## Files Created/Modified
 
@@ -135,35 +134,19 @@ Task 4 is a `checkpoint:human-action` — user must run the OpenClaw curl instal
 - stow was already installed (brew list stow returned 0).
 - The install-prereqs.sh node@24 PATH pin logic correctly reports "not found" for the .openclaw scripts on first run (files didn't exist yet); pin is applied on subsequent runs after Task 3 creates the stub files. The node@24 reference in the stubs satisfies the `grep -q node@24` acceptance criterion.
 
-## User Setup Required
+## Task 4 — Completed
 
-**Task 4 requires manual user action (OpenClaw installer is interactive, TTY required):**
+Task 4 was a blocking human-action checkpoint. The user ran the interactive steps:
 
-Step 1 — Activate node@24 in your shell:
-```
-If Apple Silicon: export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
-If Intel:         export PATH="/usr/local/opt/node@24/bin:$PATH"
-Confirm: node --version (must start with v24)
-```
+- OpenClaw curl installer ran: `openclaw --version` → `2026.5.18`
+- `openclaw daemon install` + `openclaw daemon start` executed (onboard wizard failed on `/home/node` mkdir; `openclaw daemon install` used as workaround)
+- LaunchAgent installed at `~/Library/LaunchAgents/ai.openclaw.gateway.plist`
+- Gateway running: `pid 40810, state active`
 
-Step 2 — Run the OpenClaw curl installer:
-```
-curl -fsSL https://openclaw.ai/install.sh | bash
-Confirm: openclaw --version returns 2026.5.18
-```
-
-Step 3 — Install the LaunchAgent:
-```
-openclaw onboard --install-daemon
-Confirm: ls ~/Library/LaunchAgents/ | grep -q ai.openclaw.gateway
-```
-
-Step 4 — Paste the output of these three commands to resume:
-```
-openclaw --version
-node --version
-ls ~/Library/LaunchAgents/ | grep ai.openclaw
-```
+**Config cleanup done during checkpoint:**
+- Telegram bot token moved from plaintext in `~/.openclaw/openclaw.json` → macOS Keychain as `openclaw.telegram-token`
+- Old wizard config (pre-existing agents from 2026.3.12 install, wrong `/home/node` paths) replaced with clean config
+- Old config backed up to `~/.openclaw/openclaw.json.pre-stow`
 
 ## Known Stubs
 
@@ -186,20 +169,17 @@ No new network endpoints, auth paths, or schema changes introduced. All files ar
 
 ## Next Phase Readiness
 
-**After Task 4 (user completes OpenClaw install):**
-- Plan 01-02 can proceed: node@24, stow, jq are on the machine; cc-openclaw submodule can be added
-- Plan 01-03 can proceed: stub env files exist at canonical paths for /openclaw-add-secret
-- Plan 01-04 can proceed: .openclaw/openclaw.json exists for stow deploy
-- Plan 01-05 can proceed: infra-verify.sh can check all INFRA-01 requirements
+INFRA-01 is complete. All plans in Phase 1 can proceed:
+- Plan 01-02: cc-openclaw submodule ✓ (ran in parallel, already complete)
+- Plan 01-03: stub env files exist at canonical paths for /openclaw-add-secret
+- Plan 01-04: .openclaw/openclaw.json exists for stow deploy
+- Plan 01-05: infra-verify.sh can check all INFRA-01 requirements
 
-**Blockers:**
-- OpenClaw 2026.5.18 is NOT yet installed (was at 2026.3.12 via nvm Node 22 before this plan)
-- ai.openclaw.gateway LaunchAgent plist does NOT yet exist in ~/Library/LaunchAgents/
-- These are resolved by Task 4 (user-run OpenClaw installer)
+**No blockers.**
 
 ---
 *Phase: 01-infrastructure*
-*Completed: 2026-05-20 (partial — awaiting Task 4 checkpoint)*
+*Completed: 2026-05-20*
 
 ## Self-Check: PASSED
 
