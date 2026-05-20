@@ -19,6 +19,10 @@ SECRETS=(
   # CI Monitor Telegram chat ID — Phase 8 (D-84)
   # Get your chat ID: send a DM to your bot and run: openclaw logs --follow | grep chat_id
   "openclaw.anuj-chat-id|OPENCLAW_ANUJ_CHAT_ID|Your Telegram chat ID (get from @userinfobot or openclaw logs --follow | grep chat_id)"
+  # Notion integration token — Phase 9 (D-92)
+  # Service: openclaw.notion-token | Env var: OPENCLAW_NOTION_TOKEN
+  # Create at: https://www.notion.so/my-integrations
+  # Run: /openclaw-add-secret notion-token <integration_token>
 )
 
 for entry in "${SECRETS[@]}"; do

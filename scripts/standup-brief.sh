@@ -64,5 +64,29 @@ STALE_PRS=$($GH pr list \
 
 print "Data aggregation complete." >&2
 
+# --- 4. Autonomous decisions since last session (Phase 9 Notion integration) ---
+# Wrapped in subshell with fallback so standup always completes regardless of Notion status
+DECISIONS_RAW=$(zsh /Users/trilogy/.openclaw/agents/task-orchestrator/scripts/notion/query-decisions.sh 2>/dev/null || echo '{"ok":false,"error":"query failed"}')
+DECISION_COUNT=$($JQ '.count // 0' <<< "$DECISIONS_RAW" 2>/dev/null || echo "0")
+DECISION_SKIPPED=$($JQ '.skipped // false' <<< "$DECISIONS_RAW" 2>/dev/null || echo "false")
+DECISION_SINCE=$($JQ -r '.since // ""' <<< "$DECISIONS_RAW" 2>/dev/null || echo "")
+NOTION_CONFIGURED="true"
+
+if [[ "$DECISION_SKIPPED" == "true" ]]; then
+  NOTION_CONFIGURED="false"
+  DECISION_SUMMARY='["Notion not configured — run /openclaw-add-secret notion-token"]'
+elif [[ "$($JQ '.ok // false' <<< "$DECISIONS_RAW" 2>/dev/null || echo 'false')" != "true" ]]; then
+  NOTION_CONFIGURED="false"
+  DECISION_SUMMARY='["Could not retrieve decisions from Notion"]'
+elif [[ "$DECISION_COUNT" -gt "0" ]]; then
+  DECISION_SUMMARY=$($JQ '[.decisions[:3][].decision] // []' <<< "$DECISIONS_RAW" 2>/dev/null || echo '[]')
+else
+  DECISION_SUMMARY='[]'
+fi
+
+AUTONOMOUS_DECISIONS="{\"count\":${DECISION_COUNT},\"since\":\"${DECISION_SINCE}\",\"summary\":${DECISION_SUMMARY},\"notion_configured\":${NOTION_CONFIGURED}}"
+
+print "Autonomous decisions query complete." >&2
+
 # --- Output structured JSON to stdout ---
-json_ok "{\"repo\":\"$REPO\",\"as_of\":\"$(date -u '+%Y-%m-%dT%H:%M:%SZ')\",\"merged_prs\":$MERGED_PRS,\"ci_failures\":$CI_FAILURES,\"stale_prs\":$STALE_PRS}"
+json_ok "{\"repo\":\"$REPO\",\"as_of\":\"$(date -u '+%Y-%m-%dT%H:%M:%SZ')\",\"merged_prs\":$MERGED_PRS,\"ci_failures\":$CI_FAILURES,\"stale_prs\":$STALE_PRS,\"autonomous_decisions\":$AUTONOMOUS_DECISIONS}"

@@ -42,11 +42,20 @@
           "primary": "anthropic/claude-sonnet-4-6"
         },
         "subagents": {
-          "allowAgents": ["devbot"],
+          "allowAgents": [
+            "devbot",
+            "code-reviewer",
+            "document-reviewer",
+            "decision-reviewer",
+            "skill-reviewer",
+            "skill-creation"
+          ],
           "delegationMode": "prefer"
         },
         "tools": {
-          "alsoAllow": ["sessions_spawn"]
+          "alsoAllow": [
+            "sessions_spawn"
+          ]
         }
       },
       {
@@ -58,7 +67,9 @@
           "primary": "anthropic/claude-sonnet-4-6"
         },
         "tools": {
-          "alsoAllow": ["exec"]
+          "alsoAllow": [
+            "exec"
+          ]
         }
       },
       {
@@ -85,7 +96,54 @@
           "primary": "anthropic/claude-sonnet-4-6"
         },
         "tools": {
-          "alsoAllow": ["exec"]
+          "alsoAllow": [
+            "exec"
+          ]
+        }
+      },
+      {
+        "id": "code-reviewer",
+        "name": "Code Reviewer",
+        "workspace": "/Users/trilogy/.openclaw/workspace-code-reviewer",
+        "agentDir": "/Users/trilogy/.openclaw/agents/code-reviewer",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        }
+      },
+      {
+        "id": "document-reviewer",
+        "name": "Document Reviewer",
+        "workspace": "/Users/trilogy/.openclaw/workspace-document-reviewer",
+        "agentDir": "/Users/trilogy/.openclaw/agents/document-reviewer",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        }
+      },
+      {
+        "id": "decision-reviewer",
+        "name": "Decision Reviewer",
+        "workspace": "/Users/trilogy/.openclaw/workspace-decision-reviewer",
+        "agentDir": "/Users/trilogy/.openclaw/agents/decision-reviewer",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        }
+      },
+      {
+        "id": "skill-reviewer",
+        "name": "Skill Reviewer",
+        "workspace": "/Users/trilogy/.openclaw/workspace-skill-reviewer",
+        "agentDir": "/Users/trilogy/.openclaw/agents/skill-reviewer",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        }
+      },
+      {
+        "id": "skill-creation",
+        "name": "Skill Creation",
+        "workspace": "/Users/trilogy/.openclaw/workspace-skill-creation",
+        "agentDir": "/Users/trilogy/.openclaw/agents/skill-creation",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
         }
       }
     ]

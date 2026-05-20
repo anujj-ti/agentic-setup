@@ -178,3 +178,28 @@ The Task Orchestrator creates Beads epics with this exact structure. DevBot does
 | T5 | Open PR for #N: {title} | T4 |
 
 The dep chain (T1 → T2 → T3 → T4 → T5) means only T1 is `ready` initially. After closing T1, T2 becomes ready. And so on.
+
+---
+
+## Merge and Revert Commands (Phase 10)
+
+### Required env vars (sourced from Keychain via openclaw-secrets.sh)
+- `OPENCLAW_NOTION_TOKEN` — Notion API auth
+- `OPENCLAW_NOTION_DECISIONS_DB_ID` — ID of the decisions database (set by Phase 9 prerequisite)
+
+### Merge
+```zsh
+scripts/devbot-merge-pr.sh <PR_NUMBER>
+```
+Returns: `{"ok":true,"pageId":"<id>","mergeCommitSha":"<sha>","prNumber":"<n>"}`
+Fails fast with `{"ok":false,"error":"..."}` if CI not passing or Notion write fails.
+
+### Revert (after merge)
+```zsh
+scripts/devbot-revert-merge.sh <MERGE_SHA> <PR_NUMBER> <ORIGINAL_PAGE_ID>
+```
+Returns: `{"ok":true,"revertedSha":"<sha>","prNumber":"<n>"}`
+Note: `gh pr reopen` reopens the PR state. The head branch is NOT recreated — if `--delete-branch` was used during merge, the user must recreate the branch manually to push new commits.
+
+### Notion log entry fields written per merge
+Action, Timestamp, Rationale, Evidence, Reversibility, Status, MergeCommitSha (added post-merge)
