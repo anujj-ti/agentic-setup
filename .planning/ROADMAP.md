@@ -298,15 +298,23 @@ Plans:
   3. User marks a logged decision as "reverted" and the Task Orchestrator executes the appropriate rollback steps (e.g., revert merge, reopen issue) and logs the revert as a new decision entry
   4. Each experiment proposal gets its own structured Notion page with: hypothesis, method, success criteria, execution steps, and results — page exists before the experiment begins
   5. Morning standup brief includes the count and summary of autonomous decisions taken overnight
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 09-01: Define and create Notion database schema for decision log (timestamp, decision, rationale, evidence, reversibility, revert_status fields)
-- [ ] 09-02: Implement pre-execution Notion logging in Task Orchestrator using @notionhq/client 5.22.0
-- [ ] 09-03: Implement on-demand decision retrieval via Telegram ("what did you do while I was away?")
-- [ ] 09-04: Implement revert workflow: user marks decision → Task Orchestrator executes rollback → logs revert entry
-- [ ] 09-05: Implement experiment page creation with structured template (hypothesis, method, criteria, results)
-- [ ] 09-06: Integrate autonomous decision count and summary into morning standup brief
+
+**Wave 1** *(autonomous — no dependencies)*
+- [ ] 09-01-PLAN.md — Install @notionhq/client@5.22.0 in task-orchestrator scripts/, create config.json template, stub OPENCLAW_NOTION_TOKEN in secrets pipeline, human checkpoint for Notion integration setup (MEM-01, MEM-02, MEM-03, MEM-04)
+
+**Wave 2** *(parallel — blocked on Wave 1 human checkpoint)*
+- [ ] 09-02-PLAN.md — Create log-decision.js (pre-execution logger, 8-field schema, TODO_NOTION guard) + update-decision.js (revert_status updater) with shell wrappers (MEM-01, MEM-03)
+- [ ] 09-03-PLAN.md — Create query-decisions.js (since last-session.json timestamp, created_time filter), update User Orchestrator SOUL.md with Decision Retrieval Protocol (MEM-02)
+- [ ] 09-04-PLAN.md — Create revert-decision.js (4-step revert workflow: pending_revert → rollback → log revert → reverted), update Task Orchestrator SOUL.md with Revert Workflow Protocol (MEM-03)
+
+**Wave 3** *(blocked on Wave 2 — requires log-decision.js and update-decision.js)*
+- [ ] 09-05-PLAN.md — Create create-experiment.js + append-experiment-results.js (heading+paragraph block template), add Notion Pre-Log Protocol (MANDATORY) to Task Orchestrator SOUL.md (MEM-01, MEM-04)
+
+**Wave 4** *(blocked on Wave 3 — phase gate)*
+- [ ] 09-06-PLAN.md — Wire autonomous decision count into standup-brief.sh, create verify-phase-09.sh (12 smoke checks + full integration mode) (MEM-01, MEM-02, MEM-03, MEM-04)
 
 ### Phase 10: Autonomous Merge
 **Goal**: DevBot can merge PRs that have passed CI and quality review — each merge is pre-logged to Notion before execution, and the user can see and revert any autonomous merge from the decision log
