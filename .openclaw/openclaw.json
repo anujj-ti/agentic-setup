@@ -1,16 +1,175 @@
-// Source: docs.openclaw.ai/gateway/configuration
-// Populated by /openclaw-new-agent in Phase 3+; channels added by /openclaw-add-channel in Phase 2
-// DO NOT edit manually after Phase 1. All changes go through cc-openclaw skills.
 {
-  gateway: {
-    mode: "local"
+  "gateway": {
+    "mode": "local",
+    "auth": {
+      "mode": "token",
+      "token": "2fd64cb5a158024be7e216f2c8508fa1d20fa3e422665315"
+    }
   },
-  agents: {
-    defaults: {
-      workspace: "~/.openclaw/workspace"
+  "agents": {
+    "defaults": {
+      "workspace": "~/.openclaw/workspace"
     },
-    list: []
+    "list": []
+  },
+  "channels": {
+    "telegram": {
+      "accounts": {
+        "main": {
+          "enabled": true,
+          "dmPolicy": "pairing",
+          "botToken": {
+            "source": "env",
+            "provider": "default",
+            "id": "OPENCLAW_TELEGRAM_MAIN_BOT_TOKEN"
+          },
+          "groupPolicy": "allowlist"
+        }
+      },
+      "enabled": true
+    }
+  },
+  "bindings": [
+    {
+      "agentId": "main",
+      "match": {
+        "channel": "telegram",
+        "accountId": "main"
+      }
+    }
+  ],
+  "meta": {
+    "lastTouchedVersion": "2026.5.18",
+    "lastTouchedAt": "2026-05-20T19:50:51.107Z"
+  },
+  "skills": {
+    "entries": {
+      "1password": {
+        "enabled": false
+      },
+      "apple-notes": {
+        "enabled": false
+      },
+      "apple-reminders": {
+        "enabled": false
+      },
+      "bear-notes": {
+        "enabled": false
+      },
+      "blogwatcher": {
+        "enabled": false
+      },
+      "blucli": {
+        "enabled": false
+      },
+      "camsnap": {
+        "enabled": false
+      },
+      "clawhub": {
+        "enabled": false
+      },
+      "coding-agent": {
+        "enabled": false
+      },
+      "discord": {
+        "enabled": false
+      },
+      "eightctl": {
+        "enabled": false
+      },
+      "gemini": {
+        "enabled": false
+      },
+      "gifgrep": {
+        "enabled": false
+      },
+      "gog": {
+        "enabled": false
+      },
+      "goplaces": {
+        "enabled": false
+      },
+      "himalaya": {
+        "enabled": false
+      },
+      "imsg": {
+        "enabled": false
+      },
+      "mcporter": {
+        "enabled": false
+      },
+      "model-usage": {
+        "enabled": false
+      },
+      "nano-pdf": {
+        "enabled": false
+      },
+      "obsidian": {
+        "enabled": false
+      },
+      "openai-whisper-api": {
+        "enabled": false
+      },
+      "openhue": {
+        "enabled": false
+      },
+      "oracle": {
+        "enabled": false
+      },
+      "ordercli": {
+        "enabled": false
+      },
+      "peekaboo": {
+        "enabled": false
+      },
+      "sag": {
+        "enabled": false
+      },
+      "session-logs": {
+        "enabled": false
+      },
+      "sherpa-onnx-tts": {
+        "enabled": false
+      },
+      "slack": {
+        "enabled": false
+      },
+      "songsee": {
+        "enabled": false
+      },
+      "sonoscli": {
+        "enabled": false
+      },
+      "spotify-player": {
+        "enabled": false
+      },
+      "summarize": {
+        "enabled": false
+      },
+      "things-mac": {
+        "enabled": false
+      },
+      "tmux": {
+        "enabled": false
+      },
+      "trello": {
+        "enabled": false
+      },
+      "voice-call": {
+        "enabled": false
+      },
+      "wacli": {
+        "enabled": false
+      },
+      "xurl": {
+        "enabled": false
+      }
+    }
+  },
+  "wizard": {
+    "lastRunAt": "2026-05-20T19:50:51.062Z",
+    "lastRunVersion": "2026.5.18",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
   }
-  // channels: {} — added by /openclaw-add-channel (Phase 2)
-  // cron: { enabled: true } — added by /openclaw-add-cron when first cron job is created
 }

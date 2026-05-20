@@ -12,3 +12,6 @@
 # Secrets appended below by /openclaw-add-secret:
 export OPENCLAW_TEST_SECRET="$(security find-generic-password -s 'openclaw.test-secret' -w 2>/dev/null || true)"
 export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
+
+# Appended by /openclaw-add-channel (Phase 2, Plan 02-01) — DO NOT edit manually
+export OPENCLAW_TELEGRAM_MAIN_BOT_TOKEN=$(security find-generic-password -s 'openclaw.telegram-main-bot-token' -w 2>/dev/null || true)

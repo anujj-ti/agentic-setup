@@ -11,6 +11,7 @@ set -euo pipefail
 SECRETS=(
   # "openclaw.example-token|OPENCLAW_EXAMPLE_TOKEN|Example secret (replace with real entries)"
   "openclaw.test-secret|OPENCLAW_TEST_SECRET|Phase 1 INFRA-03 verification secret — safe to delete"
+  "openclaw.telegram-main-bot-token|OPENCLAW_TELEGRAM_MAIN_BOT_TOKEN|Telegram bot token for @echo_sys_bot (main agent)"
 )
 
 for entry in "${SECRETS[@]}"; do
