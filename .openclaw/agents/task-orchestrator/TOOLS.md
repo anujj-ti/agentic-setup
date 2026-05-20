@@ -140,3 +140,38 @@ BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd close <task-i
 
 ### Required env vars for check-agent-domain.sh:
 None — reads live openclaw.json from `$HOME/.openclaw/openclaw.json` directly
+
+## Experiment Framework Scripts (EVOL-03)
+
+### Required env vars:
+- `OPENCLAW_NOTION_TOKEN` — Notion API auth (from Keychain: `security find-generic-password -s openclaw.notion-token -w`)
+- `OPENCLAW_NOTION_EXPERIMENTS_DB_ID` — experiments Notion database ID
+  - Setup: `security add-generic-password -s openclaw.notion-experiments-db-id -a openclaw -w <db-id>`
+  - Then add `OPENCLAW_NOTION_EXPERIMENTS_DB_ID=$(...)` to `openclaw-secrets.sh`, `openclaw-env.sh`, `secrets.sh`
+
+### Experiment lifecycle — mandatory order:
+
+**Stage 1** (BEFORE any agent spawn):
+```zsh
+node scripts/propose-experiment.js --title "<name>" --hypothesis "<statement>" --method "<steps>" --successCriteria "<measurable outcome>"
+# If ok:true → run:
+node scripts/create-experiment-page.js --title "<name>" --hypothesis "<statement>" --method "<steps>" --successCriteria "<measurable outcome>"
+# Returns: bare Notion page ID string. Store as EXPERIMENT_PAGE_ID.
+# Embed EXPERIMENT_PAGE_ID in the Beads epic description.
+```
+
+**Stage 2**: Create Beads epic and subtasks (standard `bd create` pattern)
+
+**Stage 3**: Sub-agents execute; each closes their task with factual evidence
+
+**Stage 4** (AFTER Beads epic closes):
+```zsh
+# Write results section: update Notion page with results text using @notionhq/client pages.update
+# Send to Document Reviewer: sessions_spawn("document-reviewer", full_page_content)
+# If verdict pass: update Status to Final via notion.pages.update()
+# If verdict reject: revise results and resubmit (max 3 cycles)
+```
+
+### Known limitations:
+- `OPENCLAW_NOTION_EXPERIMENTS_DB_ID` must be manually provisioned if Phase 9 did not create the experiments database
+- The experiments DB schema differs from the decisions DB — it cannot be substituted
