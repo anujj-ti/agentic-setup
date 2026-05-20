@@ -23,3 +23,6 @@ export BEADS_DIR="$HOME/.openclaw/beads"
 export OPENCLAW_GMAIL_CLIENT_ID="$(security find-generic-password -s 'openclaw.gmail-client-id' -w 2>/dev/null || true)"
 export OPENCLAW_GMAIL_CLIENT_SECRET="$(security find-generic-password -s 'openclaw.gmail-client-secret' -w 2>/dev/null || true)"
 export OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN="$(security find-generic-password -s 'openclaw.gmail-triage-refresh-token' -w 2>/dev/null || true)"
+
+# Telegram chat ID for CI Monitor alerts — Phase 8 (D-84)
+export OPENCLAW_ANUJ_CHAT_ID="${OPENCLAW_ANUJ_CHAT_ID:-}"

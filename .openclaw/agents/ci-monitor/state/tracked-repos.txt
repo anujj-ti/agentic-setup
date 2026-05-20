@@ -1,0 +1,3 @@
+# CI Monitor tracked repositories
+# One OWNER/REPO per line; blank lines and # comments are ignored
+anujj-ti/agentic-setup
