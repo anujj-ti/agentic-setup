@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Dream Routines** - Nightly memory distillation running for both orchestrators with token budget enforcement and archive directories (completed 2026-05-20)
 - [x] **Phase 6: Email + Morning Standup** - Gmail Email Triage agent operational, morning standup brief delivered via Telegram on schedule (completed 2026-05-20)
 - [x] **Phase 7: DevBot Core** - DevBot can create GitHub issues, summarize PRs, flag stale reviews, and maintain per-repo context (completed 2026-05-20)
-- [ ] **Phase 8: CI Monitor + Autonomous Dev Scaffold** - CI Monitor alerts within 5 minutes of failure; DevBot can autonomously implement issues via Beads task graph
+- [x] **Phase 8: CI Monitor + Autonomous Dev Scaffold** - CI Monitor alerts within 5 minutes of failure; DevBot can autonomously implement issues via Beads task graph (completed 2026-05-20)
 - [ ] **Phase 9: Notion Decision Log** - Every autonomous decision logged to Notion before execution; user can review chronologically and mark decisions for revert; experiment logging operational
 - [ ] **Phase 10: Autonomous Merge** - DevBot can merge CI-passing PRs with Notion pre-log; user can see and revert any autonomous merge
 - [ ] **Phase 11: Quality Pipeline** - Five dedicated review agents deployed (Code Reviewer, Document Reviewer, Decision Reviewer, Skill Reviewer, Skill Creation); each output domain has its own specialist reviewer
@@ -275,17 +275,17 @@ Plans:
 **UI hint**: yes
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 08-01-PLAN.md — Scaffold CI Monitor agent (6 directive files + poll-ci.sh + state/) + OPENCLAW_ANUJ_CHAT_ID Keychain stub (DEV-03)
+- [x] 08-01-PLAN.md — Scaffold CI Monitor agent (6 directive files + poll-ci.sh + state/) + OPENCLAW_ANUJ_CHAT_ID Keychain stub (DEV-03)
 
 **Wave 2** *(parallel — both blocked on Wave 1)*
-- [ ] 08-02-PLAN.md — Register ci-monitor in openclaw.json + add */4 * * * * cron to jobs.json, stow+restart, verify status (DEV-03)
-- [ ] 08-03-PLAN.md — Create devbot-intake-issue.sh + update DevBot SOUL.md/TOOLS.md with autonomous dev workflow documentation (DEV-04)
+- [x] 08-02-PLAN.md — Register ci-monitor in openclaw.json + add */4 * * * * cron to jobs.json, stow+restart, verify status (DEV-03)
+- [x] 08-03-PLAN.md — Create devbot-intake-issue.sh + update DevBot SOUL.md/TOOLS.md with autonomous dev workflow documentation (DEV-04)
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 08-04-PLAN.md — Create devbot-create-epic.sh (5-subtask Beads epic) + devbot-execute-cycle.sh (claim→execute→close per task type) (DEV-04)
+- [x] 08-04-PLAN.md — Create devbot-create-epic.sh (5-subtask Beads epic) + devbot-execute-cycle.sh (claim→execute→close per task type) (DEV-04)
 
 **Wave 4** *(blocked on Wave 3 — phase gate)*
-- [ ] 08-05-PLAN.md — Write + run verify-phase-08.sh (7 smoke checks); manual test runbook for Telegram alert and Beads cycle (DEV-03, DEV-04)
+- [x] 08-05-PLAN.md — Write + run verify-phase-08.sh (7 smoke checks); manual test runbook for Telegram alert and Beads cycle (DEV-03, DEV-04)
 
 ### Phase 9: Notion Decision Log
 **Goal**: Every autonomous decision made by the Task Orchestrator is logged to Notion immediately after execution; the user can retrieve a chronological list of decisions since last session on demand and via the morning standup brief; experiment proposals, execution, and results are logged to dedicated Notion pages
@@ -429,7 +429,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Dream Routines | 4/4 | Complete   | 2026-05-20 |
 | 6. Email + Morning Standup | 5/5 | Complete   | 2026-05-20 |
 | 7. DevBot Core | 4/4 | Complete   | 2026-05-20 |
-| 8. CI Monitor + Autonomous Dev Scaffold | 0/5 | Not started | - |
+| 8. CI Monitor + Autonomous Dev Scaffold | 5/5 | Complete   | 2026-05-20 |
 | 9. Notion Decision Log | 0/6 | Not started | - |
 | 10. Autonomous Merge | 0/4 | Not started | - |
 | 11. Quality Pipeline | 0/7 | Not started | - |
