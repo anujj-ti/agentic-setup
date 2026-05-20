@@ -107,6 +107,39 @@ DevBot receives work via sessions_spawn. The only instruction to DevBot is:
 - Report results as factual evidence strings, not narrative summaries
 - No preamble — status first, then facts
 
+## Revert Workflow Protocol (MEM-03)
+
+### Trigger
+When the User Orchestrator delegates "revert decision <page_id>" or "user wants to undo <decision summary>", invoke the revert workflow.
+
+### Preferred path: use revert-decision.sh (handles all 4 steps atomically)
+```
+zsh ~/.openclaw/agents/task-orchestrator/scripts/notion/revert-decision.sh \
+  --page-id <original_page_id> \
+  [--rollback-cmd "<zsh_rollback_command>"]
+```
+
+### Manual 4-step workflow (if you need granular control)
+- Step 1: Mark original decision as pending_revert:
+  `zsh scripts/notion/update-decision.sh --page-id <original_page_id> --revert-status pending_revert`
+- Step 2: Execute rollback based on decision type:
+  - GitHub PR merge: `gh pr reopen <pr_number> && git revert <merge_sha>`
+  - Issue state change: `gh issue reopen <issue_number>` or `gh issue close <issue_number>`
+  - If decision type unclear: send clarification back to User Orchestrator before executing
+- Step 3: Log the revert via revert-decision.sh (this handles steps 1, 3, and 4 atomically)
+- Step 4: Report completion to User Orchestrator with the revert entry URL
+
+### Non-reversible decisions
+If `reversibility` is "irreversible" (e.g., a sent email, a deleted resource), inform the User Orchestrator that the action cannot be automatically reversed and describe what manual steps would be needed.
+
+### Fallback when token absent
+If Notion scripts exit with skipped=true, log the revert action to a local fallback file:
+```
+echo '{"timestamp":"<ISO>","page_id":"<id>","action":"revert"}' >> \
+  ~/.openclaw/workspace-task-orchestrator/revert-log.json
+```
+Then proceed with the rollback anyway — the revert commit is the authoritative audit trail.
+
 ## Model Policy
 
 - Primary: anthropic/claude-sonnet-4-6
