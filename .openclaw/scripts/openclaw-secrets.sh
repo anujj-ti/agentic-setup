@@ -14,3 +14,6 @@ export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
 
 # Appended by /openclaw-add-channel (Phase 2, Plan 02-01) — DO NOT edit manually
 export OPENCLAW_TELEGRAM_MAIN_BOT_TOKEN=$(security find-generic-password -s 'openclaw.telegram-main-bot-token' -w 2>/dev/null)
+
+# Beads shared task graph database — Phase 4 (D-50, D-54)
+export BEADS_DIR="$HOME/.openclaw/beads"
