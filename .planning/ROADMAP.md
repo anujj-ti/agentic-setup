@@ -41,11 +41,25 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans
 
 Plans:
+
+**Wave 1** *(parallel — no dependencies)*
 - [ ] 01-01-PLAN.md — Install prerequisites (Homebrew node@24, stow, jq) + create Wave 0 source-of-truth files + install/upgrade OpenClaw 2026.5.18 with LaunchAgent (INFRA-01)
 - [ ] 01-02-PLAN.md — Add cc-openclaw as a git submodule and stow its 9 skills into .claude/skills/ via --no-folding (INFRA-02)
-- [ ] 01-03-PLAN.md — Add a test secret via /openclaw-add-secret to verify the three-file pipeline end-to-end (INFRA-03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 01-04-PLAN.md — Create scripts/stow-deploy.sh + scripts/infra-verify.sh; establish stow management over ~/.openclaw/ (INFRA-04)
+
+**Wave 3** *(blocked on Wave 2 — requires stow symlink for OPENCLAW_REPO detection)*
+- [ ] 01-03-PLAN.md — Add a test secret via /openclaw-add-secret to verify the three-file pipeline end-to-end (INFRA-03)
+
+**Wave 4** *(blocked on Wave 3 completion — phase gate)*
 - [ ] 01-05-PLAN.md — Verify /openclaw-status green + create a test cron job with local tz to prove INFRA-06 end-to-end (INFRA-06)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate — never `#!/bin/bash`)
+- Secrets: Keychain only — never passed as CLI args, never in tracked files
+- Every stow invocation: `rm -f ~/.openclaw/cron/jobs.json` must precede stow
+- `openclaw onboard --install-daemon` is interactive — user must run in terminal (Plans 01-01, 01-05)
 
 ### Phase 2: Core Channels
 **Goal**: Telegram and WhatsApp channels are provisioned, credentials are in Keychain, and a message round-trip is verified — the user has a working notification surface before any agent is built

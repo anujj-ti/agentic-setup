@@ -627,21 +627,24 @@ tail -30 ~/.openclaw/logs/gateway.log
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Existing ~/.openclaw/ stow conflict strategy**
+   - **RESOLVED:** Plan 01-04 Task 2 uses backup-and-delete approach: `cp ~/.openclaw/openclaw.json ~/.openclaw/openclaw.json.pre-stow && rm ~/.openclaw/openclaw.json`, then run `zsh scripts/stow-deploy.sh`. `stow --adopt` is explicitly prohibited (it would move the unmanaged file into the repo, overwriting the new config).
    - What we know: `~/.openclaw/openclaw.json` is a plain file, not a symlink. First stow will conflict on this file and potentially others.
-   - What's unclear: Should Plan 01-04 (a) backup and delete conflicting files, (b) use `stow --adopt` to have stow take ownership of existing files, or (c) delete `~/.openclaw/` entirely and let stow recreate it from the repo?
+   - What's unclear (historical): Should Plan 01-04 (a) backup and delete conflicting files, (b) use `stow --adopt` to have stow take ownership of existing files, or (c) delete `~/.openclaw/` entirely and let stow recreate it from the repo?
    - Recommendation: Plan 01-04 should backup `~/.openclaw/openclaw.json` → `~/.openclaw/openclaw.json.pre-stow`, then delete it. `stow --adopt` is risky because it moves the existing file into the repo, potentially overwriting the new config.
 
 2. **Node 24 transition: nvm vs brew**
+   - **RESOLVED:** Use brew node@24 as decided (D-12/D-13). Both nvm and brew coexist — nvm handles interactive shells, brew node@24 handles launchd (which does not source shell profiles). install-prereqs.sh pins the brew node@24 PATH in BOTH openclaw-secrets.sh (launchd) and openclaw-env.sh (shell sessions) per D-13.
    - What we know: The machine uses nvm with Node 22.18.0. The OpenClaw installer detects nvm and instructs `nvm install 24 && nvm use 24 && nvm alias default 24`.
-   - What's unclear: D-13 says "install Node 24 via brew." Does the user prefer brew over setting nvm default? Both paths work, but launchd PATH requires explicit node@24 binary path regardless.
+   - What's unclear (historical): D-13 says "install Node 24 via brew." Does the user prefer brew over setting nvm default? Both paths work, but launchd PATH requires explicit node@24 binary path regardless.
    - Recommendation: Use brew node@24 as decided (D-12/D-13). The `install-prereqs.sh` adds node@24 to PATH. Both nvm and brew can coexist — nvm handles interactive shells, brew node@24 handles launchd.
 
 3. **OpenClaw onboard interactive requirement**
+   - **RESOLVED:** Plan 01-01 Task 4 is a blocking `checkpoint:human-action` — the user must run `openclaw onboard --install-daemon` interactively in their terminal (TTY required). Claude Code cannot run the onboard wizard non-interactively.
    - What we know: `openclaw onboard --install-daemon` is the documented command but opens an interactive wizard. Install script exits to `openclaw onboard` when a TTY is available.
-   - What's unclear: Can the daemon be installed non-interactively (e.g., `openclaw gateway install`) separate from the onboard wizard?
+   - What's unclear (historical): Can the daemon be installed non-interactively (e.g., `openclaw gateway install`) separate from the onboard wizard?
    - Recommendation: Plan 01-01 should note that `openclaw onboard --install-daemon` is interactive and must be run by the user in their terminal (not in a Claude Code tool call). The plan action should be a terminal instruction.
 
 ---
