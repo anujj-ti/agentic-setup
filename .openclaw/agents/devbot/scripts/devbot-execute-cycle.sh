@@ -9,6 +9,9 @@
 # Phase 8: open draft PR only. Merge gate is Phase 10 (Notion pre-log required).
 set -euo pipefail
 
+# DevBot acts as echosysbot — load its GitHub token from Keychain
+export GH_TOKEN=$(security find-generic-password -s 'openclaw.github-bot-token' -a 'trilogy' -w 2>/dev/null)
+
 # ── Arguments ──────────────────────────────────────────────────────────────────
 TASK_ID="${1:?task id required}"
 TASK_TYPE="${2:?task type required (design|implement|self-review|qa-evidence|open-pr)}"

@@ -6,6 +6,9 @@
 # cc-openclaw convention: set -euo pipefail, JSON stdout only, explicit binary paths
 set -euo pipefail
 
+# DevBot acts as echosysbot — load its GitHub token from Keychain
+export GH_TOKEN=$(security find-generic-password -s 'openclaw.github-bot-token' -a 'trilogy' -w 2>/dev/null)
+
 # ── Parse arguments ────────────────────────────────────────────────────────────
 # Support --dry-run flag anywhere in args (before or after positional args)
 DRY_RUN=false

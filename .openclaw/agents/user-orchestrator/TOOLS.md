@@ -1,5 +1,10 @@
 # TOOLS.md — User Orchestrator
 
+## Local context reference
+
+All machine-local secrets, file paths, env vars, and the GitHub account split are documented in:
+`docs/LOCAL-CONTEXT.md` — read this before any operation that touches Keychain, GitHub, Synapse, or Gmail.
+
 ## Available Tools
 
 - **sessions_spawn**: delegate tasks to task-orchestrator (primary delegation mechanism)

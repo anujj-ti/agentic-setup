@@ -12,6 +12,8 @@ set -euo pipefail
 
 source "$(dirname "$0")/lib/json-response.sh"
 
+# DevBot acts as echosysbot — load its GitHub token from Keychain
+export GH_TOKEN=$(security find-generic-password -s 'openclaw.github-bot-token' -a 'trilogy' -w 2>/dev/null)
 GH=/opt/homebrew/bin/gh
 
 # --- Argument parsing ---

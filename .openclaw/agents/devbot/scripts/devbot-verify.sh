@@ -7,6 +7,8 @@ set -euo pipefail
 
 source "$(dirname "$0")/lib/json-response.sh"
 
+# DevBot acts as echosysbot — load its GitHub token from Keychain
+export GH_TOKEN=$(security find-generic-password -s 'openclaw.github-bot-token' -a 'trilogy' -w 2>/dev/null)
 GH=/opt/homebrew/bin/gh
 
 PASS=0; FAIL=0
@@ -31,15 +33,12 @@ check "devbot registered in openclaw.json" \
 check "devbot-issue-create.sh syntax valid" \
   zsh -n /Users/trilogy/.openclaw/agents/devbot/scripts/devbot-issue-create.sh
 
-# Check 3 (DEV-01): gh auth has project scope
-# NOTE: This check may fail if user has not run `gh auth refresh -s project` (D-71 deferred).
-# Treated as a warning — issue creation still works; only project board assignment is affected.
-if bash -c '/opt/homebrew/bin/gh auth status 2>&1 | grep -q project' >/dev/null 2>&1; then
-  echo "PASS: gh auth has project scope" >&2; PASS=$((PASS+1))
+# Check 3 (DEV-01): echosysbot GitHub token present in Keychain
+TOKEN_LEN=$(security find-generic-password -s 'openclaw.github-bot-token' -a 'trilogy' -w 2>/dev/null | wc -c | tr -d ' ')
+if [[ "$TOKEN_LEN" -gt 10 ]]; then
+  echo "PASS: openclaw.github-bot-token present in Keychain (echosysbot identity)" >&2; PASS=$((PASS+1))
 else
-  echo "WARN: gh auth missing project scope — run: gh auth refresh -s project" >&2
-  echo "      Issue creation works but project board assignment is disabled until scope is added." >&2
-  PASS=$((PASS+1))  # Count as pass since this is a known deferred prerequisite (D-71)
+  echo "FAIL: openclaw.github-bot-token missing or empty — DevBot cannot authenticate as echosysbot" >&2; FAIL=$((FAIL+1))
 fi
 
 # Check 4 (DEV-02): devbot-pr-queue.sh syntax valid

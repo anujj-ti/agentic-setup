@@ -5,6 +5,9 @@
 # Output: JSON to stdout; errors/logs to stderr
 set -euo pipefail
 
+# DevBot acts as echosysbot — load its GitHub token from Keychain
+export GH_TOKEN=$(security find-generic-password -s 'openclaw.github-bot-token' -a 'trilogy' -w 2>/dev/null)
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 NODE="/opt/homebrew/opt/node@24/bin/node"
 GH="/opt/homebrew/bin/gh"
