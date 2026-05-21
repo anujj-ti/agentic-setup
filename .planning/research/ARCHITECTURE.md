@@ -1,666 +1,304 @@
-# Architecture Research
+# Architecture Research — v2.0 Intelligence Layer
 
-**Domain:** Personal AI Operations Hub — OpenClaw multi-agent fleet
-**Researched:** 2026-05-20
-**Confidence:** HIGH (derived from primary source documents: Rahul Subramaniam's Trilogy AI CoE reference articles, project-specified constraints)
+**Researched:** 2026-05-21
+**Milestone:** v2.0 Intelligence Layer (4 features)
+**Confidence:** HIGH — derived entirely from live codebase inspection (Phases 1-14 complete)
 
-## Standard Architecture
+---
 
-### System Overview
+## Current Architecture Baseline (Post Phase 14)
 
+All 14 phases complete. Live state:
+
+- **OpenClaw gateway** at `localhost:18789`, launchd LaunchAgent, Node 24
+- **Agents (10):** user-orchestrator, task-orchestrator, devbot, ci-monitor, email-triage, code-reviewer, document-reviewer, decision-reviewer, skill-reviewer, skill-creation
+- **Each agent** has SOUL.md, AGENTS.md (most), TOOLS.md, USER.md, IDENTITY.md, SECURITY.md, MEMORY.md
+- **Synapse loop (Phase 13):** All execution-tier agents have a Synapse section in TOOLS.md with brief.fetch, workflow.create, checkin, learning.record. The `synapse-checkin.sh` and `synapse-record-learning.sh` shared scripts exist. No `synapse-query-learnings.sh` exists — learning.query step is inline curl in task-orchestrator AGENTS.md only
+- **Decision gate (Phase 11):** task-orchestrator sessions_spawn("decision-reviewer") before every autonomous action. Decision Reviewer applies a 4-item rubric (rationale soundness, reversibility specificity, evidence observability, action specificity). No risk tier classification exists
+- **Email triage (Phase 14):** email-triage.sh (gogcli) fetches threads → agent categorizes into 5 buckets (Action Required, FYI, Automated-Noise, Newsletter, Unknown) → logs to memory/triage-YYYY-MM-DD.md → yields urgent items. No priority scoring, no auto-draft replies
+- **Standup brief (Phase 14):** standup-brief.sh aggregates merged PRs, CI failures, stale PRs, Notion decision count, overnight email, calendar events. No blocker surfacing, no pattern detection
+- **ci-monitor has no AGENTS.md** — it was designed as fully script-driven (poll-ci.sh runs the full cycle); no session startup loop defined
+- **devbot AGENTS.md** has Synapse section in TOOLS.md but no explicit learning.query step before claiming Beads work
+
+---
+
+## Component Changes
+
+| Component | New/Modified | Change |
+|---|---|---|
+| `email-triage` SOUL.md | Modified | Add priority scoring rubric (1-5 scale: sender signals, urgency keywords, reply-needed heuristics) and draft reply rules for Action Required items |
+| `email-triage` AGENTS.md | Modified | Extend startup step 3 ("Load recent categorization context") to use 7-day memory window; extract sender patterns and false positive history before categorizing |
+| `email-triage` TOOLS.md | Modified | Document extended triage output schema: `priority_score`, `draft_reply` fields per message in memory log |
+| `scripts/synapse-query-learnings.sh` | **New** | Shell wrapper for `synapse.learning.query` POST — follows exact pattern of `synapse-checkin.sh`. Args: `<project_id> <tags_csv> <limit> <cross_silo>`. Returns `{"ok":true,"data":{"learnings":[...]}}`. Non-blocking (exit 0 on failure) |
+| `ci-monitor` AGENTS.md | **New file** | ci-monitor has no AGENTS.md today. Create with session loop: Synapse brief.fetch → query learnings tagged `ci-monitor,github` → poll-ci.sh → record learning if new failure pattern detected |
+| `ci-monitor` TOOLS.md | Modified | Add learning query step after brief.fetch: inject top 3 learnings into session context before poll-ci.sh |
+| `devbot` AGENTS.md | Modified | Add Synapse learning.query step scoped to `devbot,github` tags before claiming Beads work |
+| `scripts/standup-brief.sh` | Modified | Add `blockers` array (PRs with CHANGES_REQUESTED older than 48h) and `patterns` array (recurring CI workflow failures) to JSON output |
+| `user-orchestrator` SOUL.md or AGENTS.md | Modified | Morning standup formatting: if `blockers` array non-empty, add "Blockers" section; if `patterns` non-empty, add "Patterns detected" section |
+| `task-orchestrator` SOUL.md | Modified | Add risk tier computation table in "Notion Pre-Log Protocol" section: maps action verb to LOW/MEDIUM/HIGH; require `risk_tier` field in decision payload |
+| `decision-reviewer` SOUL.md | Modified | Add risk-tier-aware rubric: HIGH requires all 4 rubric items explicitly present; LOW uses fast-path (non-empty rationale + specific action); MEDIUM uses current rubric |
+| `decision-reviewer` TOOLS.md | Modified | Document `risk_tier` as optional input field (absent = MEDIUM); add: record Synapse learning for HIGH-risk reject verdicts tagged `decision-quality,risk-gate` |
+| `scripts/verify-phase-15.sh` through `scripts/verify-phase-18.sh` | **New** | One verification script per phase (project convention from Phases 3-14) |
+
+---
+
+## Data Flow Changes
+
+### Feature 1: Smarter Email Triage
+
+**Current flow:**
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      INTERFACE TIER                                  │
-│  ┌──────────────┐  ┌────────────────┐  ┌───────────────────────┐   │
-│  │   Telegram   │  │    WhatsApp    │  │  Gmail (echo.sys.bot) │   │
-│  │   Channel    │  │    Channel     │  │      Channel           │   │
-│  └──────┬───────┘  └───────┬────────┘  └──────────┬────────────┘   │
-└─────────┼──────────────────┼─────────────────────┼────────────────┘
-          │                  │                      │
-          ▼                  ▼                      ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                   CONVERSATION TIER                                  │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │                  USER ORCHESTRATOR                            │   │
-│  │  - Handles all human-facing conversation                      │   │
-│  │  - Lean context: NO task state, NO sub-agent state            │   │
-│  │  - Routes requests → Task Orchestrator                        │   │
-│  │  - Surfaces decisions for user review/approval on return      │   │
-│  │  - Morning standup delivery; review queue management          │   │
-│  │  - Runs: Claude Opus (conversational quality)                 │   │
-│  └──────────────────────────┬───────────────────────────────────┘   │
-└─────────────────────────────┼───────────────────────────────────────┘
-                              │  (delegates via OpenClaw allowAgents)
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                   ORCHESTRATION TIER                                 │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │                  TASK ORCHESTRATOR                            │   │
-│  │  - Autonomous background execution                            │   │
-│  │  - Owns Beads DB (BEADS_DIR): one shared graph               │   │
-│  │  - Decomposes every GitHub issue into a Beads epic            │   │
-│  │    BEFORE spawning any sub-agent                              │   │
-│  │  - Monitors: bd ready / bd list --status in_progress         │   │
-│  │  - Logs every decision to Notion before execution             │   │
-│  │  - Heartbeat cron: checks graph + CI status periodically      │   │
-│  │  - Runs: Claude Sonnet (cost-effective for orchestration)     │   │
-│  └──────────────────────────┬───────────────────────────────────┘   │
-└─────────────────────────────┼───────────────────────────────────────┘
-                              │  (spawns sub-agents, passes BEADS_DIR)
-          ┌───────────────────┼───────────────────────┐
-          ▼                   ▼                        ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    EXECUTION TIER (sub-agents)                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │   DevBot     │  │ CI Monitor   │  │ Email Triage │              │
-│  │  (GitHub     │  │ (watches     │  │ (echo.sys.   │              │
-│  │  dev work)   │  │  CI runs)    │  │  bot Gmail)  │              │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘              │
-│         │                 │                  │                       │
-│  bd ready → claim → execute → close(+evidence)                      │
-│                                                                      │
-│  ┌──────────────┐  ┌──────────────┐                                 │
-│  │ PR Reviewer  │  │ Context      │                                 │
-│  │ (autonomous  │  │ Switcher     │                                 │
-│  │  merge queue)│  │ (repo loads) │                                 │
-│  └──────────────┘  └──────────────┘                                 │
-│                                                                      │
-│  All sub-agents: Claude Haiku (cost-optimised, isolated sessions)   │
-└─────────────────────────────────────────────────────────────────────┘
-          │                   │                        │
-          ▼                   ▼                        ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PERSISTENCE TIER                                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────┐  │
-│  │  Beads DB    │  │   Notion     │  │     GitHub Board         │  │
-│  │  (Dolt SQL,  │  │  (decision   │  │  (source of truth for    │  │
-│  │  task graph) │  │   logs,      │  │   issues, PRs, project   │  │
-│  │              │  │   experiments│  │   board — NOT Beads)     │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
+cron → email-triage agent session
+     → email-triage.sh (gogcli) → raw threads JSON
+     → agent: categorize 5 buckets
+     → write memory/triage-YYYY-MM-DD.md
+     → urgent items → sessions_yield → user-orchestrator → Telegram
 ```
 
-### Component Responsibilities
-
-| Component | Responsibility | Tier |
-|-----------|----------------|------|
-| User Orchestrator | Human-facing conversation, approval surface, morning standup delivery, routes work to Task Orch | Conversation |
-| Task Orchestrator | Autonomous execution, Beads graph ownership, sub-agent spawning, Notion logging, heartbeat cron | Orchestration |
-| DevBot | GitHub dev work: triage PRs, create/solve issues, autonomous merge with approval queue entry | Execution |
-| CI Monitor | Watch CI runs, surface failures, page via Telegram | Execution |
-| Email Triage | Receive/send email via echo.sys.bot, route action items back to Task Orchestrator | Execution |
-| PR Reviewer | Review diffs, leave comments, mark PASS/FAIL with evidence per Beads close-reason protocol | Execution |
-| Context Switcher | Load repo-specific context when switching between projects | Execution |
-| Beads DB (Dolt) | Dependency-aware task graph, shared across all execution-tier agents via BEADS_DIR env var | Persistence |
-| Notion | Async decision log and experiment records; user review surface on return | Persistence |
-| GitHub Board | Canonical issue/PR/project state; Beads tracks agent decomposition, not raw issues | Persistence |
-
-## Component Boundaries: What Each Orchestrator Owns
-
-### User Orchestrator — owns:
-- All channels that carry human messages (Telegram user channel, WhatsApp)
-- Conversation context only — no task state, no sub-agent output accumulation
-- The return-review workflow: surfaces queued Notion decisions, collects user approval/revert
-- Morning standup brief composition (reads from Notion decision log, not from sub-agents directly)
-- The allowAgents entry pointing to Task Orchestrator (one-way delegation)
-
-### User Orchestrator — explicitly does NOT own:
-- Any Beads instance or BEADS_DIR
-- GitHub API calls (delegated)
-- Sub-agent spawning below Task Orchestrator
-- Cron-driven background loops
-
-### Task Orchestrator — owns:
-- The single Beads DB at `~/.openclaw/agents/task-orchestrator/.beads/`
-- `BEADS_DIR` export in gateway start script (inherited by all execution-tier agents)
-- Decomposition-before-spawn rule: no sub-agent spawning without a complete Beads epic first
-- Heartbeat cron: bd ready / bd list queries + CI status checks
-- Notion write access: every autonomous decision logged before execution
-- allowAgents entries pointing to all execution-tier sub-agents
-
-### Task Orchestrator — explicitly does NOT own:
-- Human-facing channels
-- User approval workflow (handed back to User Orchestrator via message)
-
-## Recommended Git Repo Layout (what `stow` deploys)
-
+**New flow:**
 ```
-~/agentic-setup/                      ← git repo (this project)
-│
-├── .claude/
-│   └── skills/                       ← cc-openclaw skill symlinks land here
-│       ├── openclaw-new-agent.md     ← symlinked from ~/cc-openclaw/
-│       ├── openclaw-add-channel.md
-│       ├── openclaw-add-cron.md
-│       ├── openclaw-dream-setup.md
-│       ├── openclaw-add-script.md
-│       ├── openclaw-add-secret.md
-│       ├── openclaw-status.md
-│       ├── openclaw-restart.md
-│       └── openclaw-stow.md
-│
-├── .openclaw/                        ← stow target: ~/.openclaw/ ← symlinks here
-│   ├── openclaw.json                 ← flat-file fleet config (all agents)
-│   ├── cron/
-│   │   └── jobs.json                 ← WARNING: gateway overwrites on start;
-│   │                                    /openclaw-restart handles rm→stow
-│   ├── agents/
-│   │   ├── user-orchestrator/        ← USER ORCHESTRATOR
-│   │   │   ├── SOUL.md
-│   │   │   ├── IDENTITY.md
-│   │   │   ├── USER.md
-│   │   │   ├── AGENTS.md             ← session startup: load MEMORY.md + QMD
-│   │   │   ├── TOOLS.md
-│   │   │   ├── SECURITY.md
-│   │   │   ├── DREAM_ROUTINE.md
-│   │   │   ├── MEMORY.md
-│   │   │   ├── memory/
-│   │   │   │   └── archives/         ← dream distillation archive; MUST exist
-│   │   │   └── scripts/
-│   │   │       └── lib/              ← shared json-response.sh etc.
-│   │   │
-│   │   ├── task-orchestrator/        ← TASK ORCHESTRATOR
-│   │   │   ├── SOUL.md
-│   │   │   ├── IDENTITY.md
-│   │   │   ├── USER.md
-│   │   │   ├── AGENTS.md             ← lists all execution-tier agents
-│   │   │   ├── TOOLS.md              ← full Beads command ref + decomp protocol
-│   │   │   ├── SECURITY.md
-│   │   │   ├── DREAM_ROUTINE.md
-│   │   │   ├── MEMORY.md
-│   │   │   ├── memory/
-│   │   │   │   └── archives/
-│   │   │   ├── scripts/
-│   │   │   │   └── lib/
-│   │   │   └── .beads/               ← Beads Dolt DB (gitignored, not stowed)
-│   │   │
-│   │   ├── devbot/                   ← DEVBOT sub-agent
-│   │   │   ├── SOUL.md
-│   │   │   ├── IDENTITY.md
-│   │   │   ├── USER.md
-│   │   │   ├── AGENTS.md
-│   │   │   ├── TOOLS.md              ← Beads claim/close protocol
-│   │   │   ├── SECURITY.md
-│   │   │   ├── memory/
-│   │   │   │   └── archives/
-│   │   │   └── scripts/
-│   │   │       └── lib/
-│   │   │
-│   │   ├── ci-monitor/               ← CI MONITOR sub-agent
-│   │   │   └── [same 6 files + memory/ + scripts/]
-│   │   │
-│   │   ├── email-triage/             ← EMAIL TRIAGE sub-agent
-│   │   │   └── [same 6 files + memory/ + scripts/]
-│   │   │
-│   │   ├── pr-reviewer/              ← PR REVIEWER sub-agent
-│   │   │   └── [same 6 files + memory/ + scripts/]
-│   │   │
-│   │   └── context-switcher/         ← CONTEXT SWITCHER sub-agent
-│   │       └── [same 6 files + memory/ + scripts/]
-│   │
-│   └── secrets/
-│       ├── openclaw-secrets.sh       ← loaded by launchd at gateway start
-│       ├── openclaw-env.sh           ← sourced by shell sessions
-│       └── secrets.sh                ← provisioning script (fresh machine)
-│
-├── .planning/                        ← GSD project management (not stowed)
-│   ├── PROJECT.md
-│   └── research/
-│
-└── docs/
-    └── human/                        ← reference articles
+cron → email-triage agent session
+     → load memory/triage-*.md (last 7 days) → extract sender patterns, false-positive history
+     → email-triage.sh (gogcli) → raw threads JSON
+     → agent: categorize + assign priority_score (1-5) + draft reply for Action Required
+     → write memory/triage-YYYY-MM-DD.md (extended schema: priority_score, draft_reply per message)
+     → priority 4-5 (urgent) → sessions_yield → user-orchestrator → Telegram immediately
+     → priority 2-3 (medium) → included in next standup brief batch
 ```
 
-**Stow command:**
-```bash
-cd ~/agentic-setup
-stow --no-folding -t ~ .openclaw
+Priority scoring is LLM judgment in the agent turn, not in email-triage.sh. The script stays deterministic (gogcli fetch + JSON). Agent adds `priority_score` and `draft_reply` to its memory log entries.
+
+### Feature 2: Cross-Agent Learning via Synapse
+
+**Current state (task-orchestrator only):**
+```
+task-orchestrator session start
+  → synapse.brief.fetch
+  → synapse.learning.query (inline curl in AGENTS.md Step 1)
+  → task begins
 ```
 
-**cc-openclaw skills stow (separate repo):**
-```bash
-cd ~/cc-openclaw
-stow --no-folding -t ~/agentic-setup .
+**New state (all execution-tier agents via shared script):**
+```
+ci-monitor session start
+  → synapse.brief.fetch
+  → synapse-query-learnings.sh project.agentic-setup "ci-monitor,github" 3 true
+  → top 3 learnings prepended to session context
+  → poll-ci.sh
+  → if new failure type: synapse-record-learning.sh (already in Phase 13)
+
+devbot session start
+  → synapse.brief.fetch
+  → synapse-query-learnings.sh project.agentic-setup "devbot,github" 3 true
+  → learnings applied before claiming Beads work
 ```
 
-## openclaw.json Structure
+The cross-agent learning circuit:
+```
+ci-monitor records: "Workflow 'unit-tests' fails on Node version mismatch in anujj-ti/repo"
+  → tagged: ci-monitor, github, flaky
+  → stored in Synapse
 
-```json
-{
-  "gateway": {
-    "port": 3000,
-    "timezone": "America/New_York"
-  },
-  "agents": {
-    "list": [
-      {
-        "id": "user-orchestrator",
-        "name": "User Orchestrator",
-        "model": "claude-opus-4",
-        "directivesPath": "~/.openclaw/agents/user-orchestrator",
-        "allowAgents": ["task-orchestrator"],
-        "channels": ["telegram-user", "whatsapp"],
-        "sessionType": "persistent",
-        "qmd": {
-          "memory": "~/.openclaw/agents/user-orchestrator/MEMORY.md",
-          "dreamRoutine": "~/.openclaw/agents/user-orchestrator/DREAM_ROUTINE.md"
-        }
-      },
-      {
-        "id": "task-orchestrator",
-        "name": "Task Orchestrator",
-        "model": "claude-sonnet-4",
-        "directivesPath": "~/.openclaw/agents/task-orchestrator",
-        "allowAgents": [
-          "devbot",
-          "ci-monitor",
-          "email-triage",
-          "pr-reviewer",
-          "context-switcher"
-        ],
-        "channels": [],
-        "sessionType": "persistent",
-        "qmd": {
-          "memory": "~/.openclaw/agents/task-orchestrator/MEMORY.md",
-          "dreamRoutine": "~/.openclaw/agents/task-orchestrator/DREAM_ROUTINE.md"
-        }
-      },
-      {
-        "id": "devbot",
-        "name": "DevBot",
-        "model": "claude-haiku-4",
-        "directivesPath": "~/.openclaw/agents/devbot",
-        "allowAgents": [],
-        "channels": [],
-        "sessionType": "isolated"
-      },
-      {
-        "id": "ci-monitor",
-        "name": "CI Monitor",
-        "model": "claude-haiku-4",
-        "directivesPath": "~/.openclaw/agents/ci-monitor",
-        "allowAgents": [],
-        "channels": ["telegram-alerts"],
-        "sessionType": "isolated"
-      },
-      {
-        "id": "email-triage",
-        "name": "Email Triage",
-        "model": "claude-haiku-4",
-        "directivesPath": "~/.openclaw/agents/email-triage",
-        "allowAgents": [],
-        "channels": ["gmail-bot"],
-        "sessionType": "isolated"
-      },
-      {
-        "id": "pr-reviewer",
-        "name": "PR Reviewer",
-        "model": "claude-haiku-4",
-        "directivesPath": "~/.openclaw/agents/pr-reviewer",
-        "allowAgents": [],
-        "channels": [],
-        "sessionType": "isolated"
-      },
-      {
-        "id": "context-switcher",
-        "name": "Context Switcher",
-        "model": "claude-haiku-4",
-        "directivesPath": "~/.openclaw/agents/context-switcher",
-        "allowAgents": [],
-        "channels": [],
-        "sessionType": "isolated"
-      }
-    ]
-  },
-  "channels": {
-    "list": [
-      {
-        "id": "telegram-user",
-        "type": "telegram",
-        "token": "${OPENCLAW_TELEGRAM_USER_TOKEN}",
-        "agentId": "user-orchestrator"
-      },
-      {
-        "id": "telegram-alerts",
-        "type": "telegram",
-        "token": "${OPENCLAW_TELEGRAM_ALERTS_TOKEN}",
-        "agentId": "ci-monitor"
-      },
-      {
-        "id": "whatsapp",
-        "type": "whatsapp",
-        "phoneAllowlist": ["${OPENCLAW_WHATSAPP_PHONE}"],
-        "agentId": "user-orchestrator"
-      },
-      {
-        "id": "gmail-bot",
-        "type": "gmail",
-        "account": "echo.sys.bot@gmail.com",
-        "agentId": "email-triage"
-      }
-    ]
-  }
-}
+devbot session (next day):
+  → queries: tags="devbot,github", cross_silo=true
+  → receives the ci-monitor learning
+  → applies: checks Node version context before creating issue about CI failure
+
+standup-brief (morning):
+  → patterns detection finds same workflow failing 3x in last-seen-runs.json
+  → surfaced in patterns[] array
+  → user sees: "Pattern: unit-tests failing repeatedly (3 occurrences)"
 ```
 
-**Key openclaw.json rules:**
-- `allowAgents` is the only mechanism for inter-agent delegation — it must be declared explicitly
-- `qmd` block required for every agent with a dream routine; paths are used by the gateway to load memory on session startup
-- `sessionType: isolated` for all execution-tier sub-agents — cheaper, no context bleed
-- `sessionType: persistent` for both orchestrators — they maintain conversational state
+### Feature 3: Proactive Standup Insights
 
-## Architectural Patterns
-
-### Pattern 1: Decompose-Before-Spawn
-
-**What:** Task Orchestrator creates the complete Beads epic (all subtasks + dependencies) before spawning any sub-agent. Sub-agents receive only "run `bd ready --json` to start" as their task instruction — never a free-text task description.
-
-**When to use:** Every GitHub issue, PR review request, setup task. No exceptions.
-
-**Trade-offs:** Adds ~30 seconds of orchestrator time per task. Eliminates the shortcut-agent failure mode entirely. Worth it for any task with more than 2 steps.
-
-**Decomposition templates in TOOLS.md:**
+**Current flow:**
 ```
-Feature (5 subtasks):  design → implement → self-review → QA evidence → open PR
-Bug fix (4 subtasks):  reproduce → fix → verify → open PR
-Setup (12 subtasks):   recon → env → services → migrations → server →
-                       browser → login → nav → tests → runbook → manifest → report
+cron (7:30 IST) → user-orchestrator cron trigger
+  → standup-brief.sh --repo OWNER/REPO
+  → JSON: {merged_prs, ci_failures, stale_prs, decisions, overnight_email, calendar_events}
+  → user-orchestrator formats → Telegram
 ```
 
-### Pattern 2: Evidence-in-Close-Reason
-
-**What:** Every `bd close <id> --reason "..."` requires a specific, factual reason string. This is the agent's proof of work AND the structured handoff context for the next dependent task.
-
-**When to use:** Always. Vague reasons ("done", "completed") are treated as incomplete.
-
-**Good close reasons:**
+**New flow:**
 ```
-"Dev server running on port 3000, screenshot at artifacts/01-homepage.png"
-"Design posted to issue #47, 3 subtasks proposed, PR split recommended"
-"CI failure: test_payments_refund timeout on line 84, logs at artifacts/ci-2026-05-20.log"
-```
-
-### Pattern 3: Dual-Orchestrator Memory Isolation
-
-**What:** User Orchestrator and Task Orchestrator are separate OpenClaw agents with completely separate context windows, MEMORY.md files, and dream routines. They communicate only via structured messages through OpenClaw's allowAgents delegation, never via shared memory files.
-
-**When to use:** Always. This is the core architectural constraint.
-
-**Trade-offs:** Requires explicit message passing for any information that needs to cross tiers. Prevents the context bloat that kills single-orchestrator systems at scale.
-
-**Wrong:**
-```
-# Both orchestrators read the same MEMORY.md — context bleeds between human
-# conversation state and autonomous task state
+cron (7:30 IST) → user-orchestrator cron trigger
+  → standup-brief.sh --repo OWNER/REPO
+  → JSON: {
+      merged_prs, ci_failures, stale_prs, decisions, overnight_email, calendar_events,
+      blockers: [                                    ← NEW
+        {number, title, updatedAt, reviewDecision, stuck_hours}
+      ],
+      patterns: [                                   ← NEW
+        {workflow_name, failure_count, last_seen, signal}
+      ]
+    }
+  → user-orchestrator formats with "Blockers" section + "Patterns detected" section → Telegram
 ```
 
-**Right:**
-```
-user-orchestrator/MEMORY.md  ← conversation patterns, user preferences, standup history
-task-orchestrator/MEMORY.md  ← GitHub project state, recurring failures, repo conventions
-```
+Blocker detection is pure bash: `gh pr list` filtered by `updatedAt < (now - 48h)` AND `reviewDecision == CHANGES_REQUESTED`. Pattern detection is simple: cross-reference ci_failures `workflowName` against ci-monitor's `state/last-seen-runs.json` — if same workflow appears 3+ times, it is a pattern. All logic in standup-brief.sh, no new scripts.
 
-### Pattern 4: Three-File Secrets Pipeline
+### Feature 4: Decision Quality Risk Gate
 
-**What:** Every secret touches exactly three files beyond the Keychain entry. Missing any file causes partial failures that are hard to diagnose.
-
-**Pipeline:**
+**Current flow:**
 ```
-macOS Keychain (source of truth)
-    ↓
-openclaw-secrets.sh  ← loaded by launchd (gateway startup)
-    ↓
-openclaw-env.sh      ← sourced by shell sessions (CLI commands)
-    ↓
-secrets.sh           ← provisioning script (fresh machine / disaster recovery)
+task-orchestrator decides action
+  → sessions_spawn("decision-reviewer", {action, rationale, reversibility, evidence})
+  → decision-reviewer: apply 4-item rubric → {verdict: pass|flag|reject}
+  → if pass: log-decision.sh → execute action
+  → if reject: task-orchestrator retries with must_fix applied
 ```
 
-**Use `/openclaw-add-secret` skill** — never add secrets manually. The skill enforces naming convention and updates all three files atomically.
-
-**Naming convention:**
-- Keychain service: `openclaw.<name>` (lowercase, hyphens)
-- Env var: `OPENCLAW_<NAME>` (uppercase, underscores)
-
-### Pattern 5: Dream Routines for Stateful Agents Only
-
-**What:** Dream routines run nightly via cron. They distill the agent's conversation/decision history into MEMORY.md, respecting token budgets. Not every agent needs one — only agents that accumulate meaningful state over time.
-
-**Which agents need dream routines:**
-| Agent | Needs Dream Routine | Reason |
-|-------|--------------------|----|
-| User Orchestrator | YES | Accumulates user preferences, conversation patterns, approval history |
-| Task Orchestrator | YES | Accumulates project state, recurring failure patterns, repo conventions |
-| DevBot | NO | Stateless execution — fresh task each spawn via Beads |
-| CI Monitor | NO | Stateless — reports facts, doesn't build knowledge |
-| Email Triage | OPTIONAL | Could benefit if email patterns repeat; defer until needed |
-| PR Reviewer | NO | Stateless per-PR execution |
-| Context Switcher | NO | Stateless lookup per repo |
-
-**Token budgets (from cc-openclaw reference):**
-- Daily distillation: 2,500 tokens max
-- Rolling 3-day digest: 7,500 tokens max
-
-**QMD index paths in openclaw.json** (required for session startup loading):
-```json
-"qmd": {
-  "memory": "~/.openclaw/agents/<agent-id>/MEMORY.md",
-  "dreamRoutine": "~/.openclaw/agents/<agent-id>/DREAM_ROUTINE.md"
-}
+**New flow:**
+```
+task-orchestrator decides action
+  → compute risk_tier from action verb (rule table in SOUL.md):
+      HIGH:   merge PR, send email, close issue, modify config, delete file
+      MEDIUM: create issue, modify file, add label, comment on PR
+      LOW:    read-only queries, status checks, list operations
+  → sessions_spawn("decision-reviewer", {action, rationale, reversibility, evidence, risk_tier})
+  → decision-reviewer: apply risk-tier-aware rubric:
+      HIGH:   all 4 rubric items must be explicitly present (strict)
+      MEDIUM: standard current rubric (unchanged)
+      LOW:    fast-path — non-empty rationale + specific action = pass
+  → if pass: log-decision.sh → execute action
+  → if HIGH-risk reject: decision-reviewer records Synapse learning
+      → tagged: decision-quality, risk-gate
+      → claim: "action type X rejected for rubric item Y"
+  → if reject (any tier): task-orchestrator retries with must_fix applied
 ```
 
-**Use `/openclaw-dream-setup` skill** — it creates DREAM_ROUTINE.md, MEMORY.md, memory/archives/, the cron job, and updates AGENTS.md session startup sequence atomically.
+Risk tier computation is a SOUL.md rule table (LLM classification, not a script). The decision payload gains `risk_tier`; decision-reviewer gains a tiered rubric section.
 
-## Data Flow
-
-### Flow 1: User Request → Autonomous Task
-
-```
-User (Telegram/WhatsApp)
-    ↓ message
-User Orchestrator
-    ↓ interprets intent, delegates via allowAgents
-Task Orchestrator
-    ↓ receives task description
-    ↓ creates Beads epic: bd create "..." -t epic
-    ↓ creates subtasks with dependencies: bd create "..." --parent <epic> + bd dep add
-    ↓ spawns sub-agent(s) via allowAgents: "Run bd ready --json to start"
-    ↓ logs intended action to Notion BEFORE execution
-Sub-Agent (e.g., DevBot)
-    ↓ bd ready --json → sees first unblocked task
-    ↓ bd update <id> --claim
-    ↓ executes task
-    ↓ bd close <id> --reason "<evidence>"
-    ↓ bd ready → next unblocked task (repeat)
-Task Orchestrator (heartbeat cron)
-    ↓ bd list --status in_progress → monitors progress
-    ↓ bd list --status open → checks for stuck tasks
-    ↓ writes completion summary to Notion
-User Orchestrator (morning standup / on-return)
-    ↓ reads Notion decision log
-    ↓ surfaces summary + approval queue to user
-User
-    ↓ approves / requests revert
-```
-
-### Flow 2: CI Failure Alert
-
-```
-CI Monitor (cron, every 15 min)
-    ↓ runs deterministic script: check-ci-status.sh → JSON output
-    ↓ parses failures
-    ↓ sends Telegram alert via telegram-alerts channel
-    ↓ logs failure to Notion
-Task Orchestrator (heartbeat cron sees Notion entry)
-    ↓ creates Beads epic for the failure
-    ↓ spawns DevBot with task graph
-DevBot
-    ↓ claim/close pattern per Beads subtasks
-    ↓ creates GitHub issue with evidence
-    ↓ optionally opens fix PR
-```
-
-### Flow 3: Autonomous Decision Logging
-
-```
-Task Orchestrator (before ANY autonomous action)
-    ↓ writes to Notion: { action, rationale, timestamp, agent, repo }
-    ↓ executes action
-    ↓ writes to Notion: { result, evidence, status: complete|failed }
-
-User (on return, via User Orchestrator)
-    ↓ User Orchestrator reads Notion log
-    ↓ surfaces: "While you were away, 3 decisions were made: ..."
-    ↓ user approves or requests revert
-    ↓ User Orchestrator delegates revert if needed → Task Orchestrator
-```
+---
 
 ## Build Order
 
-This is the critical sequencing — each layer is blocked until its foundation exists.
+### Phase 15: Smarter Email Triage
+**Rationale:** Fully self-contained. No new infrastructure, no Synapse changes, no script changes. Touches only email-triage SOUL.md and AGENTS.md. Delivers immediate visible value (fewer false positives, draft replies on Action Required). Can be verified by running the agent and inspecting memory/triage output. No risk to other agents.
 
-### Layer 0: Infrastructure (must exist before any agent runs)
-1. macOS Keychain entries provisioned via secrets.sh
-2. openclaw-secrets.sh, openclaw-env.sh written and tested
-3. openclaw.json skeleton (gateway config only, no agents yet)
-4. stow working: `stow --no-folding -t ~ .openclaw` runs clean
-5. launchd gateway plist installed and gateway starts
-6. `/openclaw-status` confirms gateway healthy
-7. cc-openclaw skills symlinked into `.claude/skills/`
+**What changes:** email-triage SOUL.md, email-triage AGENTS.md, email-triage TOOLS.md (schema docs)
 
-### Layer 1: User Orchestrator (first agent)
-1. Agent directory scaffolded via `/openclaw-new-agent user-orchestrator`
-2. SOUL.md + IDENTITY.md written (conversational persona)
-3. USER.md written (user preferences, approval workflow)
-4. SECURITY.md written (Keychain-only credential policy)
-5. Telegram user channel added via `/openclaw-add-channel`
-6. WhatsApp channel added via `/openclaw-add-channel`
-7. Dream routine set up via `/openclaw-dream-setup`
-8. openclaw.json updated with agent entry + channel bindings
-9. stow + restart; verify Telegram messages reach User Orchestrator
+### Phase 16: Cross-Agent Learning Infrastructure
+**Rationale:** Creates `synapse-query-learnings.sh` — the shared dependency. Must precede Phase 17 if standup wants to pull Synapse-sourced patterns. Wires the query step into ci-monitor (creates its AGENTS.md, which is a known gap) and devbot. Safe to build independently of Phase 15.
 
-**Gate:** User can send a Telegram message and receive a coherent response.
+**What changes:** new `scripts/synapse-query-learnings.sh`, new `ci-monitor` AGENTS.md, `ci-monitor` TOOLS.md, `devbot` AGENTS.md
 
-### Layer 2: Task Orchestrator (second agent, no channels)
-1. Agent directory scaffolded via `/openclaw-new-agent task-orchestrator`
-2. SOUL.md written (autonomous execution persona — deliberate, logs everything)
-3. AGENTS.md written with all execution-tier agent IDs pre-populated
-4. TOOLS.md written with Notion API access + Beads command reference + decomp templates
-5. Dream routine set up via `/openclaw-dream-setup`
-6. User Orchestrator's AGENTS.md updated: `allowAgents: [task-orchestrator]`
-7. openclaw.json updated with task-orchestrator agent entry
-8. stow + restart
-9. Beads installed: `npm install -g @beads/bd` + `brew install dolt`
-10. Beads initialized: `cd ~/.openclaw/agents/task-orchestrator && bd init --stealth`
-11. BEADS_DIR exported in gateway start script; gateway restarted
-12. Beads test loop verified manually (create epic → subtasks → deps → claim → close)
+### Phase 17: Proactive Standup Insights
+**Rationale:** Depends on Phase 16 (ci-monitor must be recording learnings for pattern surfacing to be meaningful). Pure bash additions to standup-brief.sh. No new scripts beyond what Phase 16 provides. User-orchestrator formatting prompt change is minimal.
 
-**Gate:** User Orchestrator can delegate to Task Orchestrator; Task Orchestrator can create and manage a Beads graph.
+**What changes:** `scripts/standup-brief.sh`, user-orchestrator SOUL.md or AGENTS.md (standup formatting)
 
-### Layer 3: Execution Sub-Agents (unblocked after Layer 2)
-Each sub-agent follows the same scaffolding sequence:
-1. `/openclaw-new-agent <agent-id>` — scaffolds directory + 6 files
-2. SOUL.md + TOOLS.md customized (TOOLS.md must include Beads claim/close protocol)
-3. Task Orchestrator's AGENTS.md updated with new agent ID
-4. openclaw.json updated with sub-agent entry + sessionType: isolated
-5. stow + restart
+### Phase 18: Decision Quality Risk Gate
+**Rationale:** Last because it modifies the critical path for ALL autonomous actions. A misconfigured rubric here blocks all task execution. Build and verify after the other three are stable and in production.
 
-Recommended order (by value/dependency):
-- **DevBot** first (highest value; GitHub integration is the core workflow)
-- **CI Monitor** second (passive watcher; low complexity; high signal value)
-- **Email Triage** third (Gmail bot; requires OAuth secret pipeline)
-- **PR Reviewer** fourth (depends on DevBot patterns being established)
-- **Context Switcher** fifth (useful only once multiple repos exist)
+**What changes:** `task-orchestrator` SOUL.md, `decision-reviewer` SOUL.md, `decision-reviewer` TOOLS.md
 
-**Gate per agent:** Task Orchestrator can spawn agent, agent runs a complete Beads task cycle, Task Orchestrator can verify via `bd list`.
-
-### Layer 4: Integrations (unblocked after Layer 3)
-1. Notion API secret + Notion database setup (decision log schema)
-2. Task Orchestrator TOOLS.md updated with Notion write functions
-3. GitHub OAuth or personal access token + `/openclaw-add-secret`
-4. Morning standup brief cron (reads Notion, delivers via User Orchestrator)
-5. Project context switching scripts in context-switcher/scripts/
-
-### Layer 5: Beads Operational Patterns (Phase 2+)
-1. Decomposition templates validated against real GitHub issues
-2. Heartbeat cron tuned (frequency based on observed task duration)
-3. Stuck-agent detection threshold set
-4. Evidence quality bar established (close-reason format documented in TOOLS.md)
-
-## Anti-Patterns
-
-### Anti-Pattern 1: Single Orchestrator with Full Fleet State
-
-**What people do:** Put all agents under one orchestrator with access to all channels, all task state, and all sub-agent output.
-
-**Why it's wrong:** The orchestrator's context window fills with task execution output from sub-agents. Once context is saturated (~50k tokens in a long session), the orchestrator's conversational quality degrades and it begins ignoring earlier context. The user conversation starts losing coherence.
-
-**Do this instead:** Two orchestrators. User Orchestrator stays lean and conversational. Task Orchestrator accumulates state. They communicate via structured messages, not shared memory.
-
-### Anti-Pattern 2: Free-Text Task Delegation to Sub-Agents
-
-**What people do:** Task Orchestrator sends messages like "implement the payment refund feature in repo X" to DevBot.
-
-**Why it's wrong:** LLMs predict plausible completions, not exhaustive ones. A 12-step task in a single prompt will result in 3-4 steps completed and "done" returned confidently. Attention decay is structural, not a bug in the agent's personality.
-
-**Do this instead:** Create the Beads epic with full dependency graph first. Spawn DevBot with "run `bd ready --json` to start." The graph enforces the steps, not the prompt.
-
-### Anti-Pattern 3: One Beads DB Per Sub-Agent
-
-**What people do:** Initialize `bd init` inside each sub-agent's directory so each agent has its own isolated task graph.
-
-**Why it's wrong:** Task Orchestrator loses cross-agent visibility. It cannot see that DevBot is working on task A while CI Monitor is blocked on task B. Scheduling decisions become blind.
-
-**Do this instead:** One Beads DB in task-orchestrator's workspace. Export BEADS_DIR in the gateway start script. All agents in the execution tier inherit it.
-
-### Anti-Pattern 4: Secrets in SOUL.md or IDENTITY.md
-
-**What people do:** Embed API keys or tokens directly in agent directive files because it's "just local."
-
-**Why it's wrong:** Directive files are git-tracked. One accidental push exposes all secrets. launchd loads openclaw-secrets.sh at startup — the env vars are available to all agents without being in any file.
-
-**Do this instead:** `/openclaw-add-secret` for every secret. Never write a credential into a markdown file. If you need to reference a secret in a directive, reference the env var name: `$OPENCLAW_GITHUB_TOKEN`.
-
-### Anti-Pattern 5: Stowing Without Handling jobs.json
-
-**What people do:** Run `stow` directly after editing cron config.
-
-**Why it's wrong:** The OpenClaw gateway overwrites `~/.openclaw/cron/jobs.json` on every startup. Stow creates a symlink; the gateway replaces the symlink with a real file on first run. Next stow fails with "file exists" conflict.
-
-**Do this instead:** Always use `/openclaw-restart` which runs `rm -f ~/.openclaw/cron/jobs.json → stow → kickstart → verify`. Or run that sequence manually.
+---
 
 ## Integration Points
 
-### External Services
+### Feature 1 — Smarter Email Triage
 
-| Service | Integration Pattern | Agent | Notes |
-|---------|---------------------|-------|-------|
-| Telegram | OpenClaw native channel (Bot API token in Keychain) | User Orchestrator (user channel), CI Monitor (alerts channel) | Two separate bots/tokens; never share a bot between agents |
-| WhatsApp | OpenClaw native channel (phone allowlist) | User Orchestrator | Allowlist restricts to user's phone number only |
-| Gmail (echo.sys.bot) | OpenClaw native channel (OAuth) | Email Triage | Dedicated account — not user's personal Gmail |
-| GitHub | PAT in Keychain, deterministic scripts in DevBot/scripts/ | DevBot, PR Reviewer, CI Monitor | Scripts use `gh` CLI with `$OPENCLAW_GITHUB_TOKEN`; JSON output only |
-| Notion | REST API, token in Keychain | Task Orchestrator | Decision log write; User Orchestrator reads summary only |
-| Beads/Dolt | Local CLI (`bd`), BEADS_DIR env var | Task Orchestrator (create/monitor), all execution-tier (claim/close) | Dolt DB in task-orchestrator workspace; shared via env var |
-| macOS Keychain | `security` CLI | All agents (read), cc-openclaw skills (write) | Never write directly — use `/openclaw-add-secret` skill |
-| launchd | plist in ~/Library/LaunchAgents/ | Gateway process | openclaw-secrets.sh loaded here; not in any agent's context |
+| Hook | File | Change |
+|------|------|--------|
+| Session startup memory load | `email-triage` AGENTS.md step 3 | Expand from "load most recent file" to "load last 7 days, extract sender patterns + false-positive history" |
+| Categorization loop | `email-triage` SOUL.md | Add priority scoring rules (1-5) and draft reply rules for Action Required items |
+| Memory schema | `email-triage` TOOLS.md | Document `priority_score` and `draft_reply` fields as mandatory for Action Required entries |
 
-### Internal Boundaries
+No new scripts, no cron changes, no openclaw.json changes.
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| User → User Orchestrator | OpenClaw channel (Telegram/WhatsApp message) | Async; OpenClaw buffers if agent is busy |
-| User Orchestrator → Task Orchestrator | allowAgents delegation (structured message) | One-way push; Task Orch does not push back to User Orch directly |
-| Task Orchestrator → Sub-Agents | allowAgents delegation ("run bd ready --json") | Sub-agents never push to Task Orch; Task Orch polls Beads graph |
-| Sub-Agents → Beads DB | `bd` CLI via inherited BEADS_DIR | Zero-conflict concurrent writes via Dolt cell-level merge |
-| Task Orchestrator → Notion | HTTP REST (Notion API) | Write before execute; read for standup summary |
-| CI Monitor → Telegram | OpenClaw channel (telegram-alerts bot) | Direct notification; does not go through User Orchestrator |
-| Any Agent → GitHub | Deterministic shell scripts (`gh` CLI) | stdout JSON only; stderr for logging; exit code is law |
+### Feature 2 — Cross-Agent Learning
 
-## Sources
+| Hook | File | Change |
+|------|------|--------|
+| Shared scripts | `scripts/synapse-query-learnings.sh` | New file — mirrors synapse-checkin.sh pattern |
+| ci-monitor session loop | `ci-monitor` AGENTS.md | New file — adds brief.fetch → query → poll-ci.sh → record learning |
+| ci-monitor Synapse section | `ci-monitor` TOOLS.md | Add query step after brief.fetch |
+| devbot session loop | `devbot` AGENTS.md | Add learning.query step before Beads claim |
 
-- Rahul Subramaniam, "Managing OpenClaw with Claude Code" — Trilogy AI CoE, March 2026 (primary reference for cc-openclaw skills, secrets pipeline, stow deployment, dream routines, file structure)
-- Rahul Subramaniam, "Why Your AI Agents Skip Steps — and How Task Graphs Prevent It" — Trilogy AI CoE, March 2026 (primary reference for Beads integration, decompose-before-spawn pattern, evidence-in-close-reason, one-DB-per-tier pattern)
-- `.planning/PROJECT.md` — project requirements, constraints, and key decisions (dual orchestrator rationale, Beads Phase 2+ sequencing, memory budget constraints)
+No openclaw.json changes, no cron changes, no new agent directories.
+
+### Feature 3 — Proactive Standup Insights
+
+| Hook | File | Change |
+|------|------|--------|
+| Blocker detection | `scripts/standup-brief.sh` | Add `blockers` jq filter: stale_prs where `updatedAt < 48h ago AND reviewDecision == CHANGES_REQUESTED` |
+| Pattern detection | `scripts/standup-brief.sh` | Add `patterns` computation: group ci_failures by workflowName, flag count >= 3 |
+| Standup formatting | `user-orchestrator` SOUL.md or AGENTS.md | Add: "if blockers non-empty, include Blockers section; if patterns non-empty, include Patterns section" |
+
+No new scripts, no cron changes, no openclaw.json changes.
+
+### Feature 4 — Decision Quality Risk Gate
+
+| Hook | File | Change |
+|------|------|--------|
+| Risk tier computation | `task-orchestrator` SOUL.md | Add risk tier table to "Notion Pre-Log Protocol": maps action verbs to LOW/MEDIUM/HIGH; mandate `risk_tier` in decision payload |
+| Tiered rubric | `decision-reviewer` SOUL.md | Add risk-tier-aware rubric section |
+| Input schema | `decision-reviewer` TOOLS.md | Document `risk_tier` as optional input field; add Synapse learning on HIGH-risk reject |
+
+No new scripts, no cron changes, no openclaw.json changes.
 
 ---
-*Architecture research for: Personal AI Operations Hub (OpenClaw + Claude Code fleet)*
-*Researched: 2026-05-20*
+
+## New vs Modified Summary
+
+### New Files (4 total)
+1. `scripts/synapse-query-learnings.sh` — shared Synapse query script, mirrors synapse-checkin.sh
+2. `.openclaw/agents/ci-monitor/AGENTS.md` — ci-monitor session loop (currently missing)
+3. `scripts/verify-phase-15.sh` through `scripts/verify-phase-18.sh` — 4 verification scripts (project convention)
+
+### Modified Files (10 total)
+1. `.openclaw/agents/email-triage/SOUL.md` — priority scoring rubric, draft reply rules
+2. `.openclaw/agents/email-triage/AGENTS.md` — 7-day memory window in startup
+3. `.openclaw/agents/email-triage/TOOLS.md` — extended memory schema documentation
+4. `.openclaw/agents/ci-monitor/TOOLS.md` — learning query step in Synapse section
+5. `.openclaw/agents/devbot/AGENTS.md` — learning query step before Beads claim
+6. `scripts/standup-brief.sh` — blockers and patterns arrays
+7. `.openclaw/agents/user-orchestrator/SOUL.md` or `AGENTS.md` — standup formatting
+8. `.openclaw/agents/task-orchestrator/SOUL.md` — risk tier table in Notion Pre-Log Protocol
+9. `.openclaw/agents/decision-reviewer/SOUL.md` — risk-tier-aware rubric
+10. `.openclaw/agents/decision-reviewer/TOOLS.md` — risk_tier input field, Synapse learning on HIGH reject
+
+### Not Changed
+- `openclaw.json` — no new agents, no new cron jobs
+- `cron/jobs.json` — no schedule changes
+- Any agent's IDENTITY.md, SECURITY.md, USER.md — no identity changes
+- devbot scripts, ci-monitor scripts — no script-level changes
+- `scripts/log-decision.sh` and Notion log format — decision payload gains a field, script is unchanged
+- Beads task graph structure — no changes
+- Keychain entries — no new secrets needed (SYNAPSE_TOKEN already exists)
+
+---
+
+## Synapse Learning Feedback Loop
+
+**The gap today:** Phase 13 wired all agents to record learnings and check in. But `synapse.learning.query` is only called inline in task-orchestrator AGENTS.md Step 1 — no other agent queries, and no shared script exists.
+
+**The fix:** `synapse-query-learnings.sh` (Phase 16). Takes `<project_id> <tags_csv> <limit> <cross_silo>`. Agents call it in session startup, extract `claim` strings, prepend to working context as "Prior learnings from org memory."
+
+**Token budget:** Query with `--limit 3`. At ~50 tokens per claim, 3 learnings = ~150 tokens overhead per session. Negligible.
+
+**The feedback circuit at steady state:**
+```
+ci-monitor records → Synapse stores → devbot queries + applies
+                                    → standup patterns surface
+                                    → user sees insight without asking
+```
+
+This is the intelligence upgrade in concrete terms: agents stop repeating the same mistakes because they query what peer agents learned before starting work.
+
+---
+
+## No New Infrastructure Required
+
+All 4 features are implementable within existing constraints:
+- No new OpenClaw agents
+- No new cron jobs
+- No new services, databases, or external dependencies
+- No openclaw.json structural changes
+- No new Keychain entries (SYNAPSE_TOKEN already exists)
+- No new Node.js scripts (email triage stays in agent turn; standup additions are bash)
+- The one new script (`synapse-query-learnings.sh`) follows the exact pattern of 2 existing scripts
+
+The only structurally new artifact is AGENTS.md for ci-monitor, which was always a gap — the agent was designed as fully script-driven in Phase 8 and never got a session loop definition.

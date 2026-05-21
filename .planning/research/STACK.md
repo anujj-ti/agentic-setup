@@ -1,198 +1,146 @@
-# Stack Research
+# Stack Research — v2.0 Intelligence Layer
 
-**Domain:** Personal AI Operations Hub (OpenClaw + Claude Code on macOS)
-**Researched:** 2026-05-20
-**Confidence:** HIGH (all major components verified against official docs and current releases)
+**Domain:** Personal AI Operations Hub — Intelligence Upgrades
+**Researched:** 2026-05-21
+**Confidence:** HIGH for versions/patterns; MEDIUM for Synapse feed-back pattern (proprietary, limited external docs)
 
----
-
-## Recommended Stack
-
-### Core Technologies
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| OpenClaw | 2026.5.18 (latest stable) | AI agent runtime — flat-file JSON config, gateway, channels, cron | The runtime this entire hub is built on. No alternative exists for this use case. |
-| Node.js | 24 (LTS; minimum 22.19) | OpenClaw runtime dependency | OpenClaw's official requirement. Node 24 is the default/recommended runtime. Node 18/20 cause fatal "Node version unsupported" error. |
-| Claude Code | Latest (native installer) | AI model CLI + skill execution engine | Anthropic's official CLI; as of March 2026 the native installer replaces npm-based install and auto-updates. Skills live in `.claude/skills/`. |
-| cc-openclaw (9 skills) | HEAD at `github.com/rahulsub-be/cc-openclaw` | Standardized OpenClaw operations as Claude Code slash commands | Encodes all institutional knowledge: naming conventions, secrets pipeline, stow gotchas, token budgets. Without this every config change is an improvisation. |
-| GNU Stow | Latest (`brew install stow`) | Symlink manager — deploys git repo contents to `~/.openclaw/` | Makes git the deployment mechanism. Disaster recovery = `git clone` + `stow`. Reversible with `stow -D`. |
-
-### Channel Integrations
-
-| Technology | Version/Source | Purpose | Why / Notes |
-|------------|----------------|---------|-------------|
-| Telegram Bot (BotFather) | Telegram Bot API v7.x | User-facing notifications, commands, alerts | Native OpenClaw channel. Token stored in macOS Keychain; configured via `channels.telegram` in `openclaw.json`. No Node.js library needed — OpenClaw handles the Telegram polling internally. |
-| WhatsApp (Baileys) | `@openclaw/whatsapp` plugin from ClawHub | Secondary notification channel | OpenClaw distributes WhatsApp runtime as a separate plugin (`@openclaw/whatsapp`) using Baileys (WhatsApp Web automation). Linked via QR code on a **dedicated number** — not your personal number. Ban risk is real; use a separate SIM or secondary account. |
-| Gmail API | `googleapis` npm ^13.x | Email triage + outbound via echo.sys.bot@gmail.com | OAuth2 with refresh token stored in Keychain. Use `gmail.readonly` + `gmail.send` + `gmail.modify` scopes. Refresh token is issued only once — store it immediately. Service account (domain-wide delegation) is NOT available for personal Gmail accounts — OAuth2 Device Flow is the correct auth path for a bot account. |
-
-### External API Clients
-
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `gh` (GitHub CLI) | 2.92.0 (`brew install gh`) | Issues, PRs, project board, repo management from shell scripts | Use `gh` in deterministic scripts rather than raw `curl` + GitHub REST API. `gh issue create`, `gh pr create`, `gh project item-add` are the key agent-facing commands. Authenticated via `gh auth login` — token stored by gh's own keychain integration. |
-| `@notionhq/client` | 5.22.0 | Decision logging, experiment results, async review surface | Only library needed for Notion. Use API version `2026-03-11` (pass at client construction). Token stored in Keychain as `OPENCLAW_NOTION_TOKEN`. |
-| `@beads/bd` (CLI) | 1.0.4 (`npm install -g @beads/bd` or `brew install beads`) | Dependency-aware task graph for Phase 2+ | Phase 2+ only. Initialize with `bd init --stealth` in Task Orchestrator workspace. Requires Dolt as backend. One shared `.beads/` DB across all agents via `BEADS_DIR` env var. |
-| Dolt | Latest (`brew install dolt`) | Version-controlled SQL backend for Beads | Beads embedded mode runs Dolt in-process (no external server). Data lives in `.beads/embeddeddolt/`. No separate server needed for single-machine setup. |
-
-### macOS Platform Tooling
-
-| Tool | Version | Purpose | Notes |
-|------|---------|---------|-------|
-| macOS Keychain (`security` CLI) | Built-in (macOS 13+ / Darwin 25.x) | All secrets storage | Naming convention: service = `openclaw.<name>` (lowercase, hyphens); env var = `OPENCLAW_<NAME>` (uppercase, underscores). Always update all three files: `openclaw-secrets.sh` (launchd), `openclaw-env.sh` (shell sessions), `secrets.sh` (provisioning). Never echo secrets in terminal. |
-| launchd / LaunchAgent | Built-in | Cron replacement — schedules all agent heartbeats and dream routines | `~/Library/LaunchAgents/` for user-level agents. OpenClaw installs its own LaunchAgent during `openclaw onboard --install-daemon`. Additional cron jobs are managed by the `/openclaw-add-cron` skill. |
-| `jq` | Latest (`brew install jq`) | JSON parsing in shell scripts | Required for the json-response pattern — all deterministic scripts output structured JSON to stdout, which callers parse with `jq`. Install via Homebrew. |
-| Git | System (`brew install git`) | Version control for all config | Every config change is a commit. Disaster recovery is `git clone` + `stow`. |
-
-### Shell Scripting Conventions
-
-| Convention | Specification | Rationale |
-|------------|---------------|-----------|
-| Shebang | `#!/usr/bin/env zsh` | macOS default shell is zsh (since Catalina). Do not use `#!/bin/bash` — bash on macOS is stuck at 3.2. |
-| Strict mode | `set -euo pipefail` | `set -e` exits on error, `set -u` treats unset vars as errors, `set -o pipefail` catches mid-pipe failures. Works in both zsh and bash. |
-| Output protocol | stdout = JSON only, stderr = human-readable logs | Agents parse stdout. Logs go to stderr so they don't corrupt the JSON response. This is the cc-openclaw `json-response.sh` shared library pattern. |
-| JSON response shape | `{ "ok": true, "data": {...} }` or `{ "ok": false, "error": "..." }` | Consistent shape means callers can use `jq '.ok'` to check success without ad-hoc parsing. |
-| Exit code | Non-zero on any failure, 0 on success | "Exit code is law" — agents check exit codes, not stdout content. |
-| Shared lib | `scripts/lib/json-response.sh` per agent workspace | `/openclaw-add-script` scaffolds this automatically. Never copy-paste the boilerplate — run the skill. |
+> This file extends the Phase 1 STACK.md with additions needed for the four v2.0 intelligence
+> upgrades only. All Phase 1 stack (OpenClaw, Node 24, cc-openclaw, Beads, Notion, Gmail,
+> gh CLI, GNU Stow) is validated and unchanged.
 
 ---
 
-## Installation
+## New Dependencies
 
-```bash
-# 1. Prerequisites — Node 24 (OpenClaw requirement), Homebrew tools
-brew install node@24 git stow jq gh dolt
+| Library/Tool | Version | Purpose | Integration Point |
+|---|---|---|---|
+| `natural` | 8.1.1 | TF-IDF term scoring + Naive Bayes classifier for email body/subject analysis | `scripts/email-triage/` — replaces hand-rolled regex; install locally, not globally |
+| `sentiment` | 5.0.2 | AFINN-165 sentiment score (-5 to +5) per email sentence | Same directory as `natural`; used to escalate urgently negative emails regardless of keyword match |
+| `json-rules-engine` | 7.3.1 | Declarative priority scoring rules (sender domain, subject keywords, sentiment score, thread age) wired to email triage actions | `scripts/email-triage/rules/` — rules expressed as JSON, version-controlled in git |
+| `compromise` | 14.15.0 | English NLP — extract proper nouns, dates, action verbs from email/standup text without a model call | Standup brief script and email subject parsing; ~300 KB, zero network calls, runs in Node subprocess |
 
-# 2. OpenClaw — official installer (handles Node setup, daemon install)
-curl -fsSL https://openclaw.ai/install.sh | bash
+**Confidence on versions:** HIGH — confirmed via `npm info` against live registry (2026-05-21). `natural` last published 2026-02-27; `compromise` 14.x is the actively-maintained major.
 
-# 3. Verify OpenClaw
-openclaw --version
-openclaw doctor
-openclaw gateway status
+---
 
-# 4. Claude Code — native installer (March 2026+, replaces npm method)
-curl -fsSL https://claude.ai/install.sh | bash
+## Integration Notes
 
-# 5. cc-openclaw skills — clone alongside your openclaw-home repo
-git clone https://github.com/rahulsub-be/cc-openclaw.git ~/cc-openclaw
-cd ~/cc-openclaw
-stow --no-folding -t ~/your-openclaw-home-repo .
-# Verify: open Claude Code in openclaw-home and type /openclaw- to see all 9 skills
+### 1. Email Triage Priority Scoring (Feature: smarter triage, auto-draft, fewer false positives)
 
-# 6. Beads (Phase 2+)
-npm install -g @beads/bd     # or: brew install beads
-# Initialize in Task Orchestrator workspace
-cd ~/.openclaw/agents/task-orchestrator/
-bd init --stealth
-# Export BEADS_DIR in gateway start script
-export BEADS_DIR="$HOME/.openclaw/agents/task-orchestrator/.beads"
+**Pattern:** Rule engine over extracted features, not raw text matching.
 
-# 7. Notion client (install in agent script directory, not globally)
-npm install @notionhq/client@5.22.0
+The existing `gmail-triage.sh` fetches emails via gogcli and outputs JSON. Add a thin Node.js scoring layer between fetch and action:
 
-# 8. Gmail API
-npm install googleapis@^13
-
-# 9. WhatsApp plugin (after OpenClaw gateway is running)
-openclaw plugins install clawhub:@openclaw/whatsapp
+```
+gmail-triage.sh (fetch) → score-emails.js (natural + sentiment + json-rules-engine) → triage-actions.sh (label/draft/archive)
 ```
 
+`score-emails.js` does three things:
+1. TF-IDF (`natural`) over subject + snippet to weight domain-specific signal words (PR, merge, blocked, urgent, invoice, SLA)
+2. Sentiment score (`sentiment`) on the first 3 sentences — strongly negative (<-3) overrides a low keyword score for escalation
+3. `json-rules-engine` evaluates structured facts (sender domain, TF-IDF score, sentiment, thread age, CC count) against JSON rules in `rules/email-priority.json`
+
+Rules output a `priority` (1-5), `action` (read/draft/archive/escalate), and `reason` string. The `reason` goes into the Notion log entry. Rules file is human-readable JSON — adjustable without touching Node code.
+
+**Auto-draft:** When action=draft, the scoring layer appends a `draftPrompt` field to the JSON output. The downstream Claude Code agent reads that field and calls the model once to generate the draft body. No new library needed — this is prompt construction, not a new dependency.
+
+**Why `json-rules-engine` over hand-coded `if/else`:** Rules are version-controlled JSON objects, not code. The agent that learns from Synapse history can write a new rule to the JSON file without understanding the Node logic. Async fact providers let rules query Keychain-backed facts (sender reputation, thread history) without blocking.
+
+### 2. Cross-Agent Learning via Synapse (Feature: agents learn from history across sessions)
+
+**Pattern:** MEMORY.md write-back, not a new library.
+
+Synapse already exists (token in Keychain, `synapse.learning.query` + `synapse.learning.record` REST calls via curl). The gap is the feedback loop from Synapse back into agent context.
+
+**Implementation:** No new npm dependency. Use two shell functions:
+
+- `synapse-briefing.sh` — called by each agent's dream routine cron job (after OpenClaw's own dream phase). Queries `synapse.learning.query` with the agent's tags, formats the top 5 learnings (confidence >= medium) as bullet points, and appends them to the agent's `MEMORY.md` under a `## Synapse Learnings` section.
+- OpenClaw then injects `MEMORY.md` into the model context at session start (this is the existing bootstrap injection mechanism — `agents.defaults.bootstrapMaxChars` controls truncation, default 20000 chars). No new injection machinery needed.
+
+**Token budget:** The existing dream budget (2,500 tokens daily / 7,500 for 3-day digest) is the constraint. Synapse learnings must be pre-summarized to 5 bullets max before write-back. Each bullet targets ≤80 chars. This keeps the Synapse block under ~500 chars, well inside the bootstrap budget.
+
+**Why not a dedicated library:** Synapse's API is a REST endpoint over HTTPS. The existing curl pattern used everywhere in this stack is sufficient. A dedicated SDK would add a dependency, a versioning surface, and a global install risk — none of which is justified for 3 curl calls per dream cycle.
+
+**Confidence:** MEDIUM. Synapse (synapse-os.ai) is a proprietary platform with limited public documentation. The pattern described above is correct given the Synapse API surface visible in the CLAUDE.md system prompt (`synapse.learning.query`, `synapse.learning.record`, `synapse.brief.fetch`). The MEMORY.md bootstrap injection is HIGH confidence from OpenClaw docs.
+
+### 3. Proactive Standup Insights (Feature: blocker detection, priority suggestions, pattern recognition)
+
+**Pattern:** `compromise` for entity/date extraction + `json-rules-engine` for pattern classification.
+
+Both libraries are already pulled in for email triage (see above), so no net-new dependency.
+
+The standup brief script (`standup-brief.sh`) currently emits a narrative summary. Add a `detect-patterns.js` step after data collection:
+
+- `compromise` parses PR titles, CI failure messages, and issue descriptions to extract: person names (who is blocking), dates (SLA deadlines, meeting times), action verbs (merge, deploy, fix, review), and duration phrases (2 days ago, 3 open)
+- `json-rules-engine` evaluates extracted facts against pattern rules: PR open > 2 days with no review activity → `blocker_candidate`, CI failure rate > 2 in last 24h on same job → `recurring_failure`, issue labeled "blocked" + assignee → `escalate_to_standup`
+- Output is a `insights` array in the standup JSON, each with `type`, `description`, and `suggested_action`
+
+The Claude Code agent that formats the standup brief reads the `insights` array and inlines them as callout blocks. No model call for detection — `compromise` + `json-rules-engine` do the classification deterministically.
+
+### 4. Decision Quality Improvement — Pre-Notion Risk Flagging (Feature: Decision Reviewer flags risky actions pre-Notion)
+
+**Pattern:** Keyword + tier scoring in a Node.js module, no external library needed.
+
+The four-tier risk framework (Tier 0: read-only → Tier 4: irreversible/financial) is well-established and can be implemented as a lookup table:
+
+```javascript
+// risk-classifier.js — no npm dependency, ships as scripts/lib/
+const RISK_PATTERNS = {
+  tier4: /\b(payment|billing|deploy|merge.to.main|delete|irreversible|broad.segment|GDPR|PCI)\b/i,
+  tier3: /\b(email|send|create.issue|webhook|notify|external)\b/i,
+  tier2: /\b(fetch|read.api|search|list)\b/i,
+};
+```
+
+The Decision Reviewer agent passes the decision description string through `risk-classifier.js` before calling `notion-log-decision.js`. If tier >= 3, the Notion log entry gets a `risk_flag: true` field and a `risk_reason` string. The Telegram notification for tier-4 decisions includes a `[HIGH RISK]` prefix.
+
+**Why no library:** The risk patterns are small, domain-specific, and need to be adjusted as the agent fleet evolves. Encoding them in a 30-line module with a JSON rules file keeps them reviewable in git history. `json-rules-engine` is an option here too, but adds overhead for what is a single linear pass over one string.
+
+**Confidence:** HIGH. Pattern drawn directly from the runcycles.io risk tier documentation (verified via WebFetch). The Tier 0-4 classification with keyword indicators is a recognized framework, not proprietary.
+
 ---
 
-## Alternatives Considered
-
-| Recommended | Alternative | Why Not |
-|-------------|-------------|---------|
-| Native Claude Code installer | `npm install -g @anthropic-ai/claude-code` | The npm method is officially deprecated as of March 2026. Native installer auto-updates and has zero npm dependency noise. |
-| `gh` CLI for GitHub operations | Raw `curl` + GitHub REST API | `gh` handles auth, rate-limit headers, and pagination automatically. Raw curl requires manual token management and JSON construction. |
-| `@notionhq/client` | Custom `curl` + Notion REST | Official SDK handles retries, pagination, and rate limits. No reason to raw-dog the Notion API. |
-| Baileys via `@openclaw/whatsapp` | Twilio WhatsApp Business API | Twilio requires a registered WhatsApp Business number, per-message cost, and 24-hour template window. Baileys is free and works with any number. Ban risk is the tradeoff — use a dedicated number to manage it. |
-| OAuth2 Device Flow for Gmail | Service account + domain-wide delegation | Domain-wide delegation only works for Google Workspace (G Suite) domains, not personal @gmail.com accounts. echo.sys.bot@gmail.com is a personal account — OAuth2 is the only path. |
-| launchd for scheduling | cron | cron is deprecated on macOS and replaced by launchd. launchd also supports event-based triggers, not just time-based. |
-| `bd init --stealth` for Beads | Beads server mode | Server mode requires an external Dolt SQL server. Stealth/embedded mode runs in-process — no extra infrastructure for a single-machine personal hub. |
-| `@beads/bd` 1.0.4 via npm or brew | `beads-orchestration` skill (community fork) | The community orchestration skill adds multi-agent messaging (HANDOFF/BLOCKED). Worth evaluating in Phase 2+ but the core `bd` CLI is sufficient for the initial task graph pattern. |
-
----
-
-## What NOT to Use
+## What NOT to Add
 
 | Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| `npm install -g openclaw@latest` as primary install | Still works, but the native installer is now the official path and handles more edge cases (sharp/libvips binaries, daemon setup). Use npm only if curl install fails. | `curl -fsSL https://openclaw.ai/install.sh \| bash` |
-| Node.js 18 or 20 | OpenClaw will fail at startup with "Node version unsupported" fatal error. These versions are below the 22.19 minimum. | Node 24 via `brew install node@24` |
-| `python-telegram-bot` or `node-telegram-bot-api` | OpenClaw handles Telegram natively via the `channels.telegram` config. No separate library or polling loop is needed. Adding one creates a second conflicting bot instance. | OpenClaw's built-in Telegram channel with BotFather token |
-| Telegraf.js | Same reason — OpenClaw owns the Telegram socket. External frameworks conflict with the gateway's connection management. | OpenClaw's built-in Telegram channel |
-| Hardcoded secrets in openclaw.json or any tracked file | Creates plaintext secrets in git history. The cc-openclaw security model explicitly forbids this. | macOS Keychain via `security add-generic-password -s openclaw.<name>` |
-| Global npm installs for Notion/Gmail libraries | Agent scripts should own their dependencies, not share a global namespace. Global installs create version conflicts across agents and break reproducibility. | `npm install` in the agent's scripts directory |
-| WhatsApp on your personal number | WhatsApp ban risk. A banned personal number loses all your contacts and conversation history. | A dedicated number (secondary SIM or virtual number) |
-| WAHA plugin (community WhatsApp) | WAHA unlocks more WhatsApp features (polls, reactions, etc.) but adds complexity the cc-openclaw `/openclaw-add-channel` skill doesn't know about. You lose the standardized secrets pipeline. | `@openclaw/whatsapp` via ClawHub — supported by the skill |
-| `cron` / `crontab` | Deprecated on macOS since macOS 12. launchd is the native scheduler and is what OpenClaw's cron runner wraps. | `openclaw-add-cron` skill which generates launchd-compatible jobs |
-| `#!/bin/bash` shebang | macOS ships bash 3.2 (GPL2 locked). Missing associative arrays, `mapfile`, modern string ops. | `#!/usr/bin/env zsh` — zsh 5.9+ is the macOS default shell |
-| Beads in Phase 1 | Premature complexity. Task Orchestrator doesn't exist yet. Beads is a Phase 2+ dependency once the core fleet is running. | Plain agent TOOLS.md instructions until Task Orchestrator is live |
+|---|---|---|
+| Python ML (scikit-learn, spaCy, transformers) | No Python in this stack. Introduces a second runtime, package manager, and venv to manage on macOS. The constraint is Node.js + zsh. | `natural` 8.x + `json-rules-engine` — covers 90% of the same use cases without leaving the Node.js runtime |
+| OpenAI / Anthropic API calls in the triage scoring path | Latency + cost per email. Email volume can spike; a model call per email creates runaway cost and blocks the triage loop. | Deterministic scoring (TF-IDF + sentiment + rules) for classification; Claude Code agent call only for the auto-draft step on the shortlist |
+| Vector DB (Chroma, Pinecone, pgvector) | No new infrastructure. This stack runs on macOS with no server processes outside OpenClaw. A vector DB requires a daemon, a port, and a backup strategy. | QMD (OpenClaw's built-in retrieval sidecar) already provides BM25 + semantic search for agent memory. Use it for any retrieval-augmented step. |
+| Global npm installs for new libraries | Breaks reproducibility across agents, creates version conflicts. | Install `natural`, `sentiment`, `json-rules-engine`, `compromise` locally in each agent's `scripts/` directory that needs them |
+| A dedicated "Synapse SDK" or wrapper | No such library exists in the public ecosystem (synapse-os.ai is proprietary). The curl pattern already used throughout the stack is sufficient. | `curl` with Keychain token — same pattern as Notion and Gmail calls |
+| `brain.js` or `ml.js` neural networks | Trained models need labeled datasets to be useful. This stack has no training pipeline. A rule-based + TF-IDF approach with Bayesian classification is sufficient and transparent (rules are readable in git). | `natural` Naive Bayes classifier with hand-curated training phrases per category — 20-30 examples per class is enough for email routing |
+| Separate NLP microservice / sidecar | Adds network hop, service management, and a new failure domain. | Node.js subprocess called from zsh scripts — same pattern as `notion-log-decision.js` |
+| `compromise` for non-English content | `compromise` is English-only. If international email handling is ever needed, this creates silent failures. | Flag non-English emails (detected by charset or lang header) as `needs_review` before scoring, bypass NLP entirely |
 
 ---
 
-## Stack Patterns by Variant
+## Version Compatibility for New Dependencies
 
-**For the User Orchestrator (conversational, Claude Code-facing):**
-- Model: Anthropic Claude (Sonnet or higher) via OpenClaw `agents.list` config
-- Channel: Telegram (`channels.telegram` in openclaw.json, `dmPolicy: "pairing"`)
-- No Beads — stays lean, no stateful task tracking
-- Dream routine: yes — nightly memory distillation, 2,500 token daily budget, 7,500 for 3-day rolling digest
+| Package | Node.js | Notes |
+|---|---|---|
+| `natural` 8.1.1 | 16+ (Node 24 confirmed) | Last published 2026-02-27. No native binaries — pure JS, no build step. |
+| `sentiment` 5.0.2 | 14+ (Node 24 confirmed) | Pure JS. AFINN-165 wordlist is bundled — no network calls. |
+| `json-rules-engine` 7.3.1 | 18+ (Node 24 confirmed) | Full async support. Rules can be async functions for Keychain lookups. |
+| `compromise` 14.15.0 | 14+ (Node 24 confirmed) | ~1.2 MB bundle. English-only. No native binaries. |
 
-**For the Task Orchestrator (autonomous, background execution):**
-- Model: Claude Opus (or Sonnet for cost) — needs full reasoning for multi-agent delegation
-- Channel: none (no direct user messaging — communicates via Beads + Notion logs)
-- Beads: yes — `bd init --stealth` in workspace, `BEADS_DIR` exported via gateway start script
-- Heartbeat: cron (15-minute cycle to check Beads graph for stuck agents)
-- Dream routine: yes — accumulates more operational context, higher token budget justified
-
-**For Sub-agents (specialized workers):**
-- Model: Claude Sonnet or Haiku (cost optimization — the skill defines the procedure, not the model)
-- Beads: consumer only (`bd ready --json` → claim → close with evidence)
-- No direct channels — receive work via Beads claims, report back via close reasons + Notion logs
-- Deterministic scripts: yes — all file I/O, API calls, git operations via `set -euo pipefail` scripts with JSON output
-
-**For OpenClaw config management:**
-- All config changes go through cc-openclaw skills, never hand-edited
-- Every change is a git commit before `stow` runs
-- The `/openclaw-stow` and `/openclaw-restart` skills encode the `rm -f ~/.openclaw/cron/jobs.json` gotcha automatically
-
----
-
-## Version Compatibility
-
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| OpenClaw 2026.5.x | Node.js 22.19 – 24.x | Node 24 recommended. Node 18/20 cause fatal startup error. |
-| Claude Code (native installer) | macOS 13.0+ (Ventura) | Supports both Intel and Apple Silicon. |
-| `@notionhq/client` 5.22.0 | Notion API version `2025-09-03` (default) or `2026-03-11` | Pass `notionVersion: "2026-03-11"` to client constructor to use latest API. |
-| `@beads/bd` 1.0.4 | Dolt (any recent version via brew) | Embedded Dolt mode: no server needed. `brew install dolt` satisfies the dependency. |
-| `gh` 2.92.0 | GitHub.com, GitHub Enterprise Cloud, GHE Server 2.20+ | Authenticate via `gh auth login` before any agent scripts run. |
-| GNU Stow (latest) | macOS 13+ | `brew install stow`. The `--no-folding` flag is required when using stow with `.claude/skills/` to avoid directory-level symlinks that break skill discovery. |
-| `googleapis` ^13 | Node.js 18+ | Compatible with Node 24. Gmail OAuth2 refresh tokens survive runtime restarts when stored in Keychain. |
+All four are pure JavaScript — no node-gyp build step, no native binaries, no post-install scripts. They install reliably in agent `scripts/` directories without sudo or global state.
 
 ---
 
 ## Sources
 
-- [OpenClaw Install Docs](https://docs.openclaw.ai/install) — install commands, Node version requirements (HIGH)
-- [OpenClaw Node.js Requirements](https://docs.openclaw.ai/install/node) — Node 24 recommended, 22.19 minimum (HIGH)
-- [OpenClaw Gateway Configuration](https://docs.openclaw.ai/gateway/configuration) — openclaw.json structure, JSON5 format, channel/cron/agent schema (HIGH)
-- [OpenClaw Telegram Channel Docs](https://docs.openclaw.ai/channels/telegram) — dmPolicy options, pairing workflow, secrets management (HIGH)
-- [OpenClaw WhatsApp Channel Docs](https://docs.openclaw.ai/channels/whatsapp) — Baileys-based, `@openclaw/whatsapp` plugin, QR code setup (HIGH)
-- [cc-openclaw GitHub](https://github.com/rahulsub-be/cc-openclaw) — 9 skills, slash commands, stow-based install (HIGH)
-- [Beads GitHub (gastownhall/beads)](https://github.com/gastownhall/beads) — v1.0.4, `bd init --stealth`, CLI command reference (HIGH)
-- [Beads npm package (@beads/bd)](https://www.npmjs.com/package/@beads/bd) — install via npm or brew (HIGH)
-- [GitHub CLI Homebrew Formula](https://formulae.brew.sh/formula/gh) — version 2.92.0 confirmed (HIGH)
-- [Notion SDK JS Releases](https://github.com/makenotion/notion-sdk-js/releases) — v5.22.0 latest, API version 2026-03-11 available (HIGH)
-- [Node.js Gmail API Quickstart](https://developers.google.com/workspace/gmail/api/quickstart/nodejs) — OAuth2 flow, scope list (HIGH)
-- [Dolt Homebrew Formula](https://formulae.brew.sh/formula/dolt) — `brew install dolt` (HIGH)
-- [Managing OpenClaw with Claude Code — Trilogy AI CoE](docs/human/Trilogy%20AI%20Center%20of%20Excellence%20-%20Managing%20OpenClaw%20with%20Claude%20Code.md) — skills design rationale, secrets pipeline, stow gotchas, token budgets (HIGH — primary reference)
-- [Why Your AI Agents Skip Steps — Trilogy AI CoE](docs/human/Trilogy%20AI%20Center%20of%20Excellence%20-%20Why%20Your%20AI%20Agents%20Skip%20Steps%20-%20and%20How%20Task%20Graphs%20Prevent%20It.md) — Beads setup runbook, decomposition templates, claim/close protocol (HIGH — primary reference)
-- [Bash Strict Mode Reference](https://linuxize.com/post/bash-strict-mode/) — `set -euo pipefail` conventions (MEDIUM)
+- [natural npm package](https://www.npmjs.com/package/natural) — v8.1.1, 210k weekly downloads, TF-IDF + Naive Bayes (HIGH — verified via `npm info`)
+- [sentiment npm package](https://www.npmjs.com/package/sentiment) — v5.0.2, AFINN-165 (HIGH — verified via `npm info`)
+- [json-rules-engine GitHub](https://github.com/CacheControl/json-rules-engine) — v7.3.1, async facts, priority scoring (HIGH)
+- [compromise GitHub](https://github.com/spencermountain/compromise) — v14.15.0, English NLP, entity extraction (HIGH)
+- [AI Agent Risk Assessment Tiers](https://runcycles.io/blog/ai-agent-risk-assessment-score-classify-enforce-tool-risk) — Tier 0-4 framework, keyword indicators (MEDIUM — single source, but corroborated by MindStudio four-tier article)
+- [How to Classify AI Agent Actions by Risk — MindStudio](https://www.mindstudio.ai/blog/classify-ai-agent-actions-by-risk) — corroborating four-tier framework (MEDIUM)
+- [OpenClaw Memory Concepts](https://docs.openclaw.ai/concepts/memory) — MEMORY.md bootstrap injection, bootstrapMaxChars default (HIGH)
+- [OpenClaw Dreaming Guide 2026 — DEV Community](https://dev.to/czmilo/openclaw-dreaming-guide-2026-background-memory-consolidation-for-ai-agents-585e) — dream phases, MEMORY.md promotion (MEDIUM)
+- [OpenClaw Memory Token Config](https://velvetshark.com/openclaw-memory-masterclass) — bootstrapMaxChars (20000 default) and bootstrapTotalMaxChars (150000 default) (MEDIUM — secondary source)
+- [Agent Memory Architecture Trends 2025-2026 — Zylos Research](https://zylos.ai/research/2026-04-05-ai-agent-memory-architectures-persistent-knowledge) — context injection patterns, static vs dynamic procedural memory (MEDIUM)
 
 ---
-*Stack research for: Personal AI Operations Hub (OpenClaw + Claude Code on macOS)*
-*Researched: 2026-05-20*
+*Stack research for: Personal AI Operations Hub v2.0 Intelligence Layer*
+*Researched: 2026-05-21*
