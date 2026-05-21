@@ -440,19 +440,19 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 **Goal:** Synapse org-wide memory is properly wired into all agents and Claude Code as a first-class mandatory step — every agent uses the full loop: brief.fetch → learning.query → workflow.create → checkin → learning.record; the org accumulates reusable knowledge across sessions
 **Requirements**: SYN-01, SYN-02, SYN-03
 **Depends on:** Phase 12
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 13-01-PLAN.md — Create synapse-checkin.sh + synapse-record-learning.sh deterministic scripts with TODO_SYNAPSE guard (SYN-01)
-- [ ] 13-02-PLAN.md — Wire Synapse (Mandatory) section into all 8 execution-tier agent TOOLS.md files (SYN-02)
+- [x] 13-01-PLAN.md — Create synapse-checkin.sh + synapse-record-learning.sh deterministic scripts with TODO_SYNAPSE guard (SYN-01)
+- [x] 13-02-PLAN.md — Wire Synapse (Mandatory) section into all 8 execution-tier agent TOOLS.md files (SYN-02)
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 13-03-PLAN.md — Create verify-phase-13.sh (10 checks) + document project.agentic-setup creation in CLAUDE.md (SYN-03)
+- [x] 13-03-PLAN.md — Create verify-phase-13.sh (10 checks) + document project.agentic-setup creation in CLAUDE.md (SYN-03)
 
 **Wave 3** *(phase gate)*
-- [ ] 13-04-PLAN.md — Run verify, record 3 phase learnings to Synapse, update ROADMAP, write SUMMARY (SYN-01, SYN-02, SYN-03)
+- [x] 13-04-PLAN.md — Run verify, record 3 phase learnings to Synapse, update ROADMAP, write SUMMARY (SYN-01, SYN-02, SYN-03)
 
 ### Phase 14: gogcli Google Suite CLI — install gogcli, wire gog gmail and gog calendar into Email Triage agent and morning standup script, replace Node.js googleapis SDK calls with deterministic shell commands
 
