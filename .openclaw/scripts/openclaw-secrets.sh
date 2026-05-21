@@ -30,3 +30,7 @@ export OPENCLAW_ANUJ_CHAT_ID="$(security find-generic-password -s 'openclaw.anuj
 
 # Notion integration token — Phase 9 (D-92)
 export OPENCLAW_NOTION_TOKEN=$(security find-generic-password -s openclaw.notion-token -w 2>/dev/null || echo "")
+
+# GitHub bot token for echosysbot — DevBot agent uses this via GH_TOKEN
+# Keeps echosysbot identity isolated to OpenClaw; global gh CLI stays as anujj-ti
+export GH_TOKEN="$(security find-generic-password -s 'openclaw.github-bot-token' -w 2>/dev/null || true)"

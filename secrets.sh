@@ -23,6 +23,8 @@ SECRETS=(
   # Service: openclaw.notion-token | Env var: OPENCLAW_NOTION_TOKEN
   # Create at: https://www.notion.so/my-integrations
   # Run: /openclaw-add-secret notion-token <integration_token>
+  # GitHub bot token for echosysbot — DevBot agent identity (separate from personal anujj-ti)
+  "openclaw.github-bot-token|GH_TOKEN|GitHub PAT for echosysbot account (DevBot agent — scopes: repo, read:org, workflow, project)"
 )
 
 for entry in "${SECRETS[@]}"; do
