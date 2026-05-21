@@ -1,0 +1,97 @@
+formula = "review"
+description = "Structured review: understand → critique → verdict → feedback loop"
+version = 1
+type = "workflow"
+
+[vars.artifact]
+description = "What is being reviewed (e.g. 'PR #42', 'SOUL.md update', 'devbot-merge-pr.sh')"
+required = true
+
+[vars.review_type]
+description = "Type of review: code | document | decision | skill"
+default = "code"
+
+[vars.author]
+description = "Who created the artifact being reviewed"
+default = "task-orchestrator"
+
+[[steps]]
+id = "understand"
+title = "Understand artifact: {{artifact}}"
+type = "task"
+description = """
+Before critiquing, understand what was built and why:
+  - Read the artifact completely
+  - Read the design notes and acceptance criteria if available
+  - Understand the intent — what problem is {{author}} solving?
+  - Check: what Beads issue does this close? Read it.
+Review type: {{review_type}}
+Only critique against the stated goal — not against a different goal you would have chosen.
+"""
+
+[[steps]]
+id = "critique"
+title = "Critique: {{artifact}}"
+type = "task"
+needs = ["understand"]
+description = """
+Apply the appropriate review lens for {{review_type}}:
+
+CODE review checks:
+  - Correctness (does it do what it says?)
+  - Security (secrets? injection? permissions?)
+  - Shell scripts: zsh -n syntax check, set -euo pipefail present?
+  - Error handling: what happens on failure?
+  - Conventions: naming, output protocol (stdout=JSON, stderr=logs)
+
+DOCUMENT review checks:
+  - Is the information accurate and up-to-date?
+  - Is it clear to a fresh agent with no prior context?
+  - Are there missing sections or unexplained assumptions?
+
+DECISION review checks:
+  - Is the rationale substantiated (not vague)?
+  - Is reversibility correctly assessed?
+  - Is evidence cited?
+
+SKILL review checks:
+  - Does it follow cc-openclaw naming conventions?
+  - Is it safe? (no secret leaks, no destructive defaults)
+
+Classify each finding: critical | warning | suggestion
+"""
+
+[[steps]]
+id = "verdict"
+title = "Verdict: {{artifact}}"
+type = "task"
+needs = ["critique"]
+description = """
+Issue a structured verdict:
+
+  pass    — artifact is ready to ship as-is (or with suggestions noted)
+  flag    — ship after addressing specific items (list them)
+  reject  — must fix critical issues before re-review
+
+Format your verdict as:
+  verdict: pass|flag|reject
+  must_fix: [list of critical items, empty if pass]
+  should_fix: [list of warnings]
+  notes: [suggestions, observations]
+
+Record the verdict: bd update <id> --notes "<verdict JSON>"
+"""
+
+[[steps]]
+id = "feedback"
+title = "Feedback loop: {{artifact}}"
+type = "task"
+needs = ["verdict"]
+description = """
+Close the loop:
+  - If PASS: notify {{author}}, close this molecule, proceed to ship
+  - If FLAG: send must_fix + should_fix to {{author}} via sessions_spawn; re-review not required for flag items
+  - If REJECT: send must_fix to {{author}} with specific line-level guidance; they return to implement step
+  - Record learning in Synapse: what pattern caused the issue? bd remember "<insight>"
+  - bd dolt push
+"""

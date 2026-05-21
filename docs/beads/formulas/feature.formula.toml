@@ -1,0 +1,147 @@
+formula = "feature"
+description = "Full feature delivery: clarify → research → design → implement → peer-review → ship"
+version = 1
+type = "workflow"
+
+[vars.title]
+description = "What is being built (e.g. 'Add OAuth login')"
+required = true
+
+[vars.context]
+description = "Background context, linked issues, or constraints"
+default = "None provided"
+
+[vars.reviewer]
+description = "Agent or person to review the implementation"
+default = "code-reviewer"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 1 — Clarify: agent reads task, identifies ambiguities, asks questions
+# ──────────────────────────────────────────────────────────────────────────────
+[[steps]]
+id = "clarify"
+title = "Clarify: {{title}}"
+type = "task"
+description = """
+Read the task description and context. Identify any ambiguities before starting.
+Ask yourself:
+  - Is the scope clear? What is explicitly out of scope?
+  - Are there conflicting requirements?
+  - What assumptions am I making that could be wrong?
+  - What would make this task fail?
+Write a short clarification summary (3-5 bullet points) and save it to your notes.
+If you need human input, use: bd gate create --blocks <this-issue-id> --type human --reason "<specific question>"
+Context: {{context}}
+"""
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 2 — Research: gather prior learnings + investigate approach
+# ──────────────────────────────────────────────────────────────────────────────
+[[steps]]
+id = "research"
+title = "Research: {{title}}"
+type = "task"
+needs = ["clarify"]
+description = """
+Before writing any code:
+1. Query Synapse for prior learnings: bd memories "{{title}}" and synapse.learning.query
+2. Check if this pattern exists in the codebase already
+3. Identify the best approach and document trade-offs
+4. Write a 3-sentence research summary: what you found, what approach you chose, why
+Record key findings as Beads memories: bd remember "<insight>"
+"""
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 3 — Design: decide the solution before touching code
+# ──────────────────────────────────────────────────────────────────────────────
+[[steps]]
+id = "design"
+title = "Design: {{title}}"
+type = "task"
+needs = ["research"]
+description = """
+Document the design decision:
+  - What will you build? (interface, files, APIs)
+  - What will you NOT build? (explicit scope fence)
+  - What is the rollback plan?
+Update this issue with --design flag: bd update <id> --design "<your design>"
+Do NOT start implementation until design is written.
+"""
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 4 — Implement: build it
+# ──────────────────────────────────────────────────────────────────────────────
+[[steps]]
+id = "implement"
+title = "Implement: {{title}}"
+type = "task"
+needs = ["design"]
+description = """
+Implement per the design from the previous step.
+Rules:
+  - Run zsh scripts with set -euo pipefail
+  - stdout = JSON only; stderr = human logs
+  - Secrets: Keychain only, never in files
+  - Commit atomically after each logical unit of work
+  - If you discover a new issue during implementation: bd create --deps "discovered-from:<this-id>"
+Log decision to Notion before any irreversible action.
+"""
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 5 — Self-review: agent reviews own work before asking others
+# ──────────────────────────────────────────────────────────────────────────────
+[[steps]]
+id = "self-review"
+title = "Self-review: {{title}}"
+type = "task"
+needs = ["implement"]
+description = """
+Review your own implementation before requesting peer review:
+  - Does it match the design from step 3?
+  - Are there any hardcoded secrets?
+  - Is error handling correct?
+  - Would a fresh agent understand this code?
+  - Run zsh -n on all shell scripts
+  - Run verify scripts if they exist
+Write a self-review summary: what you found and what you fixed.
+Update this issue with: bd update <id> --notes "<self-review summary>"
+"""
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 6 — Peer review: spawn reviewer sub-agent
+# ──────────────────────────────────────────────────────────────────────────────
+[[steps]]
+id = "peer-review"
+title = "Peer review by {{reviewer}}: {{title}}"
+type = "task"
+needs = ["self-review"]
+description = """
+Spawn the {{reviewer}} agent to review the implementation.
+Pass: the implementation summary, the design from step 3, and the self-review notes.
+The reviewer returns a verdict: pass | flag | reject
+  - pass → proceed to ship
+  - flag → fix flags then re-request (no full re-review needed)
+  - reject → return to implement step with must_fix items
+Do NOT proceed to ship until verdict is "pass" or "flag" with all flags addressed.
+"""
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 7 — Ship: final gate + deploy/merge
+# ──────────────────────────────────────────────────────────────────────────────
+[[steps]]
+id = "ship"
+title = "Ship: {{title}}"
+type = "task"
+needs = ["peer-review"]
+description = """
+Final steps to ship:
+  1. Log the decision to Notion (mandatory pre-merge)
+  2. Open PR or deploy — include: what changed, design rationale, evidence from QA
+  3. Close this molecule: bd close <ship-id> --reason "<PR URL or deploy confirmation>"
+  4. Record a learning in Synapse: bd remember "<non-obvious insight from this feature>"
+  5. bd dolt push  ← ALWAYS last
+"""
+
+[steps.gate]
+type = "human"
+approvers = ["anuj"]

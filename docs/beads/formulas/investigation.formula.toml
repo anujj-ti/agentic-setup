@@ -1,0 +1,81 @@
+formula = "investigation"
+description = "Investigation: clarify question → gather evidence → analyze → decide → document"
+version = 1
+type = "workflow"
+
+[vars.question]
+description = "The specific question to answer (e.g. 'Should we use X or Y for Z?')"
+required = true
+
+[vars.deadline]
+description = "When a decision is needed by"
+default = "no deadline"
+
+[[steps]]
+id = "frame"
+title = "Frame the question: {{question}}"
+type = "task"
+description = """
+Before gathering evidence, make sure the question is the right question:
+  - Is this actually the question, or is there a better one?
+  - What would a good answer look like?
+  - What are the 2-3 candidate answers we're choosing between?
+  - What evidence would change our mind?
+Deadline: {{deadline}}
+Write a framed question: bd update <id> --design "<refined question + candidate answers>"
+"""
+
+[[steps]]
+id = "gather"
+title = "Gather evidence: {{question}}"
+type = "task"
+needs = ["frame"]
+description = """
+Gather evidence for each candidate answer:
+  - Query Synapse for prior org learnings: synapse.learning.query + synapse.fact.query
+  - Query Beads memories: bd memories "<keywords>"
+  - Check docs, codebase, prior decisions
+  - For each candidate: what do we know? what are risks? what are unknowns?
+Do NOT form a conclusion yet — just gather.
+"""
+
+[[steps]]
+id = "analyze"
+title = "Analyze findings: {{question}}"
+type = "task"
+needs = ["gather"]
+description = """
+Analyze the evidence and form a recommendation:
+  - What does the evidence say about each candidate?
+  - What assumptions are you making?
+  - What is the confidence level? (low/medium/high)
+  - What would change your recommendation?
+Write analysis: bd update <id> --notes "<analysis + recommendation + confidence>"
+"""
+
+[[steps]]
+id = "decide"
+title = "Decision: {{question}}"
+type = "task"
+needs = ["analyze"]
+description = """
+Commit to a decision:
+  - State the decision clearly
+  - Record it as a Beads choice: bd record-choice "<situation>" "<options>" "<chosen>" "<rationale>"
+  - Log to Notion if this is an autonomous decision
+  - If you need human sign-off: bd gate create --blocks <id> --type human --reason "<decision + why human needed>"
+"""
+
+[[steps]]
+id = "document"
+title = "Document decision: {{question}}"
+type = "task"
+needs = ["decide"]
+description = """
+Make this decision discoverable for future agents:
+  1. bd remember "<non-obvious insight from this investigation>"
+  2. Record to Synapse: synapse.learning.record with confidence + tags
+  3. Update relevant SOUL.md / AGENTS.md / TOOLS.md if the decision changes how agents behave
+  4. bd close <id> --reason "Decision documented: <one-line summary>"
+  5. bd dolt push
+"""

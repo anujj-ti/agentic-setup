@@ -1,0 +1,85 @@
+formula = "bugfix"
+description = "Bug fix: reproduce → root-cause → fix → verify → ship"
+version = 1
+type = "workflow"
+
+[vars.title]
+description = "Bug description (e.g. 'Gateway crashes on restart')"
+required = true
+
+[vars.reporter]
+description = "Who reported it or which system detected it"
+default = "unknown"
+
+[vars.reviewer]
+description = "Agent to review the fix"
+default = "code-reviewer"
+
+[[steps]]
+id = "reproduce"
+title = "Reproduce: {{title}}"
+type = "task"
+description = """
+Before touching any code, reproduce the bug:
+  - Document exact steps to reproduce
+  - Record the actual vs expected behavior
+  - Capture any error output, logs, or stack traces
+  - Confirm: is this consistently reproducible?
+Reporter: {{reporter}}
+Close with: bd close <id> --reason "Reproduced: <exact steps + evidence>"
+If you cannot reproduce: bd gate create --blocks <id> --type human --reason "Cannot reproduce — need more info from {{reporter}}"
+"""
+
+[[steps]]
+id = "root-cause"
+title = "Root cause: {{title}}"
+type = "task"
+needs = ["reproduce"]
+description = """
+Find WHY this happens, not just WHERE:
+  - Trace the execution path to the failure point
+  - Identify the root cause (not just the symptom)
+  - Check: does this exist elsewhere in the codebase?
+  - Check Synapse for related prior issues: bd memories "{{title}}"
+Write root cause analysis: bd update <id> --design "<root cause + affected paths>"
+"""
+
+[[steps]]
+id = "fix"
+title = "Fix: {{title}}"
+type = "task"
+needs = ["root-cause"]
+description = """
+Implement the minimal fix:
+  - Fix the root cause, not just the symptom
+  - Add a test that would have caught this bug
+  - Do NOT refactor unrelated code in this commit
+  - If fix is irreversible, log to Notion first
+Commit message must reference the root cause.
+"""
+
+[[steps]]
+id = "verify"
+title = "Verify fix: {{title}}"
+type = "task"
+needs = ["fix"]
+description = """
+Prove the fix works:
+  1. Confirm the original reproduction steps no longer trigger the bug
+  2. Run the existing test suite — nothing new should break
+  3. Review the fix with {{reviewer}} via sessions_spawn
+  4. Reviewer verdict must be pass or flag (no rejects)
+Close with: bd close <id> --reason "Verified: <test output confirming fix>"
+"""
+
+[[steps]]
+id = "ship"
+title = "Ship fix: {{title}}"
+type = "task"
+needs = ["verify"]
+description = """
+  1. Log to Notion (pre-merge mandatory)
+  2. Open PR with: root cause, fix description, verification evidence
+  3. bd remember "<what caused this + how we fixed it>" for future agents
+  4. bd dolt push
+"""
