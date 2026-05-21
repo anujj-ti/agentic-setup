@@ -30,5 +30,9 @@ export OPENCLAW_ANUJ_CHAT_ID="${OPENCLAW_ANUJ_CHAT_ID:-}"
 # Notion integration token — Phase 9 (D-92)
 export OPENCLAW_NOTION_TOKEN=$(security find-generic-password -s openclaw.notion-token -w 2>/dev/null || echo "")
 
+# Synapse org memory token
+export SYNAPSE_TOKEN="$(security find-generic-password -s 'openclaw.synapse-token' -w 2>/dev/null || true)"
+export SYNAPSE_URL="https://cnu.synapse-os.ai"
+
 # GitHub bot token for echosysbot — DevBot uses GH_TOKEN; global gh CLI stays as anujj-ti
 export GH_TOKEN="$(security find-generic-password -s 'openclaw.github-bot-token' -w 2>/dev/null || true)"

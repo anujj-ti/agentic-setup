@@ -19,6 +19,8 @@ SECRETS=(
   # CI Monitor Telegram chat ID — Phase 8 (D-84)
   # Get your chat ID: send a DM to your bot and run: openclaw logs --follow | grep chat_id
   "openclaw.anuj-chat-id|OPENCLAW_ANUJ_CHAT_ID|Your Telegram chat ID (get from @userinfobot or openclaw logs --follow | grep chat_id)"
+  # Synapse org memory token — shared by all agents for coordination + learning recording
+  "openclaw.synapse-token|SYNAPSE_TOKEN|Synapse org memory token (project.edullm-sat-math + project.agentic-setup). Get from Synapse dashboard at https://cnu.synapse-os.ai"
   # Notion integration token — Phase 9 (D-92)
   # Service: openclaw.notion-token | Env var: OPENCLAW_NOTION_TOKEN
   # Create at: https://www.notion.so/my-integrations
