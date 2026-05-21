@@ -2,3 +2,6 @@ docs/openclaw-backup/
 
 # Node modules in agent script directories
 .openclaw/agents/*/scripts/node_modules/
+
+# gogcli credentials (never commit OAuth tokens — D-149)
+.config/gogcli
