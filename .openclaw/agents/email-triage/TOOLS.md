@@ -2,12 +2,12 @@
 
 ## Available Tools
 
-- **exec**: for `scripts/gmail-triage.js` invocation ONLY — do not exec arbitrary system commands
+- **exec**: for `scripts/email-triage.sh` invocation ONLY — do not exec arbitrary system commands
 - **read/write**: for `memory/` log files only
 
 ## Tool Policy
 
-exec is granted only for Gmail script execution — specifically, calling `scripts/gmail-triage.js` to interact with the Gmail API. No other exec usage is permitted.
+exec is granted only for Gmail script execution — specifically, calling `scripts/email-triage.sh` to fetch unread mail via gogcli. No other exec usage is permitted.
 
 - stdout = JSON only for scripts; stderr = human logs
 - Node.js path: `/opt/homebrew/opt/node@24/bin/node`
@@ -21,16 +21,64 @@ exec is granted only for Gmail script execution — specifically, calling `scrip
 - Node: `/opt/homebrew/opt/node@24/bin/node`
 - OpenClaw gateway: `http://localhost:18789`
 
-## Gmail Script Invocation
+## Email Triage Script Invocation (Primary — Phase 14+)
 
-Call `gmail-triage.js` from the exec tool as follows:
+Call `email-triage.sh` from the exec tool as follows:
 ```
-/opt/homebrew/opt/node@24/bin/node /Users/trilogy/.openclaw/agents/email-triage/scripts/gmail-triage.js
+zsh /Users/trilogy/Documents/agentic-setup/scripts/email-triage.sh
 ```
 
-**Before calling:** check that `OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN` is non-empty in the environment. If it is empty, the Keychain entry is missing — run the OAuth2 Re-Auth Runbook below.
+**Before calling:** Confirm `OPENCLAW_GMAIL_ACCOUNT` is set in the environment (default: echo.sys.bot@gmail.com). If the script returns `{"ok":false,"error":"gog-auth-failed"}`, follow the gogcli Re-Auth Runbook below.
 
-## OAuth2 Re-Auth Runbook
+Expected output: `{"ok":true,"data":{"threads":[...],"count":N}}`
+
+### gog gmail command reference
+
+All commands require `--no-input --non-interactive` (D-142 — prevents TTY hang in agent context).
+
+| Operation | Command |
+|-----------|---------|
+| Search unread (24h) | `gog gmail search 'is:unread newer_than:1d' --account echo.sys.bot@gmail.com --max 20 --json --no-input --non-interactive` |
+| Get message body | `gog gmail get <messageId> --sanitize-content --json --no-input --non-interactive` |
+| Mark as read (by query) | `gog gmail mark-read --account echo.sys.bot@gmail.com --query 'label:triaged is:unread' --no-input --non-interactive` |
+| Send reply | `gog gmail send --account echo.sys.bot@gmail.com --to "addr" --subject "Subj" --body "Body" --no-input --non-interactive --json` |
+
+JSON output note: `--json` returns `{"results":[...]}` envelope — extract array with `jq '.results // []'` (D-146).
+
+## gogcli Re-Auth Runbook (Phase 14+)
+
+Run this when `gog auth doctor --check --account echo.sys.bot@gmail.com` exits non-zero.
+
+### A: Download Desktop OAuth client JSON
+
+1. Go to https://console.cloud.google.com
+2. APIs & Services → Credentials → find "gogcli-agent-hub" Desktop app credential
+3. Download the JSON file
+
+### B: Store credentials and re-authorize
+
+```zsh
+/opt/homebrew/bin/gog auth credentials ~/Downloads/client_secret_*.json
+/opt/homebrew/bin/gog auth add echo.sys.bot@gmail.com --services gmail,calendar
+```
+
+A browser window opens — sign in as echo.sys.bot@gmail.com and approve Gmail + Calendar scopes.
+
+### C: Verify
+
+```zsh
+/opt/homebrew/bin/gog auth doctor --check --account echo.sys.bot@gmail.com
+# Exits 0 = success
+```
+
+### D: Token expiry note
+
+Tokens expire after 7 days if the OAuth consent screen app is in "Testing" mode.
+Fix: Google Cloud Console → APIs & Services → OAuth consent screen → Publish App → In production.
+
+## OAuth2 Re-Auth Runbook (Legacy — gmail-triage.js)
+
+> **Superseded by Phase 14.** The primary invocation is now `email-triage.sh` via gogcli. This runbook remains valid only for re-enabling `gmail-triage.js` if gogcli authorization fails during transition.
 
 Run this when the refresh token is missing or expired. You need a browser and access to Google Cloud Console.
 
@@ -109,6 +157,7 @@ If `count` is 0, the inbox has no unread messages — this is correct behavior, 
 | `openclaw.gmail-client-id` | `OPENCLAW_GMAIL_CLIENT_ID` | GCP OAuth2 app Client ID |
 | `openclaw.gmail-client-secret` | `OPENCLAW_GMAIL_CLIENT_SECRET` | GCP OAuth2 app Client Secret |
 | `openclaw.gmail-triage-refresh-token` | `OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN` | Gmail API refresh token for echo.sys.bot@gmail.com |
+| `token:default:echo.sys.bot@gmail.com` | (gogcli internal) | gogcli OAuth2 refresh token — managed by gog auth, not openclaw secrets pipeline |
 
 
 ---
