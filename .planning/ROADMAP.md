@@ -418,7 +418,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -434,6 +434,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. Autonomous Merge | 4/4 | Complete   | 2026-05-20 |
 | 11. Quality Pipeline | 7/7 | Complete   | 2026-05-20 |
 | 12. Self-Evolution | 5/5 | Complete   | 2026-05-20 |
+| 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
+| 14. gogcli Google Suite CLI | 0/5 | In Progress | — |
 
 ### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
 
@@ -456,10 +458,32 @@ Plans:
 
 ### Phase 14: gogcli Google Suite CLI — install gogcli, wire gog gmail and gog calendar into Email Triage agent and morning standup script, replace Node.js googleapis SDK calls with deterministic shell commands
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** gogcli installed and authenticated for echo.sys.bot@gmail.com; `gog gmail` replaces Node.js googleapis in Email Triage agent; `gog gmail` + `gog calendar` added to morning standup script
+**Requirements**: CHAN-03, CHAN-04
 **Depends on:** Phase 13
-**Plans:** 0 plans
+**Plans:** 5 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 14 to break down)
+
+**Wave 1** *(has checkpoint — blocked on human auth action)*
+- [ ] 14-01-PLAN.md — Install gogcli via brew, add .gitignore guard, checkpoint:human-action for gog auth add echo.sys.bot@gmail.com --services gmail,calendar (CHAN-03, CHAN-04)
+
+**Wave 2** *(parallel — both blocked on Wave 1 auth checkpoint)*
+- [ ] 14-02-PLAN.md — Create scripts/email-triage.sh replacing gmail-triage.js; add OPENCLAW_GMAIL_ACCOUNT to openclaw-env.sh (CHAN-03)
+- [ ] 14-03-PLAN.md — Update scripts/standup-brief.sh with GOG_AVAILABLE guard, overnight_email section, calendar_events section (CHAN-04)
+
+**Wave 3** *(blocked on Wave 2)*
+- [ ] 14-04-PLAN.md — Update email-triage TOOLS.md with gog command reference + gogcli Re-Auth Runbook; update AGENTS.md (CHAN-03)
+
+**Wave 4** *(phase gate)*
+- [ ] 14-05-PLAN.md — Create and run scripts/verify-phase-14.sh (9 checks; auth check auto-skips if gog auth not yet done) (CHAN-03, CHAN-04)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- gog binary: `/opt/homebrew/bin/gog` explicit path — never rely on PATH (D-143)
+- All agent gog invocations: `--no-input --non-interactive` mandatory (D-142)
+- gogcli Keychain format: `token:default:echo.sys.bot@gmail.com` — cannot import `openclaw.gmail-triage-refresh-token` (D-140)
+- gmail --json: extract with `jq '.results // []'`; calendar --json: use `--results-only` for bare array (D-146)
+- gmail-triage.js: retained until email-triage.sh verified in production (D-148)
+- credentials.json: `$HOME/.config/gogcli/credentials.json` — outside git, outside Stow (D-149)
+- GOG_KEYRING_BACKEND=auto (default): works in launchd user agents without extra config (D-150)
