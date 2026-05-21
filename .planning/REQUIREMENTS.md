@@ -64,6 +64,36 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 
 ---
 
+## v2.0 Requirements — Intelligence Layer
+
+### Email Triage Intelligence (TRIAGE)
+
+- [ ] **TRIAGE-01**: Email Triage agent assigns a priority score (1–5) to every processed email and logs the score alongside category, sender, and summary in memory/triage-YYYY-MM-DD.md
+- [ ] **TRIAGE-02**: Email Triage agent enforces a 20% Action Required cap per run and suppresses known-noise senders — both rules encoded in SOUL.md and logged as `pct_action_required` per run
+- [ ] **TRIAGE-03**: Email Triage agent creates draft reply templates for Action Required emails in a drafts/ folder — drafts are never auto-sent; outbound is always user-initiated
+- [ ] **TRIAGE-04**: Email Triage agent enforces idempotent processing — same message ID is never processed twice across runs
+
+### Cross-Agent Learning (LEARN)
+
+- [ ] **LEARN-01**: All execution-tier agents (task-orchestrator, devbot, ci-monitor, email-triage) call `synapse.learning.query` at session start before taking any action
+- [ ] **LEARN-02**: Agents whose domains overlap use `cross_silo: true` on Synapse queries — DevBot queries CI Monitor learnings before PR triage; email-triage queries its own historical pattern learnings
+- [ ] **LEARN-03**: All agent learning records use consistent 4-field schema: `claim`, `applies_to`, `confidence`, `evidence_artifact_id` — low confidence is the default; medium/high requires evidence
+- [ ] **LEARN-04**: Dream routines for execution-tier agents merge top cross-silo learnings into MEMORY.md within the 2,500-token daily budget
+
+### Standup Intelligence (STANDUP)
+
+- [ ] **STANDUP-01**: Morning standup brief classifies each item as Blocked / At Risk / On Track using deterministic signals from existing standup JSON (no LLM in the classification path)
+- [ ] **STANDUP-02**: Morning standup brief produces a ranked "tackle first" list of 3–5 items — each item cites its specific source field from the standup JSON as evidence
+- [ ] **STANDUP-03**: Morning standup brief detects and surfaces patterns when 3+ items share a signal type (multiple CI failures, multiple stale PRs, multiple blocked issues)
+
+### Decision Quality (RISK)
+
+- [ ] **RISK-01**: Decision Reviewer agent assigns `risk_score` (0–100) and `risk_tier` (low/medium/high) to every verdict — including passes — before the decision is written to Notion
+- [ ] **RISK-02**: Task Orchestrator routes HIGH-tier decisions through a synchronous Telegram approval request before the Notion pre-log is written — user must approve or reject within a configurable timeout
+- [ ] **RISK-03**: Task Orchestrator SOUL.md defines a fast-pass list for known-safe LOW-risk operations and a `failed` verdict policy: timeout does not block autonomous operation — logs a non-blocking audit entry and proceeds
+
+---
+
 ## v2 Requirements (Deferred)
 
 - Hermes OGP federation — use Hermes agent to drive OpenClaw agent evolution via cross-framework task delegation; defer until core fleet is stable
