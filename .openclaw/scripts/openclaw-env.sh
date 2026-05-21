@@ -36,3 +36,6 @@ export SYNAPSE_URL="https://cnu.synapse-os.ai"
 
 # GitHub bot token for echosysbot — DevBot uses GH_TOKEN; global gh CLI stays as anujj-ti
 export GH_TOKEN="$(security find-generic-password -s 'openclaw.github-bot-token' -w 2>/dev/null || true)"
+
+# gogcli default account (not a secret — plain config, D-147)
+export OPENCLAW_GMAIL_ACCOUNT="echo.sys.bot@gmail.com"
