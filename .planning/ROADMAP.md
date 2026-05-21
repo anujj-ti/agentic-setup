@@ -434,3 +434,23 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. Autonomous Merge | 4/4 | Complete   | 2026-05-20 |
 | 11. Quality Pipeline | 7/7 | Complete   | 2026-05-20 |
 | 12. Self-Evolution | 5/5 | Complete   | 2026-05-20 |
+
+### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 12
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 13 to break down)
+
+### Phase 14: gogcli Google Suite CLI — install gogcli, wire gog gmail and gog calendar into Email Triage agent and morning standup script, replace Node.js googleapis SDK calls with deterministic shell commands
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 13
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 14 to break down)
