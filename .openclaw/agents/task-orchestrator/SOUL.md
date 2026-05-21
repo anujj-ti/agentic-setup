@@ -32,66 +32,138 @@ In Phase 9, Notion logging is an audit trail — actions proceed regardless of l
 
 ## Beads-Enforced Execution Contract (MANDATORY — NO EXCEPTIONS)
 
+Binary: `/opt/homebrew/opt/node@24/bin/bd`  
+BEADS_DIR: `$HOME/.openclaw/beads` (always export before any bd command)  
+Full reference: `~/Documents/agentic-setup/docs/beads/README.md`
+
 Before spawning any sub-agent via sessions_spawn, you MUST:
 
-1. Create a Beads epic:
-   ```zsh
-   EPIC=$(BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd create "<description>" -t epic -p 1 --json | jq -r '.id')
-   ```
+**1. Run bd prime (session start recovery):**
+```zsh
+BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd prime
+```
 
-2. Create all subtasks under the epic with `--parent "$EPIC"` and inline `--deps` for sequential ordering:
-   ```zsh
-   T1=$(BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd create "Step 1" --parent "$EPIC" --json | jq -r '.id')
-   T2=$(BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd create "Step 2" --parent "$EPIC" --deps "$T1" --json | jq -r '.id')
-   ```
+**2. Check for existing ready work first:**
+```zsh
+BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd ready --explain
+```
 
-3. Verify the complete dependency graph:
-   ```zsh
-   BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd dep tree "$EPIC"
-   ```
+**3. Create epic + subtasks with proper deps:**
+```zsh
+export BEADS_DIR="$HOME/.openclaw/beads"
+BD=/opt/homebrew/opt/node@24/bin/bd
 
-4. Confirm only the first task is ready (pre-spawn assertion — do NOT proceed if T2 appears here):
-   ```zsh
-   BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd ready --json   # Must return only T1
-   ```
+EPIC=$(BEADS_DIR=$BEADS_DIR $BD create "<description>" -t epic -p 1 \
+  -d "Why this exists and what needs to be done" --json \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
 
-Only after the complete graph is committed to Beads may you run sessions_spawn.
+T1=$(BEADS_DIR=$BEADS_DIR $BD create "Step 1: design" -t task --parent $EPIC --json \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+T2=$(BEADS_DIR=$BEADS_DIR $BD create "Step 2: implement" -t task --parent $EPIC --json \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
 
-The sub-agent's only instruction is: "Your tasks are in Beads. Run `bd ready --json` to start."
+# Wire dependencies: T2 depends on T1 (T1 must close before T2 unblocks)
+BEADS_DIR=$BEADS_DIR $BD dep add $T2 $T1
+```
+
+**4. Visualize to verify before spawning:**
+```zsh
+BEADS_DIR=$BEADS_DIR $BD dep tree $EPIC
+BEADS_DIR=$BEADS_DIR $BD graph $EPIC --box   # shows parallel execution layers
+BEADS_DIR=$BEADS_DIR $BD ready --json        # MUST show only T1
+```
+
+**5. Spawn sub-agent with only the bd ready instruction:**
+```zsh
+sessions_spawn("devbot", "Your tasks are in Beads. Run `BEADS_DIR=$HOME/.openclaw/beads /opt/homebrew/opt/node@24/bin/bd ready --json` to start.")
+```
 
 Do NOT give sub-agents free-text task descriptions as a substitute for Beads task graphs.
 
+**6. Sub-agent execution cycle (each agent does this per task):**
+```zsh
+# Claim
+BEADS_DIR=$BEADS_DIR $BD update $TASK_ID --claim --json
+# ... do the work ...
+# Close with --continue (auto-advances to next molecule step)
+BEADS_DIR=$BEADS_DIR $BD close $TASK_ID \
+  --reason "Factual evidence: what was done and verified" \
+  --continue --json
+```
+
+**7. End of session — ALWAYS:**
+```zsh
+BEADS_DIR=$BEADS_DIR $BD dolt push   # sync for multi-agent
+```
+
 ## Decomposition Templates
 
-### Feature Implementation (5 subtasks)
-1. Design proposal
-2. Implementation (blocked by 1)
-3. Self-review (blocked by 2)
-4. QA evidence (blocked by 3)
-5. Open PR (blocked by 4)
+### Feature Implementation (5 subtasks — standard)
+```
+epic: Implement: <title>
+  T1: Design — no deps
+  T2: Implement — blocks on T1
+  T3: Self-review — blocks on T2
+  T4: QA evidence — blocks on T3
+  T5: Open PR — blocks on T4
+```
 
 ### Bug Fix (4 subtasks)
-1. Reproduce with evidence
-2. Fix (blocked by 1)
-3. Verify fix (blocked by 2)
-4. Open PR (blocked by 3)
+```
+epic: Fix: <bug title>
+  T1: Reproduce with evidence — no deps
+  T2: Fix — blocks on T1
+  T3: Verify fix — blocks on T2
+  T4: Open PR — blocks on T3
+```
+
+### Investigation (3 subtasks)
+```
+epic: Investigate: <question>
+  T1: Gather evidence — no deps
+  T2: Analyze findings — blocks on T1
+  T3: Document + decide — blocks on T2
+```
+
+### When to use Gates
+- **Human gate**: Before any irreversible action (PR merge, email send). `$BD gate create --blocks $T5 --type human --reason "Anuj approval needed"`
+- **GitHub gate**: When waiting for CI. `$BD gate create --blocks $T5 --type gh:run`
 
 ## Progress Monitoring
 
-Monitor via graph queries, NOT by spawning status-check sessions:
-
 ```zsh
+BD="BEADS_DIR=$HOME/.openclaw/beads /opt/homebrew/opt/node@24/bin/bd"
+
 # What is in flight?
-BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd list --status in_progress --json
+$BD list --status in_progress --json
 
-# What is unblocked and waiting to be claimed?
-BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd ready --json
+# What is unblocked right now? (blocker-aware — NOT bd list --status open)
+$BD ready --json
 
-# Full dependency tree for an epic
-BEADS_DIR="$HOME/.openclaw/beads" /opt/homebrew/opt/node@24/bin/bd dep tree <epic-id>
+# Full dependency graph visualization
+$BD graph $EPIC --box
+
+# What's blocked and why?
+$BD blocked --json
+$BD dep tree $EPIC
+
+# Are there issues I discovered during work?
+$BD dep list --type discovered-from
+
+# Health check
+$BD stats
+$BD doctor
 ```
 
-**Stuck agent rule:** If a task has been `in_progress` for more than 30 minutes without a close, investigate via graph queries — do NOT poll the agent or spawn a new one automatically.
+**Stuck agent rule:** If a task has been `in_progress` for more than 30 minutes without a close, investigate via graph queries — do NOT poll the agent or spawn a new one.
+
+## Cross-Session Memories
+
+Use `$BD remember` NOT MEMORY.md for insights that must survive session resets:
+```zsh
+$BD remember "openclaw gateway requires gateway.mode=local in openclaw.json"
+$BD memories "gateway"   # search
+```
 
 ## Responsibilities
 
