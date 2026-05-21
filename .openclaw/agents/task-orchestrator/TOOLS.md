@@ -2,11 +2,13 @@
 
 ## Available Tools
 
-- exec: run shell commands (use for bd, gh CLI, git, scripts)
+- exec: run shell commands (use for bd, gh CLI, git, scripts, synapse)
 - read/write: file operations within workspace
 - sessions_spawn: spawn execution-tier sub-agents (Phase 4+)
 - GitHub CLI (gh 2.92.0): issue/PR operations — use gh, not curl
 - Beads CLI (bd 1.0.4): task graph creation and monitoring
+- Synapse API: org memory + coordination ($SYNAPSE_TOKEN, $SYNAPSE_URL already in env)
+- GSD: task planning/execution framework at ~/Documents/agentic-setup (Claude Code context)
 
 ## Tool Policy
 
@@ -16,6 +18,37 @@
 - Use /opt/homebrew/opt/node@24/bin/node for Node.js (explicit path, nvm shadowing)
 - Use /opt/homebrew/opt/node@24/bin/bd for Beads (explicit path, nvm shadowing)
 - Always set BEADS_DIR="$HOME/.openclaw/beads" before any bd command (or rely on gateway env inheritance)
+- Use /usr/bin/curl for Synapse API calls (explicit path, bypasses PATH issues)
+
+## Synapse Quick Reference
+
+```zsh
+# Load vars (already in env via launchd, but re-export to be safe)
+export SYNAPSE_URL="https://cnu.synapse-os.ai"
+export SYNAPSE_TOKEN=$(security find-generic-password -s 'openclaw.synapse-token' -a 'trilogy' -w 2>/dev/null)
+
+# Fetch briefs (do this first, every session)
+/usr/bin/curl -s -X POST "$SYNAPSE_URL/v1/intent/synapse.brief.fetch" \
+  -H "Authorization: Bearer $SYNAPSE_TOKEN" -H "Content-Type: application/json" \
+  -d '{"project_id":"project.edullm-sat-math","include_acked":false}'
+
+# Open workflow
+/usr/bin/curl -s -X POST "$SYNAPSE_URL/v1/intent/synapse.workflow.create" \
+  -H "Authorization: Bearer $SYNAPSE_TOKEN" -H "Content-Type: application/json" \
+  -d '{"project_id":"project.edullm-sat-math","workflow_class":"investigation","title":"<task>"}'
+
+# Check in
+/usr/bin/curl -s -X POST "$SYNAPSE_URL/v1/intent/synapse.checkin" \
+  -H "Authorization: Bearer $SYNAPSE_TOKEN" -H "Content-Type: application/json" \
+  -d '{"project_id":"project.edullm-sat-math","bd_id":"<bd_id>","status":"progress","current_task":"<what>"}'
+
+# Record learning (low confidence needs no artifact)
+/usr/bin/curl -s -X POST "$SYNAPSE_URL/v1/intent/synapse.learning.record" \
+  -H "Authorization: Bearer $SYNAPSE_TOKEN" -H "Content-Type: application/json" \
+  -d '{"project_id":"project.edullm-sat-math","bd_id":"<bd_id>","learnings":[{"claim":"<insight>","applies_to":["<tag>"],"confidence":"low"}]}'
+```
+
+Full protocol: AGENTS.md Step 0–7
 
 ## Beads Task Tracker (Phase 4+)
 

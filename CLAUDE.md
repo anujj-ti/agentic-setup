@@ -173,6 +173,41 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 
 
 
+## Synapse — Org Memory (MANDATORY for every non-trivial session)
+
+Synapse is the org-wide memory and coordination layer. Claude Code MUST use it on every session that changes code, plans phases, executes tasks, or produces artifacts.
+
+```
+URL:        https://cnu.synapse-os.ai   ($SYNAPSE_URL)
+Token:      Keychain → openclaw.synapse-token   ($SYNAPSE_TOKEN)
+Project:    project.edullm-sat-math  (use for all work until project.agentic-setup is created)
+Team:       team.trilogy-innovations
+Skill:      /synapse  (full operating loop at .claude/skills/synapse/SKILL.md)
+```
+
+**Load token at session start:**
+```bash
+export SYNAPSE_TOKEN=$(security find-generic-password -s 'openclaw.synapse-token' -a 'trilogy' -w 2>/dev/null)
+export SYNAPSE_URL="https://cnu.synapse-os.ai"
+```
+
+**Mandatory loop on every non-trivial task:**
+1. `/usr/bin/curl ... synapse.brief.fetch` → ack all briefs → capture OKR id
+2. `synapse.learning.query` with relevant tags (`cross_silo: true`)
+3. `synapse.workflow.create` → save `bd_id`
+4. `synapse.checkin status=start`
+5. Do the work (use GSD entry points below)
+6. `synapse.artifact.upload` (use `content_base64`, not `content_b64`)
+7. `synapse.learning.record` (at least 1 learning per session, `confidence: "low"` ok without artifact)
+8. `synapse.checkin status=complete`
+
+**Key rules:**
+- `content_base64` field (not `content_b64`) for artifact upload
+- `mime_type` is required for artifact upload
+- Questions: `synapse.question.ask` requires `to_team_id: "team.trilogy-innovations"`
+- medium/high confidence facts require `evidence_artifact_id`
+- See full reference: `/synapse` skill
+
 <!-- GSD:profile-start -->
 ## Developer Profile
 
