@@ -6,8 +6,8 @@ set -euo pipefail
 PASS_COUNT=0
 FAIL_COUNT=0
 
-pass() { print "CHECK $1: PASS — $2"; (( PASS_COUNT++ )) }
-fail() { print "CHECK $1: FAIL — $2"; (( FAIL_COUNT++ )) }
+pass() { print "CHECK $1: PASS — $2"; PASS_COUNT=$(( PASS_COUNT + 1 )) }
+fail() { print "CHECK $1: FAIL — $2"; FAIL_COUNT=$(( FAIL_COUNT + 1 )) }
 
 # CHECK 1: KEYCHAIN — SYNAPSE_TOKEN exists in Keychain
 if security find-generic-password -s 'openclaw.synapse-token' -a 'trilogy' -w 2>/dev/null | grep -q .; then
@@ -16,32 +16,36 @@ else
   fail 1 "KEYCHAIN: openclaw.synapse-token NOT found in Keychain — run: security add-generic-password -s openclaw.synapse-token -a trilogy -w '<token>'"
 fi
 
-# CHECK 2: SECRETS_SH — SYNAPSE_TOKEN in openclaw-secrets.sh
-if grep -q 'SYNAPSE_TOKEN' ~/Documents/agentic-setup/openclaw-secrets.sh 2>/dev/null; then
-  pass 2 "SECRETS_SH: SYNAPSE_TOKEN found in openclaw-secrets.sh"
+# CHECK 2: SECRETS_SH — SYNAPSE_TOKEN in openclaw-secrets.sh (stow-deployed or source)
+SECRETS_SH="${HOME}/.openclaw/scripts/openclaw-secrets.sh"
+[[ ! -f "$SECRETS_SH" ]] && SECRETS_SH="${HOME}/Documents/agentic-setup/.openclaw/scripts/openclaw-secrets.sh"
+if grep -q 'SYNAPSE_TOKEN' "$SECRETS_SH" 2>/dev/null; then
+  pass 2 "SECRETS_SH: SYNAPSE_TOKEN found in $(basename $SECRETS_SH)"
 else
-  fail 2 "SECRETS_SH: SYNAPSE_TOKEN NOT in ~/Documents/agentic-setup/openclaw-secrets.sh"
+  fail 2 "SECRETS_SH: SYNAPSE_TOKEN NOT in $SECRETS_SH"
 fi
 
-# CHECK 3: ENV_SH — SYNAPSE_TOKEN in openclaw-env.sh
-if grep -q 'SYNAPSE_TOKEN' ~/Documents/agentic-setup/openclaw-env.sh 2>/dev/null; then
-  pass 3 "ENV_SH: SYNAPSE_TOKEN found in openclaw-env.sh"
+# CHECK 3: ENV_SH — SYNAPSE_TOKEN in openclaw-env.sh (stow-deployed or source)
+ENV_SH="${HOME}/.openclaw/scripts/openclaw-env.sh"
+[[ ! -f "$ENV_SH" ]] && ENV_SH="${HOME}/Documents/agentic-setup/.openclaw/scripts/openclaw-env.sh"
+if grep -q 'SYNAPSE_TOKEN' "$ENV_SH" 2>/dev/null; then
+  pass 3 "ENV_SH: SYNAPSE_TOKEN found in $(basename $ENV_SH)"
 else
-  fail 3 "ENV_SH: SYNAPSE_TOKEN NOT in ~/Documents/agentic-setup/openclaw-env.sh"
+  fail 3 "ENV_SH: SYNAPSE_TOKEN NOT in $ENV_SH"
 fi
 
 # CHECK 4: SYNAPSE_URL_SECRETS — SYNAPSE_URL in openclaw-secrets.sh
-if grep -q 'SYNAPSE_URL' ~/Documents/agentic-setup/openclaw-secrets.sh 2>/dev/null; then
-  pass 4 "SYNAPSE_URL_SECRETS: SYNAPSE_URL found in openclaw-secrets.sh"
+if grep -q 'SYNAPSE_URL' "$SECRETS_SH" 2>/dev/null; then
+  pass 4 "SYNAPSE_URL_SECRETS: SYNAPSE_URL found in $(basename $SECRETS_SH)"
 else
-  fail 4 "SYNAPSE_URL_SECRETS: SYNAPSE_URL NOT in ~/Documents/agentic-setup/openclaw-secrets.sh"
+  fail 4 "SYNAPSE_URL_SECRETS: SYNAPSE_URL NOT in $SECRETS_SH"
 fi
 
 # CHECK 5: SYNAPSE_URL_ENV — SYNAPSE_URL in openclaw-env.sh
-if grep -q 'SYNAPSE_URL' ~/Documents/agentic-setup/openclaw-env.sh 2>/dev/null; then
-  pass 5 "SYNAPSE_URL_ENV: SYNAPSE_URL found in openclaw-env.sh"
+if grep -q 'SYNAPSE_URL' "$ENV_SH" 2>/dev/null; then
+  pass 5 "SYNAPSE_URL_ENV: SYNAPSE_URL found in $(basename $ENV_SH)"
 else
-  fail 5 "SYNAPSE_URL_ENV: SYNAPSE_URL NOT in ~/Documents/agentic-setup/openclaw-env.sh"
+  fail 5 "SYNAPSE_URL_ENV: SYNAPSE_URL NOT in $ENV_SH"
 fi
 
 # CHECK 6: CHECKIN_SCRIPT — synapse-checkin.sh exists and is executable
