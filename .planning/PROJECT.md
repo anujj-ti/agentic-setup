@@ -80,6 +80,16 @@ An AI co-pilot that works autonomously while you're away, never forgets a task, 
 | Self-evolution via skill scaffolding | New capabilities are added as markdown skills (not hardcoded) — the framework teaches itself new operations | — Pending |
 | Beads (bd) for task decomposition | Agents skip steps when given multi-step tasks in a single prompt (attention decay + satisficing). Beads enforces ordering structurally — a subagent literally cannot start step N+1 until step N is closed with proof | — Pending |
 
+## Current Milestone: v2.0 Intelligence Layer
+
+**Goal:** Upgrade the agent fleet from reactive execution to proactive intelligence — agents that learn, share context, and surface insights rather than just run tasks.
+
+**Target features:**
+- Smarter email triage (priority scoring, auto-draft replies, fewer false positives)
+- Cross-agent learning via Synapse (CI Monitor + DevBot learn from history)
+- Proactive standup insights (blockers, priority suggestions, pattern detection)
+- Decision quality improvement (Decision Reviewer flags risky actions pre-Notion)
+
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
@@ -98,4 +108,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-20 after initialization*
+*Last updated: 2026-05-21 — v2.0 Intelligence Layer milestone started*
