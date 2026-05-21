@@ -208,6 +208,38 @@ export SYNAPSE_URL="https://cnu.synapse-os.ai"
 - medium/high confidence facts require `evidence_artifact_id`
 - See full reference: `/synapse` skill
 
+## Synapse Project Setup
+
+### Creating project.agentic-setup in the Synapse dashboard
+
+The project ID `project.agentic-setup` is used by all agents in this hub. If this project does not exist yet, create it once:
+
+1. Visit https://cnu.synapse-os.ai and log in with your Synapse credentials
+2. Navigate to Projects → New Project
+3. Set Project ID to exactly: `project.agentic-setup`
+4. Set Team to: `team.edullm` (or your org team ID)
+5. Set Display Name to: `Personal AI Operations Hub`
+6. Save. Copy the project ID shown — it must match `project.agentic-setup` exactly.
+
+Once created, all agent curl calls using `"project_id": "project.agentic-setup"` will route correctly.
+
+### Consistent project_id usage
+
+All execution-tier agents (devbot, ci-monitor, email-triage, code-reviewer, document-reviewer, decision-reviewer, skill-reviewer, skill-creation) use `project.agentic-setup`.
+
+Note: task-orchestrator AGENTS.md currently uses `project.edullm-sat-math` (pre-existing; not changed here). This will be unified in a future phase.
+
+### Verifying Synapse integration
+
+```zsh
+bash ~/Documents/agentic-setup/scripts/verify-phase-13.sh
+```
+
+All 10 checks must pass. If CHECK 1 (KEYCHAIN) fails, re-run:
+```zsh
+security add-generic-password -s 'openclaw.synapse-token' -a 'trilogy' -w '<token>'
+```
+
 <!-- GSD:profile-start -->
 ## Developer Profile
 
