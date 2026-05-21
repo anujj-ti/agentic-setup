@@ -1,0 +1,2 @@
+^agents/.*/scripts/node_modules
+^agents/.*/scripts/package-lock\.json
