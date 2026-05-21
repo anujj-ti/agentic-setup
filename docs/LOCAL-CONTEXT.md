@@ -20,7 +20,7 @@ Full provisioning reference: `secrets.sh` (repo root — not stowed, not in git 
 | `openclaw.anuj-chat-id` | `OPENCLAW_ANUJ_CHAT_ID` | Anuj's personal Telegram chat ID (1294664427 — from @userinfobot) |
 | `openclaw.gmail-client-id` | `OPENCLAW_GMAIL_CLIENT_ID` | Gmail OAuth2 Desktop App Client ID for echo.sys.bot@gmail.com |
 | `openclaw.gmail-client-secret` | `OPENCLAW_GMAIL_CLIENT_SECRET` | Gmail OAuth2 Desktop App Client Secret |
-| `openclaw.gmail-triage-refresh-token` | `OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN` | Gmail API refresh token for email-triage agent |
+| `openclaw.gmail-triage-refresh-token` | `OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN` | Gmail API refresh token for email-triage agent — provisioned 2026-05-21 |
 | `openclaw.github-bot-token` | `GH_TOKEN` | GitHub PAT for echosysbot account (scopes: repo, read:org, workflow, project) |
 | `openclaw.synapse-token` | `SYNAPSE_TOKEN` | Synapse org memory token (project.agentic-setup + project.edullm-sat-math) |
 | `openclaw.notion-token` | `OPENCLAW_NOTION_TOKEN` | Notion integration token — Phase 9 (not yet provisioned) |
