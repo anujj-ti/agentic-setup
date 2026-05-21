@@ -24,6 +24,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Autonomous Merge** - DevBot can merge CI-passing PRs with Notion pre-log; user can see and revert any autonomous merge (completed 2026-05-20)
 - [x] **Phase 11: Quality Pipeline** - Five dedicated review agents deployed (Code Reviewer, Document Reviewer, Decision Reviewer, Skill Reviewer, Skill Creation); each output domain has its own specialist reviewer (completed 2026-05-20)
 - [x] **Phase 12: Self-Evolution** - Task Orchestrator scaffolds new agents via `/openclaw-new-agent`; skill creation triggers on repeating patterns; experiment framework complete (completed 2026-05-20)
+- [x] **Phase 13: Synapse Integration** - Synapse org-wide memory wired into all agents; every agent uses full loop: brief.fetch → learning.query → workflow.create → checkin → learning.record (completed 2026-05-21)
+- [ ] **Phase 14: gogcli Google Suite CLI** - gogcli installed and authenticated; gog gmail replaces Node.js googleapis in Email Triage; gog gmail + gog calendar wired into morning standup
+- [ ] **Phase 15: Smarter Email Triage** - Email Triage agent scores every email 1-5, enforces 20% Action Required cap, creates draft replies, and never re-processes the same message
+- [ ] **Phase 16: Cross-Agent Learning Infrastructure** - All execution-tier agents query Synapse learnings before acting; cross-silo queries enabled; consistent 4-field learning schema enforced; dream routines merge top learnings into MEMORY.md
+- [ ] **Phase 17: Proactive Standup Insights** - Morning standup classifies every item as Blocked/At Risk/On Track, produces a ranked tackle-first list of 3-5 items, and surfaces pattern alerts when 3+ items share a signal type
+- [ ] **Phase 18: Decision Quality Risk Gate** - Decision Reviewer assigns risk_score and risk_tier to every verdict; HIGH-tier decisions trigger synchronous Telegram approval; Task Orchestrator SOUL.md defines fast-pass list and timeout-proceeds policy
 
 ## Phase Details
 
@@ -418,7 +424,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -436,6 +442,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Self-Evolution | 5/5 | Complete   | 2026-05-20 |
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
+| 15. Smarter Email Triage | 0/TBD | Not started | - |
+| 16. Cross-Agent Learning Infrastructure | 0/TBD | Not started | - |
+| 17. Proactive Standup Insights | 0/TBD | Not started | - |
+| 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
 
 ### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
 
@@ -487,3 +497,46 @@ Plans:
 - gmail-triage.js: retained until email-triage.sh verified in production (D-148)
 - credentials.json: `$HOME/.config/gogcli/credentials.json` — outside git, outside Stow (D-149)
 - GOG_KEYRING_BACKEND=auto (default): works in launchd user agents without extra config (D-150)
+
+### Phase 15: Smarter Email Triage
+**Goal**: The Email Triage agent graduates from raw categorization to scored, idempotent, draft-producing intelligence — every processed email gets a priority score, noise is suppressed by rule, drafts are staged for user review, and no message is ever double-processed
+**Depends on**: Phase 14
+**Requirements**: TRIAGE-01, TRIAGE-02, TRIAGE-03, TRIAGE-04
+**Success Criteria** (what must be TRUE):
+  1. User inspects `memory/triage-YYYY-MM-DD.md` and every entry contains a priority score (1-5), category, sender, and summary — no entry is missing any of the four fields
+  2. After a triage run, the percentage of items marked Action Required in that session's log is at or below 20%, and known-noise senders are absent from the output entirely
+  3. For every email classified as Action Required, a draft reply template exists in the `drafts/` folder — no draft has been auto-sent; outbound is user-initiated only
+  4. Running email triage twice against the same mailbox snapshot produces identical output with no duplicate entries — the same message ID does not appear in two separate triage logs
+**Plans**: TBD
+
+### Phase 16: Cross-Agent Learning Infrastructure
+**Goal**: Every execution-tier agent queries Synapse for relevant learnings before taking any action, uses cross-silo queries where domains overlap, records learnings in a consistent 4-field schema, and dream routines surface the top cross-silo learnings into each agent's MEMORY.md within budget
+**Depends on**: Phase 15
+**Requirements**: LEARN-01, LEARN-02, LEARN-03, LEARN-04
+**Success Criteria** (what must be TRUE):
+  1. User inspects the AGENTS.md for any of the four execution-tier agents (task-orchestrator, devbot, ci-monitor, email-triage) and finds a mandatory `synapse.learning.query` call at session start before any domain action is described
+  2. DevBot's AGENTS.md shows a cross-silo query for CI Monitor learnings (`cross_silo: true`) before PR triage steps; email-triage AGENTS.md shows a cross-silo query for its own historical pattern learnings
+  3. User inspects any learning record written by an execution-tier agent in Synapse and finds all four fields present: `claim`, `applies_to`, `confidence`, `evidence_artifact_id` — medium/high confidence entries each have a non-null `evidence_artifact_id`
+  4. After any dream routine run for an execution-tier agent, `memory/MEMORY.md` for that agent contains a cross-silo learnings section and the file is within the 2,500-token daily budget
+**Plans**: TBD
+
+### Phase 17: Proactive Standup Insights
+**Goal**: The morning standup brief upgrades from a raw activity dump to a decision-support surface — every item is classified by status signal, a ranked tackle-first list cites specific evidence, and pattern alerts fire when multiple items share a signal type
+**Depends on**: Phase 16
+**Requirements**: STANDUP-01, STANDUP-02, STANDUP-03
+**Success Criteria** (what must be TRUE):
+  1. User reads the morning standup brief and every item carries one of three status labels — Blocked, At Risk, or On Track — derived from deterministic field checks on the standup JSON with no LLM call in the classification path
+  2. The standup brief contains a "Tackle First" section listing 3-5 items in ranked order, where each item cites the specific source field from the standup JSON that drove its ranking (e.g., "ci_failures[0].repo", "stale_prs[2].days_open")
+  3. When 3 or more items share the same signal type (e.g., 3 CI failures, 3 stale PRs, 3 blocked issues), the standup brief surfaces a pattern alert naming the signal type and the count — single-item signals produce no alert
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 18: Decision Quality Risk Gate
+**Goal**: The Decision Reviewer assigns a quantified risk tier to every verdict before it reaches Notion; HIGH-tier decisions pause for synchronous Telegram approval; the Task Orchestrator's SOUL.md defines which operations are always fast-pass and guarantees that a timeout never blocks autonomous operation
+**Depends on**: Phase 17
+**Requirements**: RISK-01, RISK-02, RISK-03
+**Success Criteria** (what must be TRUE):
+  1. User inspects any decision entry in the Notion decision log and finds two new fields: `risk_score` (integer 0-100) and `risk_tier` (one of low/medium/high) — these fields are present even on decisions that received a pass verdict
+  2. When a HIGH-tier decision is submitted, the user receives a Telegram approval request before the Notion pre-log is written — the request includes the decision summary and a configurable timeout; approving or rejecting via Telegram determines whether the action proceeds
+  3. User inspects Task Orchestrator SOUL.md and finds: a fast-pass list of named LOW-risk operations that bypass the approval step; a `failed` verdict policy specifying that a timeout produces a non-blocking audit log entry and autonomous operation continues
+**Plans**: TBD

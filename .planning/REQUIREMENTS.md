@@ -155,7 +155,22 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 | EVOL-02 | Phase 12 — Self-Evolution | Pending |
 | EVOL-03 | Phase 12 — Self-Evolution | Pending |
 
-*(Traceability updated by roadmapper — 2026-05-20)*
+| TRIAGE-01 | Phase 15 — Smarter Email Triage | Pending |
+| TRIAGE-02 | Phase 15 — Smarter Email Triage | Pending |
+| TRIAGE-03 | Phase 15 — Smarter Email Triage | Pending |
+| TRIAGE-04 | Phase 15 — Smarter Email Triage | Pending |
+| LEARN-01 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
+| LEARN-02 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
+| LEARN-03 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
+| LEARN-04 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
+| STANDUP-01 | Phase 17 — Proactive Standup Insights | Pending |
+| STANDUP-02 | Phase 17 — Proactive Standup Insights | Pending |
+| STANDUP-03 | Phase 17 — Proactive Standup Insights | Pending |
+| RISK-01 | Phase 18 — Decision Quality Risk Gate | Pending |
+| RISK-02 | Phase 18 — Decision Quality Risk Gate | Pending |
+| RISK-03 | Phase 18 — Decision Quality Risk Gate | Pending |
+
+*(Traceability updated by roadmapper — 2026-05-21; v2.0 Intelligence Layer phases 15-18 added)*
 
 ---
 
