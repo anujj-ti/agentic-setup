@@ -1,0 +1,4 @@
+docs/openclaw-backup/
+
+# Node modules in agent script directories
+.openclaw/agents/*/scripts/node_modules/
