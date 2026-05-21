@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Intelligence Layer
-status: planning
-last_updated: "2026-05-21T13:11:26.066Z"
-last_activity: 2026-05-21
+status: Defining requirements
+stopped_at: Phase 15 context gathered
+last_updated: "2026-05-21T15:35:40.475Z"
+last_activity: 2026-05-21 — Milestone v2.0 started
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 18
+  completed_phases: 13
+  total_plans: 64
+  completed_plans: 63
+  percent: 72
 ---
 
 # Project State
@@ -83,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-20T16:41:41.577Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-infrastructure/01-CONTEXT.md
+Last session: 2026-05-21T15:35:40.462Z
+Stopped at: Phase 15 context gathered
+Resume file: .planning/phases/15-smarter-email-triage/15-CONTEXT.md
