@@ -28,6 +28,10 @@ fi
 # --- Explicit binary paths (per CLAUDE.md — protect against nvm/PATH shadowing) ---
 GH=/opt/homebrew/bin/gh
 JQ=/opt/homebrew/bin/jq
+GOG=/opt/homebrew/bin/gog
+GCAL_ACCOUNT="${OPENCLAW_GMAIL_ACCOUNT:-echo.sys.bot@gmail.com}"
+GOG_AVAILABLE=false
+[[ -x "$GOG" ]] && GOG_AVAILABLE=true
 
 # --- Verify dependencies ---
 [[ -x "$GH" ]] || json_fail "gh-not-found" "gh not found at $GH — run: brew install gh"
@@ -88,5 +92,34 @@ AUTONOMOUS_DECISIONS="{\"count\":${DECISION_COUNT},\"since\":\"${DECISION_SINCE}
 
 print "Autonomous decisions query complete." >&2
 
+# --- 5. Overnight email summary (via gogcli — degrades gracefully if unavailable) ---
+OVERNIGHT_EMAIL_THREADS='[]'
+OVERNIGHT_EMAIL_COUNT=0
+if [[ "$GOG_AVAILABLE" == "true" ]]; then
+  print "Fetching overnight email for $GCAL_ACCOUNT" >&2
+  RAW_EMAIL=$($GOG gmail search 'is:unread newer_than:12h' \
+    --account "$GCAL_ACCOUNT" \
+    --max 20 \
+    --json \
+    --no-input \
+    --non-interactive 2>/dev/null) || RAW_EMAIL='{}'
+  OVERNIGHT_EMAIL_THREADS=$(printf '%s' "$RAW_EMAIL" | $JQ '.results // []' 2>/dev/null || echo '[]')
+  OVERNIGHT_EMAIL_COUNT=$(printf '%s' "$OVERNIGHT_EMAIL_THREADS" | $JQ 'length' 2>/dev/null || echo 0)
+fi
+OVERNIGHT_EMAIL="{\"count\":${OVERNIGHT_EMAIL_COUNT},\"threads\":${OVERNIGHT_EMAIL_THREADS},\"gog_available\":${GOG_AVAILABLE}}"
+
+# --- 6. Today's calendar events (via gogcli — degrades gracefully if unavailable) ---
+CALENDAR_EVENTS='[]'
+if [[ "$GOG_AVAILABLE" == "true" ]]; then
+  print "Fetching calendar events for $GCAL_ACCOUNT" >&2
+  CALENDAR_EVENTS=$($GOG calendar events \
+    --account "$GCAL_ACCOUNT" \
+    --today \
+    --json \
+    --no-input \
+    --non-interactive \
+    --results-only 2>/dev/null) || CALENDAR_EVENTS='[]'
+fi
+
 # --- Output structured JSON to stdout ---
-json_ok "{\"repo\":\"$REPO\",\"as_of\":\"$(date -u '+%Y-%m-%dT%H:%M:%SZ')\",\"merged_prs\":$MERGED_PRS,\"ci_failures\":$CI_FAILURES,\"stale_prs\":$STALE_PRS,\"autonomous_decisions\":$AUTONOMOUS_DECISIONS}"
+json_ok "{\"repo\":\"$REPO\",\"as_of\":\"$(date -u '+%Y-%m-%dT%H:%M:%SZ')\",\"merged_prs\":$MERGED_PRS,\"ci_failures\":$CI_FAILURES,\"stale_prs\":$STALE_PRS,\"autonomous_decisions\":$AUTONOMOUS_DECISIONS,\"overnight_email\":$OVERNIGHT_EMAIL,\"calendar_events\":$CALENDAR_EVENTS}"
