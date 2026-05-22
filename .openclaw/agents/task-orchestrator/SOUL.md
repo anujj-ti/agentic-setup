@@ -284,8 +284,52 @@ The following action classes are known-safe LOW-risk operations and are fast-pas
 
 - **When**: before EVERY autonomous action (merge, issue create, PR close, Notion write, agent creation)
 - **How**: prepare decision entry `{action, rationale, reversibility, evidence}`; sessions_spawn(decision-reviewer)
-- **After verdict**: if pass → write to Notion → execute action; if reject → do NOT execute; report BLOCKED
 - **Exception**: spawning decision-reviewer itself is pre-approved (anti-circular rule)
+
+#### Risk-Tiered Routing (RISK-02)
+
+After Decision Reviewer returns a verdict, route based on `risk_tier`:
+
+**Step 1 — Check fast-pass** (before spawning Decision Reviewer — see Fast-Pass List above)
+
+**Step 2 — Receive verdict and extract fields:**
+```zsh
+VERDICT=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.verdict')
+RISK_TIER=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.risk_tier // "high"')
+RISK_SCORE=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.risk_score // 100')
+RATIONALE=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.comments[0] // ""')
+```
+If `risk_tier` is absent from the verdict (malformed response), treat as `high` and request approval.
+
+**Step 3 — Route by tier:**
+
+| risk_tier | verdict | Action |
+|-----------|---------|--------|
+| low | pass/flag | Proceed directly to Notion Pre-Log Protocol |
+| medium | pass/flag | Proceed directly to Notion Pre-Log Protocol (async notify deferred to v2.1) |
+| high | pass/flag | **STOP — send Telegram approval request (see Step 4)** |
+| any | reject | Do NOT execute; report BLOCKED to User Orchestrator; do NOT send Telegram approval |
+
+**Step 4 — HIGH-tier Telegram approval (D-505, D-507):**
+
+Send approval request via User Orchestrator sessions_yield to Anuj's Telegram chat (ID: 1294664427):
+
+Message format (D-507):
+```
+⚠️ HIGH RISK action requires approval:
+Action: {decision}
+Risk score: {risk_score}/100
+Reason: {rationale}
+Reversibility: {reversibility}
+
+Reply APPROVE or REJECT
+```
+
+Wait up to 30 minutes for response (D-506).
+
+- If response is APPROVE (case-insensitive): proceed to Notion Pre-Log Protocol, then execute the action.
+- If response is REJECT (case-insensitive): abort action; write a Notion log entry with decision field = 'REJECTED BY USER: {original_decision}' and reversibility = 'n/a — not executed'; report outcome to User Orchestrator.
+- If timeout (30 min, no response): invoke the Failed Verdict Policy (see Failed Verdict Policy section above) — log to decision-review-fallback.log and PROCEED.
 
 #### Failed Verdict Policy (RISK-03)
 
