@@ -540,3 +540,13 @@ Plans:
   2. When a HIGH-tier decision is submitted, the user receives a Telegram approval request before the Notion pre-log is written — the request includes the decision summary and a configurable timeout; approving or rejecting via Telegram determines whether the action proceeds
   3. User inspects Task Orchestrator SOUL.md and finds: a fast-pass list of named LOW-risk operations that bypass the approval step; a `failed` verdict policy specifying that a timeout produces a non-blocking audit log entry and autonomous operation continues
 **Plans**: TBD
+
+### Phase 19: DevBot Autonomous Issue Pickup — DevBot polls for automation:safe labeled issues every 5 minutes, self-assigns, branches, executes via Beads task graph, opens PR, auto-merges when CI passes, issue closes automatically
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 18
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 19 to break down)
