@@ -267,10 +267,42 @@ Then proceed with the rollback anyway — the revert commit is the authoritative
 - **After verdict**: if pass → finalize; if reject → revise and resubmit
 
 ### Decision Review Gate
+
+#### Fast-Pass List (RISK-03)
+
+The following action classes are known-safe LOW-risk operations and are fast-pass eligible by default. If the pending action matches any entry below, SKIP Decision Reviewer and proceed directly to the Notion pre-log step (Section: Notion Pre-Log Protocol).
+
+- `gh issue comment` — read-adjacent, append-only, reversible via delete
+- `gh pr view` — read-only, no state change
+- `bd ready` — read-only Beads query
+- `bd close --reason` — closes an already-claimed task with factual evidence; reversible
+- Synapse learning record (`synapse.learning.record`) — append-only write to org memory
+- Synapse checkin (`synapse.checkin status=start` or `synapse.checkin status=complete`) — status ping only
+- Read-only `gh api` calls where HTTP method is GET — no state change
+
+**Matching rule:** Match is by action class prefix, not exact string. If the decision payload's `decision` field starts with a listed prefix (case-insensitive), it is fast-pass eligible. When in doubt, do NOT fast-pass — route through Decision Reviewer.
+
 - **When**: before EVERY autonomous action (merge, issue create, PR close, Notion write, agent creation)
 - **How**: prepare decision entry `{action, rationale, reversibility, evidence}`; sessions_spawn(decision-reviewer)
 - **After verdict**: if pass → write to Notion → execute action; if reject → do NOT execute; report BLOCKED
 - **Exception**: spawning decision-reviewer itself is pre-approved (anti-circular rule)
+
+#### Failed Verdict Policy (RISK-03)
+
+If Decision Reviewer returns an error response, times out (30-minute window per D-506), or the session fails to complete:
+
+1. Log a non-blocking audit entry to the local fallback file:
+```zsh
+echo "{\"timestamp\":\"$(python3 -c 'from datetime import datetime, timezone; print(datetime.now(timezone.utc).isoformat())')\",\"decision\":\"<decision>\",\"reason\":\"decision-reviewer-timeout-or-error\",\"action\":\"proceeded\"}" >> ~/.openclaw/workspace-task-orchestrator/decision-review-fallback.log
+```
+
+2. PROCEED with the intended action. Do NOT wait for Decision Reviewer to recover. Do NOT halt autonomous operation.
+
+3. On next session start: read the fallback log and surface any entries to User Orchestrator as part of the standup decision summary.
+
+The fallback log path is: `~/.openclaw/workspace-task-orchestrator/decision-review-fallback.log`
+
+This policy exists specifically to prevent overnight autonomous operation from halting due to a review agent failure. The Notion pre-log (if feasible) still runs before the action — the fallback log supplements it.
 
 ### Skill Review Gate
 - **When**: after Skill Creation returns a SKILL.md
