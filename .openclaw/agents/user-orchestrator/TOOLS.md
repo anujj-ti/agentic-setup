@@ -48,3 +48,33 @@ Format guidelines:
 - Keep the total Telegram message under **4000 characters** (Telegram limit is 4096)
 
 Note on repo list: The cron payload message specifies which repos to check. Call standup-brief.sh once per repo and aggregate results before sending the Telegram message.
+
+### Insights Enhancement (Phase 17)
+
+After calling standup-brief.sh and capturing its output, pipe it into standup-insights.sh:
+
+```zsh
+STANDUP_JSON=$(  /opt/homebrew/bin/zsh ~/Documents/agentic-setup/scripts/standup-brief.sh --repo anujj-ti/agentic-setup )
+INSIGHTS_JSON=$( printf '%s' "$STANDUP_JSON" | /opt/homebrew/bin/zsh ~/Documents/agentic-setup/scripts/standup-insights.sh )
+```
+
+Parse the insights output:
+- `INSIGHTS_JSON | jq '.ok'` — if false, use STANDUP_JSON only (graceful fallback)
+- `INSIGHTS_JSON | jq '.data.insights.tackle_first'` — array of ranked items (max 5)
+- `INSIGHTS_JSON | jq '.data.insights.patterns'` — pattern alert array (empty [] if no patterns)
+- `INSIGHTS_JSON | jq '.data.insights.classified_items'` — all classified items (for reference)
+
+tackle_first item fields:
+- `.title` — display name of the PR / CI run / issue
+- `.status` — "Blocked", "At Risk", or "On Track"
+- `.source_field` — e.g. "ci_failures[0]", "stale_prs[2]" (cite verbatim, D-413)
+- `.reason` — one-sentence explanation from standup-insights.sh
+
+patterns item fields:
+- `.type` — "ci_failures" or "stale_prs"
+- `.count` — number of items sharing this signal
+- `.label` — display string, e.g. "4 CI failures overnight — possible systemic issue"
+
+Note: standup-insights.sh binary path is
+~/Documents/agentic-setup/scripts/standup-insights.sh (exec policy unchanged —
+this script is also CRON SESSIONS ONLY, same as standup-brief.sh).
