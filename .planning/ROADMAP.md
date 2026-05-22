@@ -445,7 +445,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
 | 16. Cross-Agent Learning Infrastructure | 6/6 | Complete   | 2026-05-22 |
 | 17. Proactive Standup Insights | 3/3 | Complete   | 2026-05-22 |
-| 18. Decision Quality Risk Gate | 1/4 | In Progress|  |
+| 18. Decision Quality Risk Gate | 2/4 | In Progress|  |
 
 ### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
 
@@ -599,7 +599,7 @@ Plans:
 
 **Wave 1** *(parallel — no dependencies)*
 - [x] 18-01-PLAN.md — Update decision-reviewer SOUL.md with risk scoring rubric (four dimensions, tier mapping 0-30/31-60/61-100, updated D-111 schema) (RISK-01)
-- [ ] 18-02-PLAN.md — Add fast-pass list and failed verdict policy to task-orchestrator SOUL.md (RISK-03)
+- [x] 18-02-PLAN.md — Add fast-pass list and failed verdict policy to task-orchestrator SOUL.md (RISK-03)
 
 **Wave 2** *(blocked on Wave 1 — risk_tier field and failed verdict policy must exist)*
 - [ ] 18-03-PLAN.md — Wire HIGH-tier Telegram approval gate into Task Orchestrator Notion pre-log flow in SOUL.md (RISK-02)
