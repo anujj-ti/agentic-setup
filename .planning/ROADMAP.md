@@ -442,7 +442,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Self-Evolution | 5/5 | Complete   | 2026-05-20 |
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
-| 15. Smarter Email Triage | 0/TBD | Not started | - |
+| 15. Smarter Email Triage | 0/5 | Not started | - |
 | 16. Cross-Agent Learning Infrastructure | 0/TBD | Not started | - |
 | 17. Proactive Standup Insights | 0/TBD | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
@@ -507,7 +507,28 @@ Plans:
   2. After a triage run, the percentage of items marked Action Required in that session's log is at or below 20%, and known-noise senders are absent from the output entirely
   3. For every email classified as Action Required, a draft reply template exists in the `drafts/` folder — no draft has been auto-sent; outbound is user-initiated only
   4. Running email triage twice against the same mailbox snapshot produces identical output with no duplicate entries — the same message ID does not appear in two separate triage logs
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 15-01-PLAN.md — Update SOUL.md with priority scoring rules (D-151–D-154), 20% cap rule (D-155–D-157), and no-send draft rule (D-160) (TRIAGE-01, TRIAGE-02, TRIAGE-03)
+- [ ] 15-02-PLAN.md — Create memory/noise-senders.md seeded with common noise patterns; create memory/processed-ids.jsonl empty guard file; create memory/drafts/ directory (TRIAGE-02, TRIAGE-04)
+
+**Wave 2** *(blocked on Wave 1 — memory files must exist before agent references them)*
+- [ ] 15-03-PLAN.md — Update AGENTS.md startup checklist with noise-senders load step and processed-ids guard step; update email-triage.sh with mark-read, JSONL append, and 500-entry trim (TRIAGE-02, TRIAGE-04)
+- [ ] 15-04-PLAN.md — Update TOOLS.md with drafts/ directory reference, processed-ids.jsonl format spec, trim command, and mark-read command reference (TRIAGE-03, TRIAGE-04)
+
+**Wave 3** *(blocked on Wave 2 — phase gate)*
+- [ ] 15-05-PLAN.md — Write and run scripts/verify-phase-15.sh: 10 structural checks covering all TRIAGE-01 through TRIAGE-04 requirements (TRIAGE-01, TRIAGE-02, TRIAGE-03, TRIAGE-04)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- gog binary: `/opt/homebrew/bin/gog` explicit path (D-143 from Phase 14)
+- All gog invocations: `--no-input --non-interactive` (D-142 from Phase 14)
+- mark-read failure is non-fatal — processed-ids.jsonl is the secondary guard (D-161, D-162)
+- [DRAFT — NOT SENT] must be line 1 of every draft file (D-158)
+- Never call gog gmail send from triage flow (D-160)
 
 ### Phase 16: Cross-Agent Learning Infrastructure
 **Goal**: Every execution-tier agent queries Synapse for relevant learnings before taking any action, uses cross-silo queries where domains overlap, records learnings in a consistent 4-field schema, and dream routines surface the top cross-silo learnings into each agent's MEMORY.md within budget
