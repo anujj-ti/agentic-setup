@@ -1,0 +1,27 @@
+#!/usr/bin/env zsh
+# pre-push hook — blocks direct pushes to main/master
+# Install: cp scripts/git-hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+
+PROTECTED_BRANCHES="main master"
+
+while IFS= read -r line; do
+  remote_ref=$(echo "$line" | awk '{print $4}')
+  branch="${remote_ref##refs/heads/}"
+
+  for protected in $PROTECTED_BRANCHES; do
+    if [[ "$branch" == "$protected" ]]; then
+      echo "❌ Direct push to '$branch' is blocked." >&2
+      echo "" >&2
+      echo "  Workflow:" >&2
+      echo "  1. Work on a feature branch (gsd/phase-N-* or feature/*)" >&2
+      echo "  2. Run: /gsd-code-review N" >&2
+      echo "  3. Fix any flagged issues, re-run review until clean" >&2
+      echo "  4. Merge via: gh pr merge --squash --delete-branch" >&2
+      echo "" >&2
+      echo "  To bypass in an emergency: git push --no-verify" >&2
+      exit 1
+    fi
+  done
+done
+
+exit 0
