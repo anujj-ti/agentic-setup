@@ -30,21 +30,41 @@ All machine-local secrets, file paths, env vars, and the GitHub account split ar
 
 ## Standup Script Invocation
 
-How to call `standup-brief.sh` from an isolated cron session (the morning standup cron calls this):
+> **⚠ DEPRECATED (Phase 17):** Calling `standup-brief.sh` alone produces a facts-only brief.
+> Always use the two-step pipeline below (standup-brief.sh → standup-insights.sh) for the enhanced brief with Tackle First list and patterns.
+> The bare invocation is only kept as a fallback if standup-insights.sh is unavailable.
 
+Legacy invocation (facts only — use only as fallback):
 ```zsh
-/opt/homebrew/bin/zsh ~/Documents/agentic-setup/scripts/standup-brief.sh --repo anujj-ti/agentic-setup
+/bin/zsh ~/Documents/agentic-setup/scripts/standup-brief.sh --repo anujj-ti/agentic-setup
 ```
 
-Parse the JSON output and format a Telegram message:
-- `ok` field: if false, send the `error` field to Telegram rather than a formatted brief
-- `data.merged_prs`: PRs merged overnight
-- `data.ci_failures`: CI/CD failures
-- `data.stale_prs`: PRs awaiting review
+### Insights Enhancement (Phase 17) — PRIMARY INVOCATION
 
-Format guidelines:
-- Start with: "Good morning! Here is your overnight summary:"
-- List each category. If a category is empty, write "None"
-- Keep the total Telegram message under **4000 characters** (Telegram limit is 4096)
+After calling standup-brief.sh and capturing its output, pipe it into standup-insights.sh:
 
-Note on repo list: The cron payload message specifies which repos to check. Call standup-brief.sh once per repo and aggregate results before sending the Telegram message.
+```zsh
+STANDUP_JSON=$(  /bin/zsh ~/Documents/agentic-setup/scripts/standup-brief.sh --repo anujj-ti/agentic-setup )
+INSIGHTS_JSON=$( printf '%s' "$STANDUP_JSON" | /bin/zsh ~/Documents/agentic-setup/scripts/standup-insights.sh )
+```
+
+Parse the insights output:
+- `INSIGHTS_JSON | jq '.ok'` — if false, use STANDUP_JSON only (graceful fallback)
+- `INSIGHTS_JSON | jq '.data.insights.tackle_first'` — array of ranked items (max 5)
+- `INSIGHTS_JSON | jq '.data.insights.patterns'` — pattern alert array (empty [] if no patterns)
+- `INSIGHTS_JSON | jq '.data.insights.classified_items'` — all classified items (for reference)
+
+tackle_first item fields:
+- `.title` — display name of the PR / CI run / issue
+- `.status` — "Blocked", "At Risk", or "On Track"
+- `.source_field` — e.g. "ci_failures[0]", "stale_prs[2]" (cite verbatim, D-413)
+- `.reason` — one-sentence explanation from standup-insights.sh
+
+patterns item fields:
+- `.type` — "ci_failures" or "stale_prs"
+- `.count` — number of items sharing this signal
+- `.label` — display string, e.g. "4 CI failures overnight — possible systemic issue"
+
+Note: standup-insights.sh binary path is
+~/Documents/agentic-setup/scripts/standup-insights.sh (exec policy unchanged —
+this script is also CRON SESSIONS ONLY, same as standup-brief.sh).

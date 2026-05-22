@@ -74,3 +74,48 @@ echo "{\"session_end\":\"$TIMESTAMP\"}" > ~/.openclaw/workspace-user-orchestrato
 
 ### Morning standup integration note
 The morning standup brief (Phase 6 CHAN-04) also calls query-decisions.sh and includes the count in the brief — wired in Plan 09-06.
+
+## Morning Standup Insights (STANDUP-01/02/03)
+
+### Overview
+After calling standup-brief.sh in a morning cron session, pipe its JSON output
+into standup-insights.sh to obtain classified items, a ranked tackle-first list,
+and pattern alerts. Use the insights output to structure the Telegram message.
+
+### Invocation sequence
+1. Call standup-brief.sh (via exec in cron session) and capture its stdout as STANDUP_JSON.
+2. Pipe STANDUP_JSON into standup-insights.sh and capture its stdout as INSIGHTS_JSON.
+3. Check INSIGHTS_JSON .ok field — if false, fall back to the standard (pre-Phase 17) format.
+4. Format the Telegram message using the structure below.
+
+### Telegram message structure
+
+Order of sections (top to bottom):
+1. Header: "Good morning! Here is your standup brief:"
+2. Tackle First (always present, even if empty):
+   - Header: "Tackle First:"
+   - If tackle_first is non-empty: numbered list, one item per line
+     Format per item: "[N]. [title] — [status] ([source_field])"
+     Example: "1. Fix broken auth pipeline — Blocked (ci_failures[0])"
+   - If tackle_first is []: write "Nothing critical — clear runway."
+3. Patterns (only when patterns array is non-empty):
+   - Bold header: "*Patterns Detected:*"
+   - One line per pattern: "  - [label]"
+   - Example: "  - 4 CI failures overnight — possible systemic issue"
+4. Standard facts section (as before Phase 17):
+   - Merged PRs overnight
+   - CI failures (raw list if any)
+   - Stale PRs awaiting review
+   - Autonomous decisions count
+   - Overnight email count (if gog_available)
+   - Today's calendar events (if gog_available)
+
+### Label-only rule (D-413)
+Each tackle-first item cites its source_field verbatim — do not interpret or
+rephrase the source_field value. Do not generate free-form analysis beyond the
+reason field already in the insights JSON.
+
+### Fallback behavior
+If standup-insights.sh returns ok:false or is unavailable, send the standard
+standup brief (as before Phase 17) without the insights section. Do not block
+the standup on insights failure.

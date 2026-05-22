@@ -4,14 +4,14 @@ milestone: v2.0
 milestone_name: Intelligence Layer
 status: verifying
 stopped_at: Completed 16-05-PLAN.md
-last_updated: "2026-05-22T11:53:33.627Z"
+last_updated: "2026-05-22T12:22:18.844Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 19
-  completed_phases: 16
-  total_plans: 80
-  completed_plans: 79
-  percent: 84
+  completed_phases: 17
+  total_plans: 83
+  completed_plans: 82
+  percent: 89
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-20)
 
 **Core value:** An AI co-pilot that works autonomously while you're away, never forgets a task, documents every decision it made, and hands back clean control when you return.
-**Current focus:** Phase 16 — Cross-Agent Learning Infrastructure
+**Current focus:** Phase 17 — Proactive Standup Insights
 
 ## Current Position
 
-Phase: 16 (Cross-Agent Learning Infrastructure) — EXECUTING
-Plan: 6 of 6
+Phase: 17 (Proactive Standup Insights) — EXECUTING
+Plan: 3 of 3
 Status: Phase complete — ready for verification
 Last activity: 2026-05-22
 
@@ -54,6 +54,10 @@ Last activity: 2026-05-22
 | Phase 15-smarter-email-triage P05 | 3 | 2 tasks | 1 files |
 | Phase 16 P01 | 1min | 1 tasks | 1 files |
 | Phase 16-cross-agent-learning-infrastructure P05 | 2min | 1 tasks | 1 files |
+| Phase 17 P01 | 4min | - tasks | - files |
+| Phase 17 P01 | 4min | 1 tasks | 2 files |
+| Phase 17 P02 | 2min | 2 tasks | 2 files |
+| Phase 17 P03 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -69,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Script exits 0 on all failure paths (token missing, curl failure, non-ok response) — Synapse never blocks agent startup (D-304)
 - [Phase ?]: Default limit of 5 learnings per query balances context utility with token budget (D-305)
 - [Phase ?]: Step 0 inserted before step 1 in email-triage AGENTS.md — Synapse query before all startup checks, non-blocking (D-304)
+- [Phase ?]: TZ=UTC required for BSD date -j on macOS
+- [Phase ?]: jq sort_by takes single expression — inject rank field and use sort_by(._rank) then map(del(._rank)) for multi-criterion sort
 
 ### Pending Todos
 
@@ -91,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T11:53:33.615Z
+Last session: 2026-05-22T12:22:18.830Z
 Stopped at: Completed 16-05-PLAN.md
 Resume file: None
