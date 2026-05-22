@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 15: Smarter Email Triage** - Email Triage agent scores every email 1-5, enforces 20% Action Required cap, creates draft replies, and never re-processes the same message (completed 2026-05-22)
 - [x] **Phase 16: Cross-Agent Learning Infrastructure** - All execution-tier agents query Synapse learnings before acting; cross-silo queries enabled; consistent 4-field learning schema enforced; dream routines merge top learnings into MEMORY.md (completed 2026-05-22)
 - [x] **Phase 17: Proactive Standup Insights** - Morning standup classifies every item as Blocked/At Risk/On Track, produces a ranked tackle-first list of 3-5 items, and surfaces pattern alerts when 3+ items share a signal type (completed 2026-05-22)
-- [ ] **Phase 18: Decision Quality Risk Gate** - Decision Reviewer assigns risk_score and risk_tier to every verdict; HIGH-tier decisions trigger synchronous Telegram approval; Task Orchestrator SOUL.md defines fast-pass list and timeout-proceeds policy
+- [x] **Phase 18: Decision Quality Risk Gate** - Decision Reviewer assigns risk_score and risk_tier to every verdict; HIGH-tier decisions trigger synchronous Telegram approval; Task Orchestrator SOUL.md defines fast-pass list and timeout-proceeds policy (completed 2026-05-22)
 
 ## Phase Details
 
@@ -445,7 +445,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
 | 16. Cross-Agent Learning Infrastructure | 6/6 | Complete   | 2026-05-22 |
 | 17. Proactive Standup Insights | 3/3 | Complete   | 2026-05-22 |
-| 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
+| 18. Decision Quality Risk Gate | 4/4 | Complete   | 2026-05-22 |
 
 ### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
 
@@ -593,7 +593,27 @@ Plans:
   1. User inspects any decision entry in the Notion decision log and finds two new fields: `risk_score` (integer 0-100) and `risk_tier` (one of low/medium/high) — these fields are present even on decisions that received a pass verdict
   2. When a HIGH-tier decision is submitted, the user receives a Telegram approval request before the Notion pre-log is written — the request includes the decision summary and a configurable timeout; approving or rejecting via Telegram determines whether the action proceeds
   3. User inspects Task Orchestrator SOUL.md and finds: a fast-pass list of named LOW-risk operations that bypass the approval step; a `failed` verdict policy specifying that a timeout produces a non-blocking audit log entry and autonomous operation continues
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+
+**Wave 1** *(parallel — no dependencies)*
+- [x] 18-01-PLAN.md — Update decision-reviewer SOUL.md with risk scoring rubric (four dimensions, tier mapping 0-30/31-60/61-100, updated D-111 schema) (RISK-01)
+- [x] 18-02-PLAN.md — Add fast-pass list and failed verdict policy to task-orchestrator SOUL.md (RISK-03)
+
+**Wave 2** *(blocked on Wave 1 — risk_tier field and failed verdict policy must exist)*
+- [x] 18-03-PLAN.md — Wire HIGH-tier Telegram approval gate into Task Orchestrator Notion pre-log flow in SOUL.md (RISK-02)
+
+**Wave 3** *(blocked on Wave 2 — phase gate)*
+- [x] 18-04-PLAN.md — Create and run scripts/verify-phase-18.sh (10 checks covering RISK-01, RISK-02, RISK-03) (RISK-01, RISK-02, RISK-03)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- No new agent directories — changes are SOUL.md edits only (per D-501 through D-509)
+- fast-pass matching is prefix-based, conservative: when in doubt, route through Decision Reviewer
+- Fallback log: `~/.openclaw/workspace-task-orchestrator/decision-review-fallback.log`
+- Approval chat ID: 1294664427 (Anuj's Telegram)
+- Approval timeout: 30 minutes (D-506)
 
 ### Phase 19: DevBot Autonomous Issue Pickup — DevBot polls for automation:safe labeled issues every 5 minutes, self-assigns, branches, executes via Beads task graph, opens PR, auto-merges when CI passes, issue closes automatically
 

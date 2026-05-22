@@ -267,10 +267,86 @@ Then proceed with the rollback anyway — the revert commit is the authoritative
 - **After verdict**: if pass → finalize; if reject → revise and resubmit
 
 ### Decision Review Gate
+
+#### Fast-Pass List (RISK-03)
+
+The following action classes are known-safe LOW-risk operations and are fast-pass eligible by default. If the pending action matches any entry below, SKIP Decision Reviewer and proceed directly to the Notion pre-log step (Section: Notion Pre-Log Protocol).
+
+- `gh issue comment` — read-adjacent, append-only, reversible via delete
+- `gh pr view` — read-only, no state change
+- `bd ready` — read-only Beads query
+- `bd close` — closes an already-claimed task with factual evidence; reversible
+- Synapse learning record (`synapse.learning.record`) — append-only write to org memory
+- Synapse checkin (`synapse.checkin status=start` or `synapse.checkin status=complete`) — status ping only
+- Read-only `gh api` calls where HTTP method is GET — no state change
+
+**Matching rule:** Match is by action class prefix, not exact string. If the decision payload's `decision` field starts with a listed prefix (case-insensitive), it is fast-pass eligible. When in doubt, do NOT fast-pass — route through Decision Reviewer.
+
 - **When**: before EVERY autonomous action (merge, issue create, PR close, Notion write, agent creation)
 - **How**: prepare decision entry `{action, rationale, reversibility, evidence}`; sessions_spawn(decision-reviewer)
-- **After verdict**: if pass → write to Notion → execute action; if reject → do NOT execute; report BLOCKED
 - **Exception**: spawning decision-reviewer itself is pre-approved (anti-circular rule)
+
+#### Risk-Tiered Routing (RISK-02)
+
+After Decision Reviewer returns a verdict, route based on `risk_tier`:
+
+**Step 1 — Check fast-pass** (before spawning Decision Reviewer — see Fast-Pass List above)
+
+**Step 2 — Receive verdict and extract fields:**
+```zsh
+VERDICT=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.verdict')
+RISK_TIER=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.risk_tier // "medium"')
+RISK_SCORE=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.risk_score // 100')
+RATIONALE=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.comments[0] // ""')
+```
+If `risk_tier` is absent from the verdict (malformed response), treat as `medium` and proceed without Telegram approval.
+
+**Step 3 — Route by tier:**
+
+| risk_tier | verdict | Action |
+|-----------|---------|--------|
+| low | pass/flag | Proceed directly to Notion Pre-Log Protocol |
+| medium | pass/flag | Proceed directly to Notion Pre-Log Protocol (async notify deferred to v2.1) |
+| high | pass/flag | **STOP — send Telegram approval request (see Step 4)** |
+| any | reject | Do NOT execute; report BLOCKED to User Orchestrator; do NOT send Telegram approval |
+
+**Step 4 — HIGH-tier Telegram approval (D-505, D-507):**
+
+Send approval request via User Orchestrator sessions_yield to Anuj's Telegram chat (ID: 1294664427):
+
+Message format (D-507):
+```
+⚠️ HIGH RISK action requires approval:
+Action: {decision}
+Risk score: {risk_score}/100
+Reason: {rationale}
+Reversibility: {reversibility}
+
+Reply APPROVE or REJECT
+```
+
+Wait up to 30 minutes for response (D-506).
+
+- If response is APPROVE (case-insensitive): proceed to Notion Pre-Log Protocol, then execute the action.
+- If response is REJECT (case-insensitive): abort action; write a Notion log entry with decision field = 'REJECTED BY USER: {original_decision}' and reversibility = 'n/a — not executed'; report outcome to User Orchestrator.
+- If timeout (30 min, no response): invoke the Failed Verdict Policy (see Failed Verdict Policy section below) — log to decision-review-fallback.log and PROCEED.
+
+#### Failed Verdict Policy (RISK-03)
+
+If Decision Reviewer returns an error response, times out (30-minute window per D-506), or the session fails to complete:
+
+1. Log a non-blocking audit entry to the local fallback file:
+```zsh
+echo "{\"timestamp\":\"$(python3 -c 'from datetime import datetime, timezone; print(datetime.now(timezone.utc).isoformat())')\",\"decision\":\"<decision>\",\"reason\":\"decision-reviewer-timeout-or-error\",\"action\":\"proceeded\"}" >> ~/.openclaw/workspace-task-orchestrator/decision-review-fallback.log
+```
+
+2. PROCEED with the intended action. Do NOT wait for Decision Reviewer to recover. Do NOT halt autonomous operation.
+
+3. On next session start: read the fallback log and surface any entries to User Orchestrator as part of the standup decision summary.
+
+The fallback log path is: `~/.openclaw/workspace-task-orchestrator/decision-review-fallback.log`
+
+This policy exists specifically to prevent overnight autonomous operation from halting due to a review agent failure. The Notion pre-log (if feasible) still runs before the action — the fallback log supplements it.
 
 ### Skill Review Gate
 - **When**: after Skill Creation returns a SKILL.md
