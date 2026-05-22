@@ -16,24 +16,28 @@ NOISE_SENDERS="/Users/trilogy/.openclaw/agents/email-triage/memory/noise-senders
 PROCESSED_IDS="/Users/trilogy/.openclaw/agents/email-triage/memory/processed-ids.jsonl"
 DRAFTS_DIR="/Users/trilogy/.openclaw/agents/email-triage/memory/drafts"
 
-pass() { print "CHECK $1 ($2): PASS"; (( PASS++ )) }
-fail() { print "CHECK $1 ($2): FAIL — $3"; (( FAIL++ )) }
+pass() { print "CHECK $1 ($2): PASS"; PASS=$(( PASS + 1 )) }
+fail() { print "CHECK $1 ($2): FAIL — $3"; FAIL=$(( FAIL + 1 )) }
 
 # CHECK 1: SOUL.md has priority scoring with score signals (TRIAGE-01)
+# Score table uses "| **5** |" and "| **1** |" format (markdown bold in table cell)
 if [[ -f "$SOUL" ]] && \
    grep -q "priority_score" "$SOUL" && \
-   grep -q "Score 5" "$SOUL" && \
-   grep -q "Score 1" "$SOUL"; then
+   grep -q "Score Mapping" "$SOUL" && \
+   grep -q "| \*\*5\*\* |" "$SOUL" && \
+   grep -q "| \*\*1\*\* |" "$SOUL"; then
   pass 1 "TRIAGE-01 — SOUL.md priority_score rule"
 else
   if [[ ! -f "$SOUL" ]]; then
     fail 1 "TRIAGE-01 — SOUL.md priority_score rule" "SOUL.md not found at $SOUL"
   elif ! grep -q "priority_score" "$SOUL"; then
     fail 1 "TRIAGE-01 — SOUL.md priority_score rule" "priority_score not found in SOUL.md"
-  elif ! grep -q "Score 5" "$SOUL"; then
-    fail 1 "TRIAGE-01 — SOUL.md priority_score rule" "'Score 5' not found in SOUL.md score mapping table"
+  elif ! grep -q "Score Mapping" "$SOUL"; then
+    fail 1 "TRIAGE-01 — SOUL.md priority_score rule" "Score Mapping section not found in SOUL.md"
+  elif ! grep -q "| \*\*5\*\* |" "$SOUL"; then
+    fail 1 "TRIAGE-01 — SOUL.md priority_score rule" "score 5 row ('| **5** |') not found in SOUL.md score mapping table"
   else
-    fail 1 "TRIAGE-01 — SOUL.md priority_score rule" "'Score 1' not found in SOUL.md score mapping table"
+    fail 1 "TRIAGE-01 — SOUL.md priority_score rule" "score 1 row ('| **1** |') not found in SOUL.md score mapping table"
   fi
 fi
 
