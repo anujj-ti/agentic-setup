@@ -35,10 +35,10 @@
 - [ ] **DEV-04**: DevBot agent can autonomously implement GitHub issues via the Beads task graph decomposition pattern (design → implement → self-review → quality-review → open PR)
 - [ ] **DEV-05**: DevBot agent can merge PRs that have passed CI and quality review — merger logs the decision to Notion before executing the merge; user can see and revert any autonomous merge
 - [ ] **DEV-06**: DevBot agent maintains project context per repository (stack, conventions, open work) and can switch context when delegated a task in a different repo
-- [ ] **DEV-07**: DevBot autonomously polls for `automation:safe` labeled issues every 5 minutes without human trigger — issues with `automation:hold` are skipped
-- [ ] **DEV-08**: DevBot claims issues by self-assigning and adding `status:in-progress` label, then creates a linked branch via `gh issue develop`
-- [ ] **DEV-09**: DevBot opens a draft PR with `Resolves #N` in the body and sets auto-merge (`--squash --delete-branch`) so the issue closes automatically when CI passes
-- [ ] **DEV-10**: Stale-claim guard automatically unassigns issues where the linked branch has had no commits in over 2 hours, returning them to the pickup pool
+- [x] **DEV-07**: DevBot autonomously polls for `automation:safe` labeled issues every 5 minutes without human trigger — issues with `automation:hold` are skipped
+- [x] **DEV-08**: DevBot claims issues by self-assigning and adding `status:in-progress` label, then creates a linked branch via `gh issue develop`
+- [x] **DEV-09**: DevBot opens a draft PR with `Resolves #N` in the body and sets auto-merge (`--squash --delete-branch`) so the issue closes automatically when CI passes
+- [x] **DEV-10**: Stale-claim guard automatically unassigns issues where the linked branch has had no commits in over 2 hours, returning them to the pickup pool
 
 ### Documentation & Memory (MEM)
 
@@ -173,10 +173,10 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 | RISK-01 | Phase 18 — Decision Quality Risk Gate | Pending |
 | RISK-02 | Phase 18 — Decision Quality Risk Gate | Pending |
 | RISK-03 | Phase 18 — Decision Quality Risk Gate | Pending |
-| DEV-07 | Phase 19 — DevBot Autonomous Issue Pickup | Pending |
-| DEV-08 | Phase 19 — DevBot Autonomous Issue Pickup | Pending |
-| DEV-09 | Phase 19 — DevBot Autonomous Issue Pickup | Pending |
-| DEV-10 | Phase 19 — DevBot Autonomous Issue Pickup | Pending |
+| DEV-07 | Phase 19 — DevBot Autonomous Issue Pickup | Complete |
+| DEV-08 | Phase 19 — DevBot Autonomous Issue Pickup | Complete |
+| DEV-09 | Phase 19 — DevBot Autonomous Issue Pickup | Complete |
+| DEV-10 | Phase 19 — DevBot Autonomous Issue Pickup | Complete |
 
 *(Traceability updated by roadmapper — 2026-05-21; v2.0 Intelligence Layer phases 15-18 added)*
 
