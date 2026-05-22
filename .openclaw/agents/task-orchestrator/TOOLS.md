@@ -53,6 +53,20 @@ export SYNAPSE_TOKEN=$(security find-generic-password -s 'openclaw.synapse-token
   -d '{"project_id":"project.edullm-sat-math","bd_id":"<bd_id>","learnings":[{"claim":"<insight>","applies_to":["<tag>"],"confidence":"low"}]}'
 ```
 
+### Learning Schema — 4 Required Fields (LEARN-03)
+
+When recording learnings manually (not via synapse-record-learning.sh), always include all 4 fields:
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `claim` | Always | Non-obvious, reusable insight as a declarative statement |
+| `applies_to` | Always | Array of domain tags e.g. ["openclaw","agent-orchestration"] |
+| `confidence` | Always | "low" (default), "medium", or "high" |
+| `evidence_artifact_id` | For medium/high only | Artifact ID from synapse.artifact.upload; null for low confidence |
+
+Low confidence: omit evidence_artifact_id (or pass null).
+Medium/High confidence: evidence_artifact_id MUST be a real artifact ID — never fabricated.
+
 Full protocol: AGENTS.md Step 0–7
 
 ## Beads Task Tracker (Phase 4+)
