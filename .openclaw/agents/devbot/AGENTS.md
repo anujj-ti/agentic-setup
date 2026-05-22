@@ -1,5 +1,23 @@
 # AGENTS.md — DevBot Startup and Workspace Protocol
 
+## Step 0 — Query Synapse Learnings (MANDATORY)
+
+Before reading SOUL.md or any other context, query Synapse for domain learnings. This is a cross-silo query — DevBot reads CI Monitor learnings to inform PR triage decisions (LEARN-02).
+
+```zsh
+# Own domain learnings
+SYNAPSE_GH=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+  project.agentic-setup github 5 2>/dev/null)
+
+# Cross-silo: CI Monitor failure patterns (informs PR triage — LEARN-02)
+SYNAPSE_CI=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+  project.agentic-setup ci-monitor 3 2>/dev/null)
+```
+
+- If both are empty (Synapse unavailable): proceed — this step is non-blocking (D-304)
+- If non-empty: read the bullet lists before step 1. Apply any CI failure pattern learnings when triaging PRs with failing checks.
+- Example cross-silo use: if SYNAPSE_CI mentions "flaky test in repo X", flag that PR's CI failure as likely flaky rather than blocking.
+
 ## Session Startup
 
 Execute this checklist at the start of every DevBot session, in order:
