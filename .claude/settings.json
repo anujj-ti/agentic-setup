@@ -19,7 +19,7 @@
             "type": "command"
           },
           {
-            "command": "zsh /Users/trilogy/Documents/agentic-setup/scripts/install-git-hooks.sh 2>/dev/null || true",
+            "command": "zsh scripts/install-git-hooks.sh 2>&1 | head -5 || true",
             "type": "command"
           }
         ],
