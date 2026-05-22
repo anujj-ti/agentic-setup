@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Intelligence Layer
-status: verifying
+status: executing
 stopped_at: Phase 15 context gathered
-last_updated: "2026-05-22T09:25:26.445Z"
+last_updated: "2026-05-22T11:47:19.840Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 19
   completed_phases: 15
-  total_plans: 74
-  completed_plans: 73
+  total_plans: 80
+  completed_plans: 75
   percent: 79
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-20)
 
 **Core value:** An AI co-pilot that works autonomously while you're away, never forgets a task, documents every decision it made, and hands back clean control when you return.
-**Current focus:** Phase 15 — Smarter Email Triage
+**Current focus:** Phase 16 — Cross-Agent Learning Infrastructure
 
 ## Current Position
 
-Phase: 15 (Smarter Email Triage) — EXECUTING
-Plan: 5 of 5
-Status: Phase complete — ready for verification
+Phase: 16 (Cross-Agent Learning Infrastructure) — EXECUTING
+Plan: 3 of 6
+Status: Ready to execute
 Last activity: 2026-05-22
 
 ## Performance Metrics
@@ -52,6 +52,7 @@ Last activity: 2026-05-22
 *Updated after each plan completion*
 | Phase 15-smarter-email-triage P01 | 1 | 2 tasks | 1 files |
 | Phase 15-smarter-email-triage P05 | 3 | 2 tasks | 1 files |
+| Phase 16 P01 | 1min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Recent decisions affecting current work:
 - Beads task graphs chosen to prevent agent step-skipping (structural enforcement, not prompt engineering)
 - Notion pre-log required before any autonomous action (async review on return, no blocking gates)
 - cc-openclaw skills are the ONLY path for configuration — no manual file edits allowed
+- [Phase ?]: Script exits 0 on all failure paths (token missing, curl failure, non-ok response) — Synapse never blocks agent startup (D-304)
+- [Phase ?]: Default limit of 5 learnings per query balances context utility with token budget (D-305)
 
 ### Pending Todos
 
@@ -86,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T09:25:26.422Z
+Last session: 2026-05-22T11:47:11.868Z
 Stopped at: Phase 15 context gathered
 Resume file: None

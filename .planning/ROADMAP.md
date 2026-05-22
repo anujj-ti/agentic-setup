@@ -443,7 +443,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
-| 16. Cross-Agent Learning Infrastructure | 0/6 | Not started | - |
+| 16. Cross-Agent Learning Infrastructure | 2/6 | In Progress|  |
 | 17. Proactive Standup Insights | 0/TBD | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
 
@@ -544,8 +544,8 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 16-01-PLAN.md — Create synapse-query-learnings.sh: shared non-blocking Synapse learning query script used by all execution-tier agents (LEARN-01, LEARN-02)
-- [ ] 16-02-PLAN.md — Update ci-monitor AGENTS.md with Synapse query step; create ci-monitor DREAM-ROUTINE.md (LEARN-01, LEARN-04)
+- [x] 16-01-PLAN.md — Create synapse-query-learnings.sh: shared non-blocking Synapse learning query script used by all execution-tier agents (LEARN-01, LEARN-02)
+- [x] 16-02-PLAN.md — Update ci-monitor AGENTS.md with Synapse query step; create ci-monitor DREAM-ROUTINE.md (LEARN-01, LEARN-04)
 
 **Wave 2** *(parallel — all blocked on Wave 1: 16-01 must exist)*
 - [ ] 16-03-PLAN.md — Update task-orchestrator AGENTS.md Step 1 to use synapse-query-learnings.sh; add cross-silo merge to DREAM-ROUTINE.md; add LEARN-03 schema reminder to TOOLS.md (LEARN-01, LEARN-03, LEARN-04)
