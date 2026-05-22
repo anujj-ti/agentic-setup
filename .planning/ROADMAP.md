@@ -442,7 +442,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Self-Evolution | 5/5 | Complete   | 2026-05-20 |
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
-| 15. Smarter Email Triage | 0/5 | Not started | - |
+| 15. Smarter Email Triage | 2/5 | In Progress|  |
 | 16. Cross-Agent Learning Infrastructure | 0/TBD | Not started | - |
 | 17. Proactive Standup Insights | 0/TBD | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
@@ -512,8 +512,8 @@ Plans:
 Plans:
 
 **Wave 1** *(parallel — no dependencies)*
-- [ ] 15-01-PLAN.md — Update SOUL.md with priority scoring rules (D-151–D-154), 20% cap rule (D-155–D-157), and no-send draft rule (D-160) (TRIAGE-01, TRIAGE-02, TRIAGE-03)
-- [ ] 15-02-PLAN.md — Create memory/noise-senders.md seeded with common noise patterns; create memory/processed-ids.jsonl empty guard file; create memory/drafts/ directory (TRIAGE-02, TRIAGE-04)
+- [x] 15-01-PLAN.md — Update SOUL.md with priority scoring rules (D-151–D-154), 20% cap rule (D-155–D-157), and no-send draft rule (D-160) (TRIAGE-01, TRIAGE-02, TRIAGE-03)
+- [x] 15-02-PLAN.md — Create memory/noise-senders.md seeded with common noise patterns; create memory/processed-ids.jsonl empty guard file; create memory/drafts/ directory (TRIAGE-02, TRIAGE-04)
 
 **Wave 2** *(blocked on Wave 1 — memory files must exist before agent references them)*
 - [ ] 15-03-PLAN.md — Update AGENTS.md startup checklist with noise-senders load step and processed-ids guard step; update email-triage.sh with mark-read, JSONL append, and 500-entry trim (TRIAGE-02, TRIAGE-04)
