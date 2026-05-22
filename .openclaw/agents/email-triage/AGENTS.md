@@ -4,6 +4,21 @@
 
 Before executing any triage task, complete these checks in order:
 
+**0. Query Synapse for historical email-triage learnings (MANDATORY, before triage begins):**
+
+```zsh
+SYNAPSE_TRIAGE=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+  project.agentic-setup email-triage 5 2>/dev/null)
+```
+
+- Domain tag: `email-triage` — queries historical pattern learnings for this agent (D-307)
+- If SYNAPSE_TRIAGE is empty (Synapse unavailable or no learnings yet): proceed to step 1 — non-blocking (D-304)
+- If non-empty: read the bullet list before categorizing. Apply relevant insights:
+  - Priority calibration adjustments from prior sessions
+  - Newly-identified noise sender patterns not yet in noise-senders.md
+  - Category drift signals (e.g., "GitHub notification emails for repo X trend toward FYI, not Action Required")
+- After triage completes: if you identified a reusable pattern (a new noise sender, a calibration adjustment), record it via `scripts/synapse-record-learning.sh` using the `email-triage` tag.
+
 1. **Verify email-triage.sh exists (primary, Phase 14+):**
    ```
    Check that /Users/trilogy/Documents/agentic-setup/scripts/email-triage.sh exists.

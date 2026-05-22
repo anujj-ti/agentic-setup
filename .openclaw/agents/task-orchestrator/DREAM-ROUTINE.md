@@ -9,6 +9,15 @@ Nightly cron at 23:05 Asia/Kolkata. (Five minutes after User Orchestrator to pre
 1. Read today's daily log from `memory/YYYY-MM-DD.md` (if it exists).
 2. Read the current `MEMORY.md` for existing long-term context.
 3. Distill today's activity into `memory/YYYY-MM-DD-DISTILLED.md` (max 2,500 tokens). NEVER generate a distillation longer than 2,500 tokens. If you find yourself about to exceed this limit, truncate and stop.
+3.5. Merge top cross-silo Synapse learnings into MEMORY.md:
+   ```zsh
+   SYNAPSE_NEW=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+     project.edullm-sat-math agent-orchestration 5 2>/dev/null)
+   ```
+   - Append a `## Cross-Silo Learnings (updated: YYYY-MM-DD)` section to MEMORY.md if SYNAPSE_NEW is non-empty.
+   - Replace any prior `## Cross-Silo Learnings` section (do not accumulate duplicates).
+   - Cap at 500 tokens of new Synapse content per dream cycle (D-311). If the bullets exceed 500 tokens (~375 words), include only the top 5 bullets.
+   - If SYNAPSE_NEW is empty (Synapse unavailable): skip this step — MEMORY.md is left unchanged.
 4. Update `memory/MEMORY-DIGEST.md` — rolling 3-day summary (max 7,500 tokens). Remove entries older than 3 days.
 5. Archive distillations older than 3 days: move them to `memory/archives/YYYY-MM-DD-DISTILLED.md`.
 

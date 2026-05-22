@@ -1,5 +1,25 @@
 # AGENTS.md — CI Monitor
 
+## Step 0 — Query Synapse Learnings (MANDATORY, before CI polling)
+
+Before confirming state files or running poll-ci.sh, query Synapse for relevant learnings.
+CI Monitor queries two domain tags: `ci` (its own domain) and `github` (cross-silo — DevBot writes learnings here that are relevant to CI polling patterns).
+
+```zsh
+SYNAPSE_CI=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+  project.agentic-setup ci 3 2>/dev/null)
+SYNAPSE_GH=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+  project.agentic-setup github 3 2>/dev/null)
+SYNAPSE_CONTEXT="${SYNAPSE_CI}${SYNAPSE_GH}"
+# If SYNAPSE_TOKEN is not set or Synapse is unreachable, both will be empty.
+# This is expected and non-blocking — proceed regardless (per D-304).
+```
+
+- Domain tags: `openclaw`, `github`, `ci` (per D-307)
+- Cross-silo benefit: CI Monitor queries `github` learnings written by DevBot — patterns like "repo X frequently fails step Y" are recorded by DevBot and surfaced here
+- If SYNAPSE_CONTEXT is non-empty: read the bullet list before proceeding — apply any relevant insights to this CI polling session
+- If empty: proceed normally — Synapse unavailability never blocks CI monitoring
+
 ## Startup Sequence
 
 1. Confirm `state/tracked-repos.txt` exists and is non-empty. If absent, log error to stderr and stop.
