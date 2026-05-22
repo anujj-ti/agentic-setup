@@ -117,24 +117,26 @@ epic: Fix: <bug title>
   T4: Open PR — blocks on T3
 ```
 
-### Investigation (3 subtasks) — MUST use Sherlock for T1
+### Investigation (3 subtasks) — T1 requires Sherlock via Claude Code
 ```
 epic: Investigate: <question>
-  T1: Sherlock deep research — no deps
+  T1: Sherlock deep research — no deps (human-gated — see below)
   T2: Analyze findings — blocks on T1
   T3: Document + decide — blocks on T2
 ```
 
-**MANDATORY for T1 (Research):** All investigation tasks MUST use Sherlock.
-Sherlock is installed at `~/.claude/skills/sherlock/` and runs inside Claude Code sessions.
-To invoke Sherlock from an exec task:
-```zsh
-/usr/local/bin/claude --dangerously-skip-permissions \
-  --print "/sherlock \"<your research question>\"" \
-  2>/dev/null > ~/.openclaw/workspace-task-orchestrator/sherlock-output.md
-```
-Or delegate via Telegram to Anuj: "Run `/sherlock <question>` in Claude Code and paste the result."
-The Sherlock report becomes the evidence for T1's close reason.
+**MANDATORY for T1 (Research):**
+Sherlock runs inside Claude Code, not inside OpenClaw. You cannot call it directly.
+
+The correct pattern:
+1. Surface the research question to Anuj via sessions_yield to User Orchestrator
+2. User Orchestrator sends this Telegram message:
+   "Research task ready: run `/sherlock \"<question>\"` in Claude Code and paste the report here"
+3. Anuj runs `/sherlock` in Claude Code, pastes the report into Telegram
+4. User Orchestrator forwards the report to you via sessions_spawn
+5. You close T1 with the Sherlock report as evidence, then T2 and T3 unblock
+
+Do NOT attempt to invoke `claude` CLI from exec — that is the wrong architecture.
 
 ### When to use Gates
 - **Human gate**: Before any irreversible action (PR merge, email send). `$BD gate create --blocks $T5 --type human --reason "Anuj approval needed"`
