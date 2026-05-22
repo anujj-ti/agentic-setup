@@ -82,7 +82,7 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 - [x] **LEARN-01**: All execution-tier agents (task-orchestrator, devbot, ci-monitor, email-triage) call `synapse.learning.query` at session start before taking any action
 - [x] **LEARN-02**: Agents whose domains overlap use `cross_silo: true` on Synapse queries — DevBot queries CI Monitor learnings before PR triage; email-triage queries its own historical pattern learnings
 - [ ] **LEARN-03**: All agent learning records use consistent 4-field schema: `claim`, `applies_to`, `confidence`, `evidence_artifact_id` — low confidence is the default; medium/high requires evidence
-- [ ] **LEARN-04**: Dream routines for execution-tier agents merge top cross-silo learnings into MEMORY.md within the 2,500-token daily budget
+- [x] **LEARN-04**: Dream routines for execution-tier agents merge top cross-silo learnings into MEMORY.md within the 2,500-token daily budget
 
 ### Standup Intelligence (STANDUP)
 
@@ -166,7 +166,7 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 | LEARN-01 | Phase 16 — Cross-Agent Learning Infrastructure | Complete |
 | LEARN-02 | Phase 16 — Cross-Agent Learning Infrastructure | Complete |
 | LEARN-03 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
-| LEARN-04 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
+| LEARN-04 | Phase 16 — Cross-Agent Learning Infrastructure | Complete |
 | STANDUP-01 | Phase 17 — Proactive Standup Insights | Pending |
 | STANDUP-02 | Phase 17 — Proactive Standup Insights | Pending |
 | STANDUP-03 | Phase 17 — Proactive Standup Insights | Pending |
