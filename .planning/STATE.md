@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Intelligence Layer
 status: executing
-stopped_at: Phase 15 context gathered
-last_updated: "2026-05-22T11:47:38.114Z"
+stopped_at: Completed 16-05-PLAN.md
+last_updated: "2026-05-22T11:49:59.059Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 19
   completed_phases: 15
   total_plans: 80
-  completed_plans: 75
+  completed_plans: 76
   percent: 79
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-05-20)
 ## Current Position
 
 Phase: 16 (Cross-Agent Learning Infrastructure) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-05-22
 
@@ -53,6 +53,7 @@ Last activity: 2026-05-22
 | Phase 15-smarter-email-triage P01 | 1 | 2 tasks | 1 files |
 | Phase 15-smarter-email-triage P05 | 3 | 2 tasks | 1 files |
 | Phase 16 P01 | 1min | 1 tasks | 1 files |
+| Phase 16-cross-agent-learning-infrastructure P05 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,7 @@ Recent decisions affecting current work:
 - cc-openclaw skills are the ONLY path for configuration — no manual file edits allowed
 - [Phase ?]: Script exits 0 on all failure paths (token missing, curl failure, non-ok response) — Synapse never blocks agent startup (D-304)
 - [Phase ?]: Default limit of 5 learnings per query balances context utility with token budget (D-305)
+- [Phase ?]: Step 0 inserted before step 1 in email-triage AGENTS.md — Synapse query before all startup checks, non-blocking (D-304)
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T11:47:38.102Z
-Stopped at: Phase 15 context gathered
+Last session: 2026-05-22T11:49:59.048Z
+Stopped at: Completed 16-05-PLAN.md
 Resume file: None

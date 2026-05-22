@@ -443,7 +443,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
-| 16. Cross-Agent Learning Infrastructure | 2/6 | In Progress|  |
+| 16. Cross-Agent Learning Infrastructure | 3/6 | In Progress|  |
 | 17. Proactive Standup Insights | 0/TBD | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
 
@@ -550,7 +550,7 @@ Plans:
 **Wave 2** *(parallel — all blocked on Wave 1: 16-01 must exist)*
 - [ ] 16-03-PLAN.md — Update task-orchestrator AGENTS.md Step 1 to use synapse-query-learnings.sh; add cross-silo merge to DREAM-ROUTINE.md; add LEARN-03 schema reminder to TOOLS.md (LEARN-01, LEARN-03, LEARN-04)
 - [ ] 16-04-PLAN.md — Update devbot AGENTS.md with Synapse query (github + ci-monitor cross-silo); create devbot DREAM-ROUTINE.md (LEARN-01, LEARN-02, LEARN-04)
-- [ ] 16-05-PLAN.md — Update email-triage AGENTS.md with Synapse query for email-triage domain learnings (LEARN-01, LEARN-02)
+- [x] 16-05-PLAN.md — Update email-triage AGENTS.md with Synapse query for email-triage domain learnings (LEARN-01, LEARN-02)
 
 **Wave 3** *(blocked on all Wave 2 plans)*
 - [ ] 16-06-PLAN.md — Create and run scripts/verify-phase-16.sh: 10 structural checks covering LEARN-01 through LEARN-04 (LEARN-01, LEARN-02, LEARN-03, LEARN-04)
