@@ -29,7 +29,7 @@ All machine-local secrets, file paths, env vars, and the GitHub account split ar
 How to call `standup-brief.sh` from an isolated cron session (the morning standup cron calls this):
 
 ```zsh
-/opt/homebrew/bin/zsh ~/agentic-setup/scripts/standup-brief.sh --repo anujj-ti/agentic-setup
+/opt/homebrew/bin/zsh ~/Documents/agentic-setup/scripts/standup-brief.sh --repo anujj-ti/agentic-setup
 ```
 
 Parse the JSON output and format a Telegram message:
