@@ -270,6 +270,114 @@ bd close <id>         # Complete work
 
 **Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
 
+## Claude Code ↔ OpenClaw — How They Connect
+
+This section is the definitive reference for how Claude Code (you, in this session) and OpenClaw (the autonomous agent fleet) work together. Read this at the start of every session.
+
+### The two runtimes
+
+| | Claude Code | OpenClaw |
+|--|------------|---------|
+| **What it is** | Interactive AI CLI — this session | Persistent agent runtime at localhost:18789 |
+| **Who runs it** | You (Claude Code) in the terminal | launchd daemon, always running |
+| **Talk to it via** | Claude Code prompt (this interface) | Telegram @echo_sys_bot |
+| **What it's for** | Config changes, planning, research, code, GSD phases | Autonomous execution: email, GitHub, CI, task delegation |
+| **Skills** | /sherlock, /gsd-*, /synapse, /openclaw-* | OpenClaw sessions_spawn, exec, read/write |
+| **Beads** | Uses Beads to track its own tasks (`bd ready`, `bd close`) | Uses same Beads DB to create and delegate epics to sub-agents |
+
+### Autonomy model — nothing surfaces to the human unless truly blocked
+
+**The rule:** Both Claude Code and OpenClaw operate fully autonomously. Neither asks the human unless an action is irreversible AND explicitly requires user approval (PR merge to main, email send from personal account). Research, investigation, planning — all done autonomously.
+
+**When YOU (Claude Code) need to do research:**
+```
+Skill("sherlock", "your research question")
+```
+Sherlock runs right here, in this session. No human needed. Results are used directly.
+
+**When OpenClaw needs research:**
+```zsh
+# task-orchestrator execs this script
+zsh /Users/trilogy/Documents/agentic-setup/scripts/run-sherlock.sh \
+  "research question" \
+  --notion \
+  --output ~/.openclaw/workspace-task-orchestrator/research-$(date +%s).md
+```
+This calls `claude -p "/sherlock ..."` headlessly with an explicit tool allowlist. No human needed. Report saved to file + logged to Synapse.
+
+### How tasks flow between the two runtimes
+
+```
+Human (Telegram)
+    ↓
+User Orchestrator (OpenClaw) — conversational layer
+    ↓  sessions_spawn
+Task Orchestrator (OpenClaw) — decomposes into Beads epics
+    ├─ Research needed? → run-sherlock.sh → claude -p → Sherlock → report file
+    ├─ Code/GitHub work? → DevBot sub-agent
+    ├─ CI failure? → CI Monitor sub-agent
+    ├─ Email? → Email Triage sub-agent
+    └─ All decisions → Notion pre-log (mandatory)
+
+Human (Claude Code terminal)
+    ↓
+Claude Code — config, planning, GSD phases
+    ├─ Research? → /sherlock skill (direct, in this session)
+    ├─ New phase? → /gsd-plan-phase, /gsd-execute-phase
+    ├─ Config change? → /openclaw-* skills (cc-openclaw)
+    └─ All work → git commit + push (mandatory)
+```
+
+### Shared infrastructure
+
+Both runtimes share and must use:
+
+| Resource | Location | Used by |
+|----------|----------|---------|
+| Beads task DB | `$HOME/.openclaw/beads` | Both — same DB, different epics |
+| Synapse org memory | `https://cnu.synapse-os.ai` | Both — record learnings after every non-trivial task |
+| Notion decision log | Notion workspace | OpenClaw — pre-logs every autonomous action |
+| `docs/LOCAL-CONTEXT.md` | This repo | Both — canonical ref for secrets, paths, env vars |
+| `scripts/run-sherlock.sh` | This repo | OpenClaw — headless Sherlock invocation |
+| `~/.claude/skills/sherlock/` | User skills | Claude Code — `/sherlock` command |
+| `cc-openclaw/` | This repo dir | Claude Code — `/openclaw-*` config skills |
+| `cc-skills-sherlock/` | This repo dir | Source for sherlock skill (keep updated with `git pull`) |
+
+### Key secrets (all in macOS Keychain under account `trilogy`)
+
+| Secret | What it unlocks |
+|--------|----------------|
+| `openclaw.telegram-main-bot-token` | @echo_sys_bot bot token |
+| `openclaw.anuj-chat-id` | Anuj's Telegram chat ID (1294664427) |
+| `openclaw.github-bot-token` | echosysbot GitHub PAT (OpenClaw DevBot) |
+| `openclaw.gmail-triage-refresh-token` | Gmail OAuth for echo.sys.bot@gmail.com |
+| `openclaw.notion-token` | Notion integration token |
+| `openclaw.synapse-token` | Synapse org memory token |
+
+Full secrets reference: `docs/LOCAL-CONTEXT.md`
+
+### Research outputs are always saved
+
+- Sherlock reports from Claude Code: written to `.planning/` phase dirs or requested output path
+- Sherlock reports from OpenClaw: written to `~/.openclaw/workspace-task-orchestrator/research-*.md`
+- All research results: recorded as Synapse learnings (low confidence, no artifact needed)
+- Significant findings: logged to Notion via task-orchestrator decision log
+
+### Health checks
+
+```zsh
+# Verify everything is running
+zsh scripts/infra-verify.sh   # 8/8 should pass
+zsh scripts/chan-verify.sh    # 5/5 should pass
+
+# Check OpenClaw gateway
+curl -s http://localhost:18789/health  # {"ok":true,"status":"live"}
+
+# Check open Beads work
+export BEADS_DIR="$HOME/.openclaw/beads" PATH="/opt/homebrew/opt/node@24/bin:$PATH"
+bd ready
+```
+
 ## Session Completion
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
