@@ -270,6 +270,36 @@ bd close <id>         # Complete work
 
 **Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
 
+## Branch & Merge Workflow (MANDATORY — follow always)
+
+**NEVER commit directly to main.** Every change goes through a branch.
+
+### For GSD phase work (automatic)
+GSD creates `gsd/phase-N-slug` branches automatically (`branching_strategy: phase` in config.json). Executors commit to the phase branch. You merge only after review passes.
+
+### For ad-hoc changes (manual)
+```bash
+git checkout -b fix/description   # or feature/description
+# ... make changes ...
+git push -u origin HEAD
+```
+
+### Merge gate — REQUIRED before any merge to main
+
+```
+1. Run code review:     /gsd-code-review N   (or Skill("gsd-code-review"))
+2. Fix all flagged issues
+3. Re-run review:       /gsd-code-review N   (repeat until clean)
+4. Only merge when:     review status = "clean" (no HIGH or MEDIUM findings)
+5. Merge via:           gh pr merge --squash --delete-branch
+```
+
+**Never merge if the reviewer flagged anything.** Fix first, re-review, then merge.
+
+The pre-push hook blocks direct pushes to main. Use `--no-verify` only in a genuine emergency and document why.
+
+---
+
 ## Claude Code ↔ OpenClaw — How They Connect
 
 This section is the definitive reference for how Claude Code (you, in this session) and OpenClaw (the autonomous agent fleet) work together. Read this at the start of every session.

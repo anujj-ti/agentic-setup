@@ -17,6 +17,10 @@
           {
             "command": "BEADS_DIR=\"$HOME/.openclaw/beads\" PATH=\"/opt/homebrew/opt/node@24/bin:/opt/homebrew/bin:$PATH\" bd prime",
             "type": "command"
+          },
+          {
+            "command": "zsh scripts/install-git-hooks.sh 2>&1 | head -5 || true",
+            "type": "command"
           }
         ],
         "matcher": ""
