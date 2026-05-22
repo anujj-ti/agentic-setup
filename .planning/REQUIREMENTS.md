@@ -86,9 +86,9 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 
 ### Standup Intelligence (STANDUP)
 
-- [ ] **STANDUP-01**: Morning standup brief classifies each item as Blocked / At Risk / On Track using deterministic signals from existing standup JSON (no LLM in the classification path)
-- [ ] **STANDUP-02**: Morning standup brief produces a ranked "tackle first" list of 3–5 items — each item cites its specific source field from the standup JSON as evidence
-- [ ] **STANDUP-03**: Morning standup brief detects and surfaces patterns when 3+ items share a signal type (multiple CI failures, multiple stale PRs, multiple blocked issues)
+- [x] **STANDUP-01**: Morning standup brief classifies each item as Blocked / At Risk / On Track using deterministic signals from existing standup JSON (no LLM in the classification path)
+- [x] **STANDUP-02**: Morning standup brief produces a ranked "tackle first" list of 3–5 items — each item cites its specific source field from the standup JSON as evidence
+- [x] **STANDUP-03**: Morning standup brief detects and surfaces patterns when 3+ items share a signal type (multiple CI failures, multiple stale PRs, multiple blocked issues)
 
 ### Decision Quality (RISK)
 
@@ -167,9 +167,9 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 | LEARN-02 | Phase 16 — Cross-Agent Learning Infrastructure | Complete |
 | LEARN-03 | Phase 16 — Cross-Agent Learning Infrastructure | Complete |
 | LEARN-04 | Phase 16 — Cross-Agent Learning Infrastructure | Complete |
-| STANDUP-01 | Phase 17 — Proactive Standup Insights | Pending |
-| STANDUP-02 | Phase 17 — Proactive Standup Insights | Pending |
-| STANDUP-03 | Phase 17 — Proactive Standup Insights | Pending |
+| STANDUP-01 | Phase 17 — Proactive Standup Insights | Complete |
+| STANDUP-02 | Phase 17 — Proactive Standup Insights | Complete |
+| STANDUP-03 | Phase 17 — Proactive Standup Insights | Complete |
 | RISK-01 | Phase 18 — Decision Quality Risk Gate | Pending |
 | RISK-02 | Phase 18 — Decision Quality Risk Gate | Pending |
 | RISK-03 | Phase 18 — Decision Quality Risk Gate | Pending |

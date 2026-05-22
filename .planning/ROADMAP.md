@@ -444,7 +444,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
 | 16. Cross-Agent Learning Infrastructure | 6/6 | Complete   | 2026-05-22 |
-| 17. Proactive Standup Insights | 0/3 | Not started | - |
+| 17. Proactive Standup Insights | 1/3 | In Progress|  |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
 
 ### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
@@ -569,7 +569,7 @@ Plans:
 Plans:
 
 **Wave 1** *(autonomous — no dependencies)*
-- [ ] 17-01-PLAN.md — Create scripts/standup-insights.sh: pure jq+zsh classification engine (Blocked/At Risk/On Track), ranked tackle-first list (max 5), pattern detection (3+ same signal) (STANDUP-01, STANDUP-02, STANDUP-03)
+- [x] 17-01-PLAN.md — Create scripts/standup-insights.sh: pure jq+zsh classification engine (Blocked/At Risk/On Track), ranked tackle-first list (max 5), pattern detection (3+ same signal) (STANDUP-01, STANDUP-02, STANDUP-03)
 
 **Wave 2** *(blocked on Wave 1 — standup-insights.sh must exist before SOUL.md references it)*
 - [ ] 17-02-PLAN.md — Update User Orchestrator SOUL.md with Morning Standup Insights section + update TOOLS.md with pipe invocation and field map (STANDUP-01, STANDUP-02, STANDUP-03)
