@@ -72,10 +72,10 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 
 ### Email Triage Intelligence (TRIAGE)
 
-- [ ] **TRIAGE-01**: Email Triage agent assigns a priority score (1–5) to every processed email and logs the score alongside category, sender, and summary in memory/triage-YYYY-MM-DD.md
-- [ ] **TRIAGE-02**: Email Triage agent enforces a 20% Action Required cap per run and suppresses known-noise senders — both rules encoded in SOUL.md and logged as `pct_action_required` per run
-- [ ] **TRIAGE-03**: Email Triage agent creates draft reply templates for Action Required emails in a drafts/ folder — drafts are never auto-sent; outbound is always user-initiated
-- [ ] **TRIAGE-04**: Email Triage agent enforces idempotent processing — same message ID is never processed twice across runs
+- [x] **TRIAGE-01**: Email Triage agent assigns a priority score (1–5) to every processed email and logs the score alongside category, sender, and summary in memory/triage-YYYY-MM-DD.md
+- [x] **TRIAGE-02**: Email Triage agent enforces a 20% Action Required cap per run and suppresses known-noise senders — both rules encoded in SOUL.md and logged as `pct_action_required` per run
+- [x] **TRIAGE-03**: Email Triage agent creates draft reply templates for Action Required emails in a drafts/ folder — drafts are never auto-sent; outbound is always user-initiated
+- [x] **TRIAGE-04**: Email Triage agent enforces idempotent processing — same message ID is never processed twice across runs
 
 ### Cross-Agent Learning (LEARN)
 
@@ -159,10 +159,10 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 | EVOL-02 | Phase 12 — Self-Evolution | Pending |
 | EVOL-03 | Phase 12 — Self-Evolution | Pending |
 
-| TRIAGE-01 | Phase 15 — Smarter Email Triage | Pending |
-| TRIAGE-02 | Phase 15 — Smarter Email Triage | Pending |
-| TRIAGE-03 | Phase 15 — Smarter Email Triage | Pending |
-| TRIAGE-04 | Phase 15 — Smarter Email Triage | Pending |
+| TRIAGE-01 | Phase 15 — Smarter Email Triage | Complete |
+| TRIAGE-02 | Phase 15 — Smarter Email Triage | Complete |
+| TRIAGE-03 | Phase 15 — Smarter Email Triage | Complete |
+| TRIAGE-04 | Phase 15 — Smarter Email Triage | Complete |
 | LEARN-01 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
 | LEARN-02 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |
 | LEARN-03 | Phase 16 — Cross-Agent Learning Infrastructure | Pending |

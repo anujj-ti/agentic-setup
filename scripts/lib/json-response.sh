@@ -18,4 +18,5 @@ json_fail() {
   local msg="$2"
   print "{\"ok\":false,\"error\":\"${code}\"}"
   print "ERROR: ${msg}" >&2
+  exit 1
 }

@@ -3,16 +3,24 @@
 ## Available Tools
 
 - **exec**: for `scripts/email-triage.sh` invocation ONLY — do not exec arbitrary system commands
-- **read/write**: for `memory/` log files only
+- **read/write**: for `memory/` log files, `memory/drafts/` draft files, `memory/noise-senders.md`, and `memory/processed-ids.jsonl`
 
 ## Tool Policy
 
 exec is granted only for Gmail script execution — specifically, calling `scripts/email-triage.sh` to fetch unread mail via gogcli. No other exec usage is permitted.
 
+read/write is granted for all files under the `memory/` directory tree, including:
+- `memory/triage-YYYY-MM-DD.md` — daily categorization log
+- `memory/noise-senders.md` — noise sender list (read-only at runtime)
+- `memory/processed-ids.jsonl` — idempotency log (read at startup, append after each run)
+- `memory/drafts/YYYY-MM-DD-<messageId>.md` — draft reply files (write after categorization, never send)
+
+Never write outside the `memory/` directory tree.
+
 - stdout = JSON only for scripts; stderr = human logs
 - Node.js path: `/opt/homebrew/opt/node@24/bin/node`
 - Never use exec for file operations — use the read/write tool instead
-- Never exec any command other than `scripts/gmail-triage.js`
+- Never exec any command other than `scripts/email-triage.sh`
 
 ## Environment
 
@@ -41,9 +49,53 @@ All commands require `--no-input --non-interactive` (D-142 — prevents TTY hang
 | Search unread (24h) | `gog gmail search 'is:unread newer_than:1d' --account echo.sys.bot@gmail.com --max 20 --json --no-input --non-interactive` |
 | Get message body | `gog gmail get <messageId> --sanitize-content --json --no-input --non-interactive` |
 | Mark as read (by query) | `gog gmail mark-read --account echo.sys.bot@gmail.com --query 'label:triaged is:unread' --no-input --non-interactive` |
+| Mark as read (post-triage, all fetched unread) | `gog gmail mark-read --account echo.sys.bot@gmail.com --query 'is:unread newer_than:1d' --no-input --non-interactive` |
 | Send reply | `gog gmail send --account echo.sys.bot@gmail.com --to "addr" --subject "Subj" --body "Body" --no-input --non-interactive --json` |
 
 JSON output note: `--json` returns `{"results":[...]}` envelope — extract array with `jq '.results // []'` (D-146).
+
+Note: The post-triage mark-read form is used by email-triage.sh (D-161). mark-read failure is non-fatal — processed-ids.jsonl is the secondary guard.
+
+## Draft Reply File Format (TRIAGE-03)
+
+Draft files live at: `memory/drafts/YYYY-MM-DD-<messageId>.md`
+
+Date is the triage run date (not the email date). messageId is the Gmail message ID from the gog output.
+
+**Required file structure (line 1 MUST be exactly as shown):**
+
+```
+[DRAFT — NOT SENT]
+To: <original-sender-address>
+Subject: Re: <original-subject>
+
+<reply body suggestion>
+```
+
+Rules:
+- Line 1 must be exactly `[DRAFT — NOT SENT]` — no variation
+- Never call `gog gmail send` to deliver draft content — user initiates sending
+- Draft creation is triggered by Action Required classification after 20% cap enforcement
+- If a draft already exists for a messageId (from a previous run where mark-read failed), overwrite it — idempotent
+
+## Processed-IDs Management (TRIAGE-04)
+
+File location: `memory/processed-ids.jsonl`
+
+**Entry format (one JSON object per line):**
+```json
+{"id":"<gmailMessageId>","processedAt":"<ISO8601-UTC>"}
+```
+
+**Trim command (run after append to keep file at max 500 entries):**
+```zsh
+TMPFILE=$(mktemp -p "$(dirname memory/processed-ids.jsonl)")
+tail -500 memory/processed-ids.jsonl > "$TMPFILE" && mv "$TMPFILE" memory/processed-ids.jsonl
+```
+
+**Manual recovery:** If the file grows beyond 500 entries due to a script failure, run the trim command above from the agent's working directory. The file should never exceed 500 lines under normal operation (D-163).
+
+**Parse-error policy:** On startup, skip any line that is not valid JSON — log a warning to stderr and continue. Do not abort triage due to a malformed processed-ids line.
 
 ## gogcli Re-Auth Runbook (Phase 14+)
 
