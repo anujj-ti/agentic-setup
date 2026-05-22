@@ -93,7 +93,7 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 ### Decision Quality (RISK)
 
 - [x] **RISK-01**: Decision Reviewer agent assigns `risk_score` (0–100) and `risk_tier` (low/medium/high) to every verdict — including passes — before the decision is written to Notion
-- [ ] **RISK-02**: Task Orchestrator routes HIGH-tier decisions through a synchronous Telegram approval request before the Notion pre-log is written — user must approve or reject within a configurable timeout
+- [x] **RISK-02**: Task Orchestrator routes HIGH-tier decisions through a synchronous Telegram approval request before the Notion pre-log is written — user must approve or reject within a configurable timeout
 - [x] **RISK-03**: Task Orchestrator SOUL.md defines a fast-pass list for known-safe LOW-risk operations and a `failed` verdict policy: timeout does not block autonomous operation — logs a non-blocking audit entry and proceeds
 
 ---
@@ -171,7 +171,7 @@ Each review domain has its own dedicated agent — no single generalist reviewer
 | STANDUP-02 | Phase 17 — Proactive Standup Insights | Complete |
 | STANDUP-03 | Phase 17 — Proactive Standup Insights | Complete |
 | RISK-01 | Phase 18 — Decision Quality Risk Gate | Complete |
-| RISK-02 | Phase 18 — Decision Quality Risk Gate | Pending |
+| RISK-02 | Phase 18 — Decision Quality Risk Gate | Complete |
 | RISK-03 | Phase 18 — Decision Quality Risk Gate | Complete |
 | DEV-07 | Phase 19 — DevBot Autonomous Issue Pickup | Complete |
 | DEV-08 | Phase 19 — DevBot Autonomous Issue Pickup | Complete |
