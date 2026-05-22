@@ -118,6 +118,15 @@ None — all wiring references the real `synapse-query-learnings.sh` script crea
 
 No new trust boundaries introduced. T-16-06 (Synapse unavailable during DREAM-ROUTINE merge) mitigated by empty-check guard per plan threat model.
 
+## Self-Check: PASSED
+
+- AGENTS.md: FOUND, synapse-query-learnings.sh appears 2 times, agent-orchestration tag present
+- DREAM-ROUTINE.md: FOUND, Cross-Silo Learnings section present, PRESERVE: pattern_counter marker intact, 500-token cap present
+- TOOLS.md: FOUND, evidence_artifact_id present in schema table
+- 16-03-SUMMARY.md: FOUND
+- Commit d24847c: FOUND
+- Commit 2f45f83: FOUND
+
 ---
 *Phase: 16-cross-agent-learning-infrastructure*
 *Completed: 2026-05-22*
