@@ -444,7 +444,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
 | 16. Cross-Agent Learning Infrastructure | 6/6 | Complete   | 2026-05-22 |
-| 17. Proactive Standup Insights | 0/TBD | Not started | - |
+| 17. Proactive Standup Insights | 0/3 | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
 
 ### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
@@ -563,8 +563,27 @@ Plans:
   1. User reads the morning standup brief and every item carries one of three status labels — Blocked, At Risk, or On Track — derived from deterministic field checks on the standup JSON with no LLM call in the classification path
   2. The standup brief contains a "Tackle First" section listing 3-5 items in ranked order, where each item cites the specific source field from the standup JSON that drove its ranking (e.g., "ci_failures[0].repo", "stale_prs[2].days_open")
   3. When 3 or more items share the same signal type (e.g., 3 CI failures, 3 stale PRs, 3 blocked issues), the standup brief surfaces a pattern alert naming the signal type and the count — single-item signals produce no alert
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+Plans:
+
+**Wave 1** *(autonomous — no dependencies)*
+- [ ] 17-01-PLAN.md — Create scripts/standup-insights.sh: pure jq+zsh classification engine (Blocked/At Risk/On Track), ranked tackle-first list (max 5), pattern detection (3+ same signal) (STANDUP-01, STANDUP-02, STANDUP-03)
+
+**Wave 2** *(blocked on Wave 1 — standup-insights.sh must exist before SOUL.md references it)*
+- [ ] 17-02-PLAN.md — Update User Orchestrator SOUL.md with Morning Standup Insights section + update TOOLS.md with pipe invocation and field map (STANDUP-01, STANDUP-02, STANDUP-03)
+
+**Wave 3** *(blocked on Waves 1 and 2 — phase gate)*
+- [ ] 17-03-PLAN.md — Create and run scripts/verify-phase-17.sh: 10 checks covering classification, tackle-first, patterns, and SOUL.md/TOOLS.md references (STANDUP-01, STANDUP-02, STANDUP-03)
+
+**Cross-cutting constraints:**
+- All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
+- standup-insights.sh: no LLM calls — pure jq + zsh classification (D-404)
+- standup-brief.sh: DO NOT modify — insights script reads its stdout only (D-404)
+- Explicit binary paths: `/opt/homebrew/bin/jq` (CLAUDE.md nvm PATH protection)
+- tackle_first always present as [] when empty (D-407)
+- Pattern fires only at 3+ same-signal items (D-408) — not for 1 or 2
 
 ### Phase 18: Decision Quality Risk Gate
 **Goal**: The Decision Reviewer assigns a quantified risk tier to every verdict before it reaches Notion; HIGH-tier decisions pause for synchronous Telegram approval; the Task Orchestrator's SOUL.md defines which operations are always fast-pass and guarantees that a timeout never blocks autonomous operation
