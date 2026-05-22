@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 15: Smarter Email Triage** - Email Triage agent scores every email 1-5, enforces 20% Action Required cap, creates draft replies, and never re-processes the same message (completed 2026-05-22)
 - [x] **Phase 16: Cross-Agent Learning Infrastructure** - All execution-tier agents query Synapse learnings before acting; cross-silo queries enabled; consistent 4-field learning schema enforced; dream routines merge top learnings into MEMORY.md (completed 2026-05-22)
 - [x] **Phase 17: Proactive Standup Insights** - Morning standup classifies every item as Blocked/At Risk/On Track, produces a ranked tackle-first list of 3-5 items, and surfaces pattern alerts when 3+ items share a signal type (completed 2026-05-22)
-- [ ] **Phase 18: Decision Quality Risk Gate** - Decision Reviewer assigns risk_score and risk_tier to every verdict; HIGH-tier decisions trigger synchronous Telegram approval; Task Orchestrator SOUL.md defines fast-pass list and timeout-proceeds policy
+- [x] **Phase 18: Decision Quality Risk Gate** - Decision Reviewer assigns risk_score and risk_tier to every verdict; HIGH-tier decisions trigger synchronous Telegram approval; Task Orchestrator SOUL.md defines fast-pass list and timeout-proceeds policy (completed 2026-05-22)
 
 ## Phase Details
 
@@ -445,7 +445,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
 | 16. Cross-Agent Learning Infrastructure | 6/6 | Complete   | 2026-05-22 |
 | 17. Proactive Standup Insights | 3/3 | Complete   | 2026-05-22 |
-| 18. Decision Quality Risk Gate | 3/4 | In Progress|  |
+| 18. Decision Quality Risk Gate | 4/4 | Complete   | 2026-05-22 |
 
 ### Phase 13: Synapse Integration — org-wide memory and coordination layer wired into all agents and Claude Code; all agents record facts/learnings, use workflows, query cross-silo knowledge before starting tasks
 
@@ -605,7 +605,7 @@ Plans:
 - [x] 18-03-PLAN.md — Wire HIGH-tier Telegram approval gate into Task Orchestrator Notion pre-log flow in SOUL.md (RISK-02)
 
 **Wave 3** *(blocked on Wave 2 — phase gate)*
-- [ ] 18-04-PLAN.md — Create and run scripts/verify-phase-18.sh (10 checks covering RISK-01, RISK-02, RISK-03) (RISK-01, RISK-02, RISK-03)
+- [x] 18-04-PLAN.md — Create and run scripts/verify-phase-18.sh (10 checks covering RISK-01, RISK-02, RISK-03) (RISK-01, RISK-02, RISK-03)
 
 **Cross-cutting constraints:**
 - All scripts: `#!/usr/bin/env zsh` + `set -euo pipefail` (CLAUDE.md mandate)
