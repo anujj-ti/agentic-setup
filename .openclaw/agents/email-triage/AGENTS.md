@@ -32,8 +32,6 @@ Before executing any triage task, complete these checks in order:
    Build a set of known IDs: `processed_id_set`.
    Any messageId already in `processed_id_set` will be SKIPPED during triage (not categorized, not logged, not marked read again).
 
-   - **email-triage.sh** (primary, Phase 14+): zsh script using gogcli; outputs `{"ok":true,"data":{"threads":[...],"count":N}}`
-
 5. **[Legacy — skip on gogcli path] Refresh token check (gmail-triage.js only):**
    Only perform this check if falling back to `scripts/gmail-triage.js`. On the primary gogcli path, `OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN` is not required and may be absent — this is normal.
 

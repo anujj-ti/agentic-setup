@@ -95,7 +95,7 @@ fi
 # --- Mark processed messages as read (D-161) ---
 # Non-fatal: processed-ids.jsonl guard handles duplicates if mark-read fails
 $GOG gmail mark-read \
-  --account "${OPENCLAW_GMAIL_ACCOUNT:-echo.sys.bot@gmail.com}" \
+  --account "$ACCOUNT" \
   --query "is:unread newer_than:1d" \
   --no-input --non-interactive 2>>"$LOG_STDERR" || \
   print "[warn] mark-read failed — processed-ids.jsonl guard will catch duplicates next run" >&2
