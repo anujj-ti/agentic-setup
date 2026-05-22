@@ -28,12 +28,8 @@ if ! $GOG auth doctor --check --no-input --account "$ACCOUNT" >/dev/null 2>&1; t
   json_fail "gog-auth-failed" "gog auth check failed for $ACCOUNT — run: gog auth add $ACCOUNT --services gmail,calendar"
 fi
 
-# --- Load processed-ids skip set (D-162) ---
-# Build SKIP_IDS: newline-separated list of already-processed message IDs
-if [[ -f "$PROCESSED_IDS_FILE" ]]; then
-  SKIP_IDS=$(${JQ} -r '.id' "$PROCESSED_IDS_FILE" 2>/dev/null | tr '\n' ' ' || echo "")
-else
-  SKIP_IDS=""
+# --- Check if processed-ids file exists (D-162) ---
+if [[ ! -f "$PROCESSED_IDS_FILE" ]]; then
   print "INFO: processed-ids.jsonl not found — skip set is empty" >&2
 fi
 
@@ -55,7 +51,7 @@ print "Found $COUNT unread threads for $ACCOUNT" >&2
 
 # --- Filter out already-processed IDs (D-162) ---
 # Build a jq-compatible set of skip IDs and filter threads array
-if [[ -n "$SKIP_IDS" && -f "$PROCESSED_IDS_FILE" ]]; then
+if [[ -f "$PROCESSED_IDS_FILE" ]]; then
   SKIP_ARRAY=$(${JQ} --slurp -r '[.[].id]' "$PROCESSED_IDS_FILE" 2>/dev/null || echo '[]')
   THREADS_FILTERED=$(printf '%s' "$THREADS" | $JQ --argjson skip "$SKIP_ARRAY" '[.[] | select(.id as $id | ($skip | index($id)) == null)]' 2>/dev/null || printf '%s' "$THREADS")
   FILTERED_COUNT=$(printf '%s' "$THREADS_FILTERED" | $JQ 'length' 2>/dev/null || echo "$COUNT")

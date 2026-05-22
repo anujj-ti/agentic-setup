@@ -34,19 +34,11 @@ Before executing any triage task, complete these checks in order:
 
    - **email-triage.sh** (primary, Phase 14+): zsh script using gogcli; outputs `{"ok":true,"data":{"threads":[...],"count":N}}`
 
-5. **[Legacy] Verify refresh token env var is set (gmail-triage.js fallback only):**
-   ```
-   Check that OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN is non-empty.
-   If it is empty or unset, log: "Gmail refresh token not found in env. Run oauth2-setup.js to bootstrap credentials."
-   Stop — do not proceed with triage.
-   ```
+5. **[Legacy — skip on gogcli path] Refresh token check (gmail-triage.js only):**
+   Only perform this check if falling back to `scripts/gmail-triage.js`. On the primary gogcli path, `OPENCLAW_GMAIL_TRIAGE_REFRESH_TOKEN` is not required and may be absent — this is normal.
 
-6. **[Legacy] Verify scripts/gmail-triage.js exists (superseded by email-triage.sh — Phase 14):**
-   ```
-   Check that /Users/trilogy/.openclaw/agents/email-triage/scripts/gmail-triage.js exists (superseded by email-triage.sh — Phase 14).
-   If missing, log: "gmail-triage.js not found. Re-deploy from agentic-setup repo."
-   Stop — do not proceed.
-   ```
+6. **[Legacy — skip on gogcli path] gmail-triage.js existence check:**
+   Only perform this check if falling back to `scripts/gmail-triage.js`. On the primary gogcli path, this file is not used.
 
 7. **Load recent categorization context from memory/:**
    Read the most recent `memory/triage-*.md` file (if any exist) to understand prior categorization patterns and any flagged senders.

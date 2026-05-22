@@ -89,8 +89,8 @@ File location: `memory/processed-ids.jsonl`
 
 **Trim command (run after append to keep file at max 500 entries):**
 ```zsh
-tail -500 memory/processed-ids.jsonl > /tmp/processed-ids-trim.jsonl && \
-  mv /tmp/processed-ids-trim.jsonl memory/processed-ids.jsonl
+TMPFILE=$(mktemp -p "$(dirname memory/processed-ids.jsonl)")
+tail -500 memory/processed-ids.jsonl > "$TMPFILE" && mv "$TMPFILE" memory/processed-ids.jsonl
 ```
 
 **Manual recovery:** If the file grows beyond 500 entries due to a script failure, run the trim command above from the agent's working directory. The file should never exceed 500 lines under normal operation (D-163).
