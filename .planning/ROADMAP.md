@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 13: Synapse Integration** - Synapse org-wide memory wired into all agents; every agent uses full loop: brief.fetch → learning.query → workflow.create → checkin → learning.record (completed 2026-05-21)
 - [ ] **Phase 14: gogcli Google Suite CLI** - gogcli installed and authenticated; gog gmail replaces Node.js googleapis in Email Triage; gog gmail + gog calendar wired into morning standup
 - [x] **Phase 15: Smarter Email Triage** - Email Triage agent scores every email 1-5, enforces 20% Action Required cap, creates draft replies, and never re-processes the same message (completed 2026-05-22)
-- [ ] **Phase 16: Cross-Agent Learning Infrastructure** - All execution-tier agents query Synapse learnings before acting; cross-silo queries enabled; consistent 4-field learning schema enforced; dream routines merge top learnings into MEMORY.md
+- [x] **Phase 16: Cross-Agent Learning Infrastructure** - All execution-tier agents query Synapse learnings before acting; cross-silo queries enabled; consistent 4-field learning schema enforced; dream routines merge top learnings into MEMORY.md (completed 2026-05-22)
 - [ ] **Phase 17: Proactive Standup Insights** - Morning standup classifies every item as Blocked/At Risk/On Track, produces a ranked tackle-first list of 3-5 items, and surfaces pattern alerts when 3+ items share a signal type
 - [ ] **Phase 18: Decision Quality Risk Gate** - Decision Reviewer assigns risk_score and risk_tier to every verdict; HIGH-tier decisions trigger synchronous Telegram approval; Task Orchestrator SOUL.md defines fast-pass list and timeout-proceeds policy
 
@@ -443,7 +443,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
-| 16. Cross-Agent Learning Infrastructure | 5/6 | In Progress|  |
+| 16. Cross-Agent Learning Infrastructure | 6/6 | Complete   | 2026-05-22 |
 | 17. Proactive Standup Insights | 0/TBD | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
 
@@ -553,7 +553,7 @@ Plans:
 - [x] 16-05-PLAN.md — Update email-triage AGENTS.md with Synapse query for email-triage domain learnings (LEARN-01, LEARN-02)
 
 **Wave 3** *(blocked on all Wave 2 plans)*
-- [ ] 16-06-PLAN.md — Create and run scripts/verify-phase-16.sh: 10 structural checks covering LEARN-01 through LEARN-04 (LEARN-01, LEARN-02, LEARN-03, LEARN-04)
+- [x] 16-06-PLAN.md — Create and run scripts/verify-phase-16.sh: 10 structural checks covering LEARN-01 through LEARN-04 (LEARN-01, LEARN-02, LEARN-03, LEARN-04)
 
 ### Phase 17: Proactive Standup Insights
 **Goal**: The morning standup brief upgrades from a raw activity dump to a decision-support surface — every item is classified by status signal, a ranked tackle-first list cites specific evidence, and pattern alerts fire when multiple items share a signal type
