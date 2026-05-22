@@ -20,7 +20,7 @@ Never write outside the `memory/` directory tree.
 - stdout = JSON only for scripts; stderr = human logs
 - Node.js path: `/opt/homebrew/opt/node@24/bin/node`
 - Never use exec for file operations — use the read/write tool instead
-- Never exec any command other than `scripts/gmail-triage.js`
+- Never exec any command other than `scripts/email-triage.sh` (primary) or `scripts/gmail-triage.js` (legacy fallback only)
 
 ## Environment
 

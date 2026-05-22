@@ -56,7 +56,7 @@ print "Found $COUNT unread threads for $ACCOUNT" >&2
 # --- Filter out already-processed IDs (D-162) ---
 # Build a jq-compatible set of skip IDs and filter threads array
 if [[ -n "$SKIP_IDS" && -f "$PROCESSED_IDS_FILE" ]]; then
-  SKIP_ARRAY=$(${JQ} -r '[.[].id]' "$PROCESSED_IDS_FILE" 2>/dev/null || echo '[]')
+  SKIP_ARRAY=$(${JQ} --slurp -r '[.[].id]' "$PROCESSED_IDS_FILE" 2>/dev/null || echo '[]')
   THREADS_FILTERED=$(printf '%s' "$THREADS" | $JQ --argjson skip "$SKIP_ARRAY" '[.[] | select(.id as $id | ($skip | index($id)) == null)]' 2>/dev/null || printf '%s' "$THREADS")
   FILTERED_COUNT=$(printf '%s' "$THREADS_FILTERED" | $JQ 'length' 2>/dev/null || echo "$COUNT")
   SKIPPED_COUNT=$(( COUNT - FILTERED_COUNT ))
@@ -89,7 +89,7 @@ if [[ "$COUNT" -gt 0 ]]; then
   # --- Trim processed-ids.jsonl to last 500 entries (D-163) ---
   ENTRY_COUNT=$(wc -l < "$PROCESSED_IDS_FILE" 2>/dev/null | tr -d ' ' || echo 0)
   if [[ "$ENTRY_COUNT" -gt 500 ]]; then
-    TMPFILE=$(mktemp)
+    TMPFILE=$(mktemp -p "$(dirname "$PROCESSED_IDS_FILE")")
     tail -500 "$PROCESSED_IDS_FILE" > "$TMPFILE"
     mv "$TMPFILE" "$PROCESSED_IDS_FILE"
     print "Trimmed processed-ids.jsonl to 500 entries (was $ENTRY_COUNT)" >&2

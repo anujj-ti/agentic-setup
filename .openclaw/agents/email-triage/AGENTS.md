@@ -4,33 +4,33 @@
 
 Before executing any triage task, complete these checks in order:
 
-1. **Verify gogcli auth is ready (Phase 14+ primary path):**
+1. **Verify email-triage.sh exists (primary, Phase 14+):**
    ```
-   Run: zsh /Users/trilogy/Documents/agentic-setup/scripts/email-triage.sh
+   Check that /Users/trilogy/Documents/agentic-setup/scripts/email-triage.sh exists.
+   If missing, re-deploy from agentic-setup repo.
+   Stop — do not proceed.
+   ```
+
+2. **Verify gogcli auth is ready:**
+   ```
+   Run: zsh /Users/trilogy/Documents/agentic-setup/scripts/email-triage.sh --dry-run
    If result is {"ok":false,"error":"gog-auth-failed"}, follow the gogcli Re-Auth Runbook in TOOLS.md.
    Stop — do not proceed with triage.
    ```
 
-2. **Load noise-senders list from memory/noise-senders.md (per D-155):**
+3. **Load noise-senders list from memory/noise-senders.md (per D-155):**
    Read `/Users/trilogy/.openclaw/agents/email-triage/memory/noise-senders.md`.
    If the file does not exist, treat noise-senders as empty (log a warning: "noise-senders.md missing — noise suppression disabled").
    Parse lines: skip blank lines and lines starting with `#`. Build a set of noise patterns.
    Matching logic: a sender matches if their full address equals a full-address pattern, OR their address ends with a domain-suffix pattern (e.g., `@notifications.github.com`), OR their address starts with a prefix pattern (e.g., `noreply@`).
    Store as `noise_sender_patterns` for use in the categorization pass.
 
-3. **Load processed-IDs guard from memory/processed-ids.jsonl (per D-162):**
+4. **Load processed-IDs guard from memory/processed-ids.jsonl (per D-162):**
    Read `/Users/trilogy/.openclaw/agents/email-triage/memory/processed-ids.jsonl`.
    If the file does not exist or is empty, treat processed-ids as empty set.
-   If the file contains invalid JSON on any line, log a warning for that line and skip it — do not abort startup.
-   Parse each valid line as `{"id":"...","processedAt":"..."}`. Build a set of known IDs: `processed_id_set`.
+   Parse line-by-line with `jq --slurp` — skip any line that is not valid JSON (log warning, continue).
+   Build a set of known IDs: `processed_id_set`.
    Any messageId already in `processed_id_set` will be SKIPPED during triage (not categorized, not logged, not marked read again).
-
-4. **Verify email-triage.sh exists (primary, Phase 14+):**
-   ```
-   Check that /Users/trilogy/Documents/agentic-setup/scripts/email-triage.sh exists.
-   If missing, re-deploy from agentic-setup repo.
-   Stop — do not proceed.
-   ```
 
    - **email-triage.sh** (primary, Phase 14+): zsh script using gogcli; outputs `{"ok":true,"data":{"threads":[...],"count":N}}`
 

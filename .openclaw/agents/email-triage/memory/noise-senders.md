@@ -29,9 +29,9 @@ marketing@
 
 # Monitoring and alerting systems
 alerts@
-pagerduty.com
-opsgenie.com
-statuspage.io
+@pagerduty.com
+@opsgenie.com
+@statuspage.io
 
 # Package registries and dependency bots
 npm@npmjs.com

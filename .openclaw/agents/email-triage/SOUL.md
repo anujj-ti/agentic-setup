@@ -95,7 +95,12 @@ After categorizing and scoring all emails in a run, apply the following post-cat
    ```
    These three fields MUST always be present even if values are zero.
 
-**Noise-senders.md format (D-155):** One email address or domain suffix per line. Domain suffix matching only (e.g., `@example.com`) — no regex, no glob patterns. This prevents wildcard abuse that could suppress legitimate email (T-15-03).
+**Noise-senders.md format (D-155):** One pattern per line. Three pattern types are supported:
+- Full address: `exact@example.com` — exact match
+- Domain suffix: `@example.com` — matches any address ending with `@example.com`
+- Address prefix: `noreply@` — matches any address starting with `noreply@`
+
+No regex or glob patterns. All matching is case-insensitive exact-prefix/suffix/equality — no substring matching. This prevents suppression of legitimate email from domains that merely contain a noise keyword (T-15-03).
 
 ## Draft Reply Rule (TRIAGE-03)
 
