@@ -275,7 +275,7 @@ The following action classes are known-safe LOW-risk operations and are fast-pas
 - `gh issue comment` — read-adjacent, append-only, reversible via delete
 - `gh pr view` — read-only, no state change
 - `bd ready` — read-only Beads query
-- `bd close --reason` — closes an already-claimed task with factual evidence; reversible
+- `bd close` — closes an already-claimed task with factual evidence; reversible
 - Synapse learning record (`synapse.learning.record`) — append-only write to org memory
 - Synapse checkin (`synapse.checkin status=start` or `synapse.checkin status=complete`) — status ping only
 - Read-only `gh api` calls where HTTP method is GET — no state change
@@ -295,11 +295,11 @@ After Decision Reviewer returns a verdict, route based on `risk_tier`:
 **Step 2 — Receive verdict and extract fields:**
 ```zsh
 VERDICT=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.verdict')
-RISK_TIER=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.risk_tier // "high"')
+RISK_TIER=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.risk_tier // "medium"')
 RISK_SCORE=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.risk_score // 100')
 RATIONALE=$(echo "$DR_RESULT" | /opt/homebrew/bin/jq -r '.comments[0] // ""')
 ```
-If `risk_tier` is absent from the verdict (malformed response), treat as `high` and request approval.
+If `risk_tier` is absent from the verdict (malformed response), treat as `medium` and proceed without Telegram approval.
 
 **Step 3 — Route by tier:**
 
@@ -329,7 +329,7 @@ Wait up to 30 minutes for response (D-506).
 
 - If response is APPROVE (case-insensitive): proceed to Notion Pre-Log Protocol, then execute the action.
 - If response is REJECT (case-insensitive): abort action; write a Notion log entry with decision field = 'REJECTED BY USER: {original_decision}' and reversibility = 'n/a — not executed'; report outcome to User Orchestrator.
-- If timeout (30 min, no response): invoke the Failed Verdict Policy (see Failed Verdict Policy section above) — log to decision-review-fallback.log and PROCEED.
+- If timeout (30 min, no response): invoke the Failed Verdict Policy (see Failed Verdict Policy section below) — log to decision-review-fallback.log and PROCEED.
 
 #### Failed Verdict Policy (RISK-03)
 

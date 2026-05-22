@@ -77,3 +77,5 @@ Score each dimension from the decision payload under review. Sum the four scores
 | 0-30 | low | Auto-proceed — no gate |
 | 31-60 | medium | Silent — no blocking gate; async notify deferred to v2.1 |
 | 61-100 | high | Synchronous Telegram approval required before Notion write |
+
+**Tiebreaker rule (CR-01):** When dimension sub-ranges produce a total score whose computed range spans a tier boundary (e.g., a range of 53-68 crosses the 60/61 boundary), round UP to the higher tier. This is the "fail-high" principle: when uncertain, apply the more protective tier. Never round down across a tier boundary.
