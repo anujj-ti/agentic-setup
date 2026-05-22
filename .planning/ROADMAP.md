@@ -442,7 +442,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Self-Evolution | 5/5 | Complete   | 2026-05-20 |
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
-| 15. Smarter Email Triage | 3/5 | In Progress|  |
+| 15. Smarter Email Triage | 4/5 | In Progress|  |
 | 16. Cross-Agent Learning Infrastructure | 0/TBD | Not started | - |
 | 17. Proactive Standup Insights | 0/TBD | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
@@ -516,7 +516,7 @@ Plans:
 - [x] 15-02-PLAN.md — Create memory/noise-senders.md seeded with common noise patterns; create memory/processed-ids.jsonl empty guard file; create memory/drafts/ directory (TRIAGE-02, TRIAGE-04)
 
 **Wave 2** *(blocked on Wave 1 — memory files must exist before agent references them)*
-- [ ] 15-03-PLAN.md — Update AGENTS.md startup checklist with noise-senders load step and processed-ids guard step; update email-triage.sh with mark-read, JSONL append, and 500-entry trim (TRIAGE-02, TRIAGE-04)
+- [x] 15-03-PLAN.md — Update AGENTS.md startup checklist with noise-senders load step and processed-ids guard step; update email-triage.sh with mark-read, JSONL append, and 500-entry trim (TRIAGE-02, TRIAGE-04)
 - [x] 15-04-PLAN.md — Update TOOLS.md with drafts/ directory reference, processed-ids.jsonl format spec, trim command, and mark-read command reference (TRIAGE-03, TRIAGE-04)
 
 **Wave 3** *(blocked on Wave 2 — phase gate)*
