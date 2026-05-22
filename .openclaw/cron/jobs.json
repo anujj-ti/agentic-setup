@@ -94,6 +94,52 @@
       "delivery": {
         "mode": "silent"
       }
+    },
+    {
+      "id": "4dd05b3e-5a42-47a2-ab5c-48626ad7a7a6",
+      "agentId": "devbot",
+      "name": "DevBot Issue Monitor",
+      "enabled": true,
+      "createdAtMs": 1779439042964,
+      "schedule": {
+        "kind": "cron",
+        "expr": "*/5 * * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the autonomous issue monitor. Execute scripts/devbot-issue-monitor.sh anujj-ti/agentic-setup and report the result. If new issues were picked up, log the pickup count. If the script exits non-zero, report the error.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "silent"
+      }
+    },
+    {
+      "id": "0bccbd8c-9c0f-4bb1-a747-a4bc0dc5ed78",
+      "agentId": "devbot",
+      "name": "DevBot Stale Claim Guard",
+      "enabled": true,
+      "createdAtMs": 1779439042964,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 * * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the stale claim guard. Execute scripts/devbot-stale-claim-guard.sh anujj-ti/agentic-setup and report the result. If any stale claims were unclaimed, include the count in your response.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "timeoutSeconds": 60
+      },
+      "delivery": {
+        "mode": "silent"
+      }
     }
   ]
 }
