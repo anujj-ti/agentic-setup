@@ -543,10 +543,29 @@ Plans:
 
 ### Phase 19: DevBot Autonomous Issue Pickup — DevBot polls for automation:safe labeled issues every 5 minutes, self-assigns, branches, executes via Beads task graph, opens PR, auto-merges when CI passes, issue closes automatically
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** DevBot autonomously polls for automation:safe labeled issues every 5 minutes, claims them via self-assignment and branch creation, opens a draft PR, and enables auto-merge so the issue closes when CI passes — all without human trigger
+**Requirements**: DEV-07, DEV-08, DEV-09, DEV-10
 **Depends on:** Phase 18
-**Plans:** 0 plans
+**Plans:** 5 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 19 to break down)
+
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 19-01-PLAN.md — Create devbot-setup-labels.sh: idempotent gh label create --force for all 7 labels (D-211, D-212) (DEV-07, DEV-08)
+- [ ] 19-02-PLAN.md — Create devbot-issue-monitor.sh: poll + filter + claim + branch + draft PR + auto-merge loop (D-201 through D-210) (DEV-07, DEV-08, DEV-09)
+- [ ] 19-03-PLAN.md — Create devbot-stale-claim-guard.sh: hourly unclaim of issues idle >2h (D-205) (DEV-10)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 19-04-PLAN.md — Wire cron jobs into jobs.json (5-min monitor + 60-min guard); update DevBot SOUL.md and AGENTS.md with autonomous pickup section (DEV-07, DEV-08, DEV-09, DEV-10)
+
+**Wave 3** *(blocked on Wave 2 — phase gate)*
+- [ ] 19-05-PLAN.md — Create and run scripts/verify-phase-19.sh (10 checks covering DEV-07 through DEV-10) (DEV-07, DEV-08, DEV-09, DEV-10)
+
+**Cross-cutting constraints:**
+- All scripts: #!/usr/bin/env zsh + set -euo pipefail (CLAUDE.md mandate)
+- GH_TOKEN: Keychain only — security find-generic-password -s openclaw.github-bot-token (D-213)
+- gh binary: /opt/homebrew/bin/gh explicit path (established DevBot pattern)
+- Notion pre-log: required before any autonomous GitHub mutation (SOUL.md mandate)
+- automation:hold: kill switch — NEVER claim an issue that has this label (D-206)
+- PR body: MUST include "Resolves #N" for GitHub auto-close (D-210)
+- Stow deploy: scripts/stow-deploy.sh — canonical entry for openclaw.json / jobs.json changes
