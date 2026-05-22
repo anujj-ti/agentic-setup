@@ -5,3 +5,5 @@ docs/openclaw-backup/
 
 # gogcli credentials (never commit OAuth tokens — D-149)
 .config/gogcli
+cc-skills-sherlock/
+cc-openclaw/
