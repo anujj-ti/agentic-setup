@@ -117,13 +117,24 @@ epic: Fix: <bug title>
   T4: Open PR — blocks on T3
 ```
 
-### Investigation (3 subtasks)
+### Investigation (3 subtasks) — MUST use Sherlock for T1
 ```
 epic: Investigate: <question>
-  T1: Gather evidence — no deps
+  T1: Sherlock deep research — no deps
   T2: Analyze findings — blocks on T1
   T3: Document + decide — blocks on T2
 ```
+
+**MANDATORY for T1 (Research):** All investigation tasks MUST use Sherlock.
+Sherlock is installed at `~/.claude/skills/sherlock/` and runs inside Claude Code sessions.
+To invoke Sherlock from an exec task:
+```zsh
+/usr/local/bin/claude --dangerously-skip-permissions \
+  --print "/sherlock \"<your research question>\"" \
+  2>/dev/null > ~/.openclaw/workspace-task-orchestrator/sherlock-output.md
+```
+Or delegate via Telegram to Anuj: "Run `/sherlock <question>` in Claude Code and paste the result."
+The Sherlock report becomes the evidence for T1's close reason.
 
 ### When to use Gates
 - **Human gate**: Before any irreversible action (PR merge, email send). `$BD gate create --blocks $T5 --type human --reason "Anuj approval needed"`

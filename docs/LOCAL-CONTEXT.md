@@ -41,6 +41,17 @@ GH_TOKEN=$(security find-generic-password -s 'openclaw.github-bot-token' -a 'tri
 
 ---
 
+## Sherlock (deep research)
+
+Sherlock is installed at `~/.claude/skills/sherlock/` and is the mandatory research tool for all agents.
+
+| Context | How to invoke |
+|---------|--------------|
+| Claude Code (interactive) | `/sherlock "your question"` |
+| GSD researcher agents | Follow Sherlock conductor protocol in `~/.claude/skills/sherlock/conductor.md` |
+| OpenClaw task-orchestrator | `claude --dangerously-skip-permissions --print "/sherlock '<question>'"` |
+| Permissions | Set in `.claude/settings.local.json` — WebSearch, WebFetch, Bash(bd *) |
+
 ## Key file locations
 
 | File | Purpose |
