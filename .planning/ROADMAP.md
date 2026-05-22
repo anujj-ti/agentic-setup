@@ -443,7 +443,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Synapse Integration | 4/4 | Complete   | 2026-05-21 |
 | 14. gogcli Google Suite CLI | 4/5 | In Progress|  |
 | 15. Smarter Email Triage | 5/5 | Complete   | 2026-05-22 |
-| 16. Cross-Agent Learning Infrastructure | 0/TBD | Not started | - |
+| 16. Cross-Agent Learning Infrastructure | 0/6 | Not started | - |
 | 17. Proactive Standup Insights | 0/TBD | Not started | - |
 | 18. Decision Quality Risk Gate | 0/TBD | Not started | - |
 
@@ -539,7 +539,21 @@ Plans:
   2. DevBot's AGENTS.md shows a cross-silo query for CI Monitor learnings (`cross_silo: true`) before PR triage steps; email-triage AGENTS.md shows a cross-silo query for its own historical pattern learnings
   3. User inspects any learning record written by an execution-tier agent in Synapse and finds all four fields present: `claim`, `applies_to`, `confidence`, `evidence_artifact_id` — medium/high confidence entries each have a non-null `evidence_artifact_id`
   4. After any dream routine run for an execution-tier agent, `memory/MEMORY.md` for that agent contains a cross-silo learnings section and the file is within the 2,500-token daily budget
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+
+**Wave 1** *(parallel — no dependencies)*
+- [ ] 16-01-PLAN.md — Create synapse-query-learnings.sh: shared non-blocking Synapse learning query script used by all execution-tier agents (LEARN-01, LEARN-02)
+- [ ] 16-02-PLAN.md — Update ci-monitor AGENTS.md with Synapse query step; create ci-monitor DREAM-ROUTINE.md (LEARN-01, LEARN-04)
+
+**Wave 2** *(parallel — all blocked on Wave 1: 16-01 must exist)*
+- [ ] 16-03-PLAN.md — Update task-orchestrator AGENTS.md Step 1 to use synapse-query-learnings.sh; add cross-silo merge to DREAM-ROUTINE.md; add LEARN-03 schema reminder to TOOLS.md (LEARN-01, LEARN-03, LEARN-04)
+- [ ] 16-04-PLAN.md — Update devbot AGENTS.md with Synapse query (github + ci-monitor cross-silo); create devbot DREAM-ROUTINE.md (LEARN-01, LEARN-02, LEARN-04)
+- [ ] 16-05-PLAN.md — Update email-triage AGENTS.md with Synapse query for email-triage domain learnings (LEARN-01, LEARN-02)
+
+**Wave 3** *(blocked on all Wave 2 plans)*
+- [ ] 16-06-PLAN.md — Create and run scripts/verify-phase-16.sh: 10 structural checks covering LEARN-01 through LEARN-04 (LEARN-01, LEARN-02, LEARN-03, LEARN-04)
 
 ### Phase 17: Proactive Standup Insights
 **Goal**: The morning standup brief upgrades from a raw activity dump to a decision-support surface — every item is classified by status signal, a ranked tackle-first list cites specific evidence, and pattern alerts fire when multiple items share a signal type
