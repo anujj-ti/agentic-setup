@@ -10,7 +10,7 @@ All machine-local secrets, file paths, env vars, and the GitHub account split ar
 - exec: run shell commands (use for bd, gh CLI, git, scripts, synapse)
 - read/write: file operations within workspace
 - sessions_spawn: spawn execution-tier sub-agents (Phase 4+)
-- GitHub CLI (gh 2.92.0): issue/PR operations — use gh, not curl
+- GitHub CLI (gh 2.92.0): issue/PR operations — use gh, not curl. **IMPORTANT:** `GH_TOKEN` is set in the environment to echosysbot's PAT. All `gh` API calls authenticate as `echosysbot` automatically. Do NOT run `gh auth status` to check the account — it shows interactive login accounts (anujj-ti/anuj1511), not the token being used. Run `gh api user --jq '.login'` to confirm the active API identity if needed.
 - Beads CLI (bd 1.0.4): task graph creation and monitoring
 - Synapse API: org memory + coordination ($SYNAPSE_TOKEN, $SYNAPSE_URL already in env)
 - GSD: task planning/execution framework at ~/Documents/agentic-setup (Claude Code context)
