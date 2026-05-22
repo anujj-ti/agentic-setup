@@ -29,10 +29,26 @@ if ! printf '%s' "$RAW_INPUT" | $JQ -e '.' >/dev/null 2>&1; then
   json_fail "invalid-json" "Could not parse standup JSON from stdin"
 fi
 
+# WR-01: check ok:true before processing — degraded if standup-brief.sh failed
+STANDUP_OK=$(printf '%s' "$RAW_INPUT" | $JQ -r '.ok // false' 2>/dev/null || echo "false")
+if [[ "$STANDUP_OK" != "true" ]]; then
+  print "standup-insights: upstream standup-brief returned ok:false — emitting empty insights" >&2
+  json_ok '{"classified_items":[],"tackle_first":[],"patterns":[],"standup_ok":false}'
+  exit 0
+fi
+
+# CR-02 fix: add || json_fail guard to all three extractions
 CI_FAILURES=$(printf '%s' "$RAW_INPUT" | $JQ '.data.ci_failures // []') || \
-  json_fail "invalid-json" "Could not parse standup JSON from stdin"
-STALE_PRS=$(printf '%s' "$RAW_INPUT" | $JQ '.data.stale_prs // []')
-MERGED_PRS=$(printf '%s' "$RAW_INPUT" | $JQ '.data.merged_prs // []')
+  json_fail "invalid-json" "Could not parse ci_failures from standup JSON"
+STALE_PRS=$(printf '%s' "$RAW_INPUT" | $JQ '.data.stale_prs // []') || \
+  json_fail "invalid-json" "Could not parse stale_prs from standup JSON"
+MERGED_PRS=$(printf '%s' "$RAW_INPUT" | $JQ '.data.merged_prs // []') || \
+  json_fail "invalid-json" "Could not parse merged_prs from standup JSON"
+
+# WR-03: cap arrays to protect against pathological upstream output
+CI_FAILURES=$(printf '%s' "$CI_FAILURES" | $JQ '.[0:20]')
+STALE_PRS=$(printf '%s' "$STALE_PRS" | $JQ '.[0:30]')
+MERGED_PRS=$(printf '%s' "$MERGED_PRS" | $JQ '.[0:30]')
 
 # --- Time computations (BSD date — macOS) ---
 NOW_EPOCH=$(date +%s)
@@ -47,9 +63,11 @@ print "Classifying standup items..." >&2
 # Uses TZ=UTC to ensure UTC timestamps are parsed correctly regardless of machine locale
 iso_to_epoch() {
   local ts="$1"
-  # Strip fractional seconds and trailing Z for BSD date parsing
+  # Normalize: strip fractional seconds, strip Z or +00:00 suffix
   local clean="${ts%%.*}"
   clean="${clean%Z}"
+  clean="${clean%+00:00}"
+  clean="${clean%-00:00}"
   # BSD date: -j -f format input. TZ=UTC required — GitHub timestamps are UTC
   TZ=UTC date -j -f '%Y-%m-%dT%H:%M:%S' "${clean}" '+%s' 2>/dev/null || echo "0"
 }
