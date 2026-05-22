@@ -14,6 +14,10 @@ Execute this checklist at the start of every DevBot session, in order:
    `/opt/homebrew/bin/gh auth status 2>&1 | grep project`
    - If project scope missing: note the gap and proceed — issue creation still works; board assignment is skipped
 5. Emit status: `STARTED — DevBot session initialized for repo <OWNER/REPO>`
+6. Check for pending issue pickup queue:
+   `ls /Users/trilogy/.openclaw/agents/devbot/state/pickup-queue.txt 2>/dev/null && cat /Users/trilogy/.openclaw/agents/devbot/state/pickup-queue.txt`
+   If pickup-queue.txt is non-empty: the cron-spawned session should process each queued issue number via the Beads execution cycle (devbot-execute-cycle.sh). After processing, clear the queue:
+   `> /Users/trilogy/.openclaw/agents/devbot/state/pickup-queue.txt`
 
 ## Workspace Hygiene
 

@@ -128,3 +128,48 @@ When the Task Orchestrator spawns DevBot with "intake issue #N from OWNER/REPO":
 - **NEVER skip the bd ready check** — always verify a task is in the ready list before claiming.
 - **Close reasons must be factual evidence strings:** "Created PR #47 at https://github.com/..." not "I completed the task."
 - **No narrative commentary** — return the bd command output verbatim plus a one-line summary.
+
+---
+
+## Autonomous Issue Pickup (DEV-07, DEV-08, DEV-09)
+
+DevBot now runs autonomously every 5 minutes via cron. This section documents the pickup loop.
+
+### Loop Overview
+
+1. **Poll** — `devbot-issue-monitor.sh` runs every 5 min; lists open issues labeled `automation:safe` with no assignee.
+2. **Filter** — Issues with `automation:hold` are skipped (kill switch per D-206).
+3. **Dedup** — Issues older than `state/last-issue-timestamp` are skipped (D-202).
+4. **Notion pre-log** — Log the pickup decision to Notion BEFORE any GitHub mutation (SOUL.md mandate).
+5. **Claim** — `gh issue edit N --add-assignee echosysbot --add-label status:in-progress` (D-204).
+6. **Branch** — `gh issue develop N --checkout` creates and checks out the linked branch (D-207).
+7. **Draft PR** — `gh pr create --fill --body "Resolves #N" --draft` opens the PR (D-208, D-210).
+8. **Auto-merge** — `gh pr merge --auto --squash --delete-branch` enables auto-merge when CI passes (D-209).
+9. **Stale guard** — Hourly cron unassigns issues idle >2h (D-205).
+
+### CRITICAL RULES for Autonomous Pickup
+
+- **ALWAYS check for automation:hold** before claiming — this is the user's kill switch.
+- **NEVER bypass the Notion pre-log** — the pickup decision must exist in Notion before the claim call.
+- **NEVER manually process issues** that are already assigned (`--assignee @none` filter enforces this).
+- **PR body MUST include "Resolves #N"** for GitHub to auto-close the issue when the PR merges (D-210).
+- If any step fails: log the failure to stderr, do NOT unassign — the stale guard will recover in ≤2h.
+
+### State Files
+
+| File | Purpose |
+|------|---------|
+| `state/last-issue-timestamp` | Last processed issue timestamp — prevents reprocessing (D-202) |
+| `state/pending-issues/N.json` | Issue JSON snapshot written at pickup time |
+| `state/pickup-queue.txt` | Issue numbers queued for Beads execution cycle |
+| `logs/issue-monitor-YYYY-MM-DD.log` | Daily stderr log from issue monitor |
+
+### Label State Machine
+
+| Label | Meaning | Set By |
+|-------|---------|--------|
+| `automation:safe` | Eligible for autonomous pickup | Human |
+| `automation:hold` | Kill switch — blocks pickup | Human |
+| `status:in-progress` | DevBot has claimed this issue | DevBot (devbot-issue-monitor.sh) |
+| `e1/e2/e3` | Effort estimate | Human |
+| `agent:echosysbot` | Optional — for filtering bot-touched issues | DevBot (optional) |
