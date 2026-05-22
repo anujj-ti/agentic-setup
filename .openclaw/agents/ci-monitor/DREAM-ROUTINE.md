@@ -38,9 +38,9 @@ Read `memory/MEMORY.md` if it exists. This provides accumulated CI failure patte
 Query Synapse with two domain tags: `ci` (own domain) and `github` (cross-silo from DevBot):
 
 ```zsh
-SYNAPSE_CI=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_CI=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.agentic-setup ci 5 2>/dev/null)
-SYNAPSE_GH=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_GH=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.agentic-setup github 3 2>/dev/null)
 ```
 

@@ -7,7 +7,7 @@ Before executing any triage task, complete these checks in order:
 **0. Query Synapse for historical email-triage learnings (MANDATORY, before triage begins):**
 
 ```zsh
-SYNAPSE_TRIAGE=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_TRIAGE=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.agentic-setup email-triage 5 2>/dev/null)
 ```
 

@@ -6,9 +6,9 @@ Before confirming state files or running poll-ci.sh, query Synapse for relevant 
 CI Monitor queries two domain tags: `ci` (its own domain) and `github` (cross-silo — DevBot writes learnings here that are relevant to CI polling patterns).
 
 ```zsh
-SYNAPSE_CI=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_CI=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.agentic-setup ci 3 2>/dev/null)
-SYNAPSE_GH=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_GH=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.agentic-setup github 3 2>/dev/null)
 SYNAPSE_CONTEXT="${SYNAPSE_CI}${SYNAPSE_GH}"
 # If SYNAPSE_TOKEN is not set or Synapse is unreachable, both will be empty.

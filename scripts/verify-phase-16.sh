@@ -19,8 +19,8 @@ EMAIL_AGENTS="${REPO_DIR}/.openclaw/agents/email-triage/AGENTS.md"
 CI_DREAM="${REPO_DIR}/.openclaw/agents/ci-monitor/DREAM-ROUTINE.md"
 DEVBOT_DREAM="${REPO_DIR}/.openclaw/agents/devbot/DREAM-ROUTINE.md"
 
-pass() { print "CHECK $1 ($2): PASS"; PASS=$(( PASS + 1 )) }
-fail() { print "CHECK $1 ($2): FAIL — $3"; FAIL=$(( FAIL + 1 )) }
+pass() { print "CHECK $1 ($2): PASS" >&2; PASS=$(( PASS + 1 )) }
+fail() { print "CHECK $1 ($2): FAIL — $3" >&2; FAIL=$(( FAIL + 1 )) }
 
 # CHECK 1 — synapse-query-learnings.sh exists and is executable (LEARN-01 shared script)
 if [[ -x "$QUERY_SH" ]]; then

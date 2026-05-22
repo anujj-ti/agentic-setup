@@ -10,9 +10,9 @@ Nightly cron at 23:15 Asia/Kolkata. Staggered after task-orchestrator (23:05) an
 2. Scan `memory/` for any daily activity logs written during today's sessions (if any).
 3. Query Synapse for cross-silo learnings:
    ```zsh
-   SYNAPSE_GH=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+   SYNAPSE_GH=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
      project.agentic-setup github 5 2>/dev/null)
-   SYNAPSE_CI=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+   SYNAPSE_CI=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
      project.agentic-setup ci-monitor 5 2>/dev/null)
    ```
 4. Distill into `memory/YYYY-MM-DD-DISTILLED.md` (max 2,500 tokens). If no activity today: write a one-line entry noting no activity and exit.

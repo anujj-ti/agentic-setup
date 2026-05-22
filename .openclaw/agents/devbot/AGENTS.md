@@ -6,11 +6,11 @@ Before reading SOUL.md or any other context, query Synapse for domain learnings.
 
 ```zsh
 # Own domain learnings
-SYNAPSE_GH=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_GH=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.agentic-setup github 5 2>/dev/null)
 
 # Cross-silo: CI Monitor failure patterns (informs PR triage — LEARN-02)
-SYNAPSE_CI=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_CI=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.agentic-setup ci-monitor 3 2>/dev/null)
 ```
 

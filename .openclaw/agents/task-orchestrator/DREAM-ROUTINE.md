@@ -11,7 +11,7 @@ Nightly cron at 23:05 Asia/Kolkata. (Five minutes after User Orchestrator to pre
 3. Distill today's activity into `memory/YYYY-MM-DD-DISTILLED.md` (max 2,500 tokens). NEVER generate a distillation longer than 2,500 tokens. If you find yourself about to exceed this limit, truncate and stop.
 3.5. Merge top cross-silo Synapse learnings into MEMORY.md:
    ```zsh
-   SYNAPSE_NEW=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+   SYNAPSE_NEW=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
      project.edullm-sat-math agent-orchestration 5 2>/dev/null)
    ```
    - Append a `## Cross-Silo Learnings (updated: YYYY-MM-DD)` section to MEMORY.md if SYNAPSE_NEW is non-empty.

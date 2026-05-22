@@ -25,9 +25,9 @@ Every task follows this exact sequence. Do not skip steps.
 
 ```zsh
 # Query domain learnings — domain: agent-orchestration (primary), openclaw (cross-silo)
-SYNAPSE_CONTEXT_ORCH=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_CONTEXT_ORCH=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.edullm-sat-math agent-orchestration 5 2>/dev/null)
-SYNAPSE_CONTEXT_OC=$(bash ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
+SYNAPSE_CONTEXT_OC=$(zsh ~/Documents/agentic-setup/scripts/synapse-query-learnings.sh \
   project.edullm-sat-math openclaw 3 2>/dev/null)
 # Combine for session context:
 # $SYNAPSE_CONTEXT_ORCH — agent-orchestration domain learnings (5 most recent)
@@ -141,7 +141,7 @@ Upload a brief text artifact summarizing what happened, then record learnings:
 ```zsh
 # Upload artifact
 SUMMARY="Task: <title>\nResult: <what was built/done>\nDeviations: <any>"
-SUMMARY_B64=$(python3 -c "import base64; print(base64.b64encode(b'$SUMMARY').decode())")
+ SUMMARY_B64=$(printf '%s' "$SUMMARY" | python3 -c "import sys,base64; print(base64.b64encode(sys.stdin.buffer.read()).decode())")
 
 ART=$(/usr/bin/curl -s -X POST "$SYNAPSE_URL/v1/intent/synapse.artifact.upload" \
   -H "Authorization: Bearer $SYNAPSE_TOKEN" \
