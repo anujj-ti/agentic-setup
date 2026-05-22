@@ -24,6 +24,10 @@ All machine-local secrets, file paths, env vars, and the GitHub account split ar
 - Binary: `/opt/homebrew/bin/openclaw`
 - Node: `/opt/homebrew/opt/node@24/bin/node`
 
+## GitHub Identity Note
+
+`gh auth status` shows `anujj-ti` and `anuj1511` — these are Anuj's personal accounts used for interactive Claude Code sessions. **This is correct and expected.** OpenClaw agents use `GH_TOKEN` (echosysbot's PAT, injected via `openclaw-secrets.sh`) for all API calls. To confirm the API identity in use, run `gh api user --jq '.login'` — it will return `echosysbot`.
+
 ## Standup Script Invocation
 
 How to call `standup-brief.sh` from an isolated cron session (the morning standup cron calls this):
